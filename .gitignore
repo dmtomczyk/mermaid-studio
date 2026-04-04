@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+media/vendor/
+
+# VS Code extension test host
+.vscode-test/
+
+# Packaged extension artifacts
+*.vsix
+
+# Coverage / test artifacts
+coverage/
+.nyc_output/
+*.log
+
+# Local generated artifacts
+.artifacts/
+dist-harness/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Local scratch / manual debug files
+/export-test/
+/tmp-export-inspect.html
+/test.mmd
+/test.md
+/test-mmd.mmd
+
+# Legacy local webview artifact no longer used (bundled webview lives in dist/)
+/media/builder.js

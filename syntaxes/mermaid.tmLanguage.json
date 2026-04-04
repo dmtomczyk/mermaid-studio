@@ -1,0 +1,161 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Mermaid",
+  "scopeName": "source.mermaid",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#rootKeywords" },
+    { "include": "#participants" },
+    { "include": "#architectureDeclarations" },
+    { "include": "#gitGraphCommands" },
+    { "include": "#declarationKeywords" },
+    { "include": "#mindmapBareLabels" },
+    { "include": "#nodeIds" },
+    { "include": "#edgeLabels" },
+    { "include": "#messageLabels" },
+    { "include": "#strings" },
+    { "include": "#relationships" },
+    { "include": "#arrows" },
+    { "include": "#brackets" },
+    { "include": "#numbers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-percent.mermaid",
+          "match": "%%.*$"
+        }
+      ]
+    },
+    "rootKeywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.mermaid",
+          "match": "\\b(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram-v2|erDiagram|gantt|mindmap|gitGraph|architecture-beta)\\b"
+        }
+      ]
+    },
+    "declarationKeywords": {
+      "patterns": [
+        {
+          "name": "entity.name.function.structure.mermaid",
+          "match": "\\b(subgraph|end|direction|activate|deactivate|note|loop|alt|opt|par|critical|break|rect|else|and|title|section|dateFormat|axisFormat|todayMarker|excludes|includes|click|linkStyle|style|classDef|class|state|choice|fork|join|namespace|accTitle|accDescr)\\b"
+        }
+      ]
+    },
+    "participants": {
+      "patterns": [
+        {
+          "match": "\\b(participant)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b(?:\\s+(as)\\s+([^\\n]+))?",
+          "captures": {
+            "1": { "name": "entity.name.function.structure.mermaid" },
+            "2": { "name": "entity.name.type.mermaid" },
+            "3": { "name": "keyword.operator.word.mermaid" },
+            "4": { "name": "entity.name.label.mermaid" }
+          }
+        }
+      ]
+    },
+    "architectureDeclarations": {
+      "patterns": [
+        {
+          "match": "\\b(group|service)\\s+([A-Za-z_][A-Za-z0-9_-]*)\\b",
+          "captures": {
+            "1": { "name": "entity.name.function.structure.mermaid" },
+            "2": { "name": "entity.name.type.mermaid" }
+          }
+        }
+      ]
+    },
+    "gitGraphCommands": {
+      "patterns": [
+        {
+          "match": "\\b(commit|branch|checkout|merge|cherry-pick)\\b",
+          "captures": {
+            "1": { "name": "entity.name.function.structure.mermaid" }
+          }
+        }
+      ]
+    },
+    "mindmapBareLabels": {
+      "patterns": [
+        {
+          "match": "^(\\s{2,})(?!.*(?:-->|-\\.->|==>|->>|-->>|<\\|--|--\\|>|\\|o--|--o\\||\\|\\|--o\\{|}o--\\|\\||o\\{--o\\{|o\\|--\\|\\||:|\\[|\\]|\\{|\\}|\\(|\\))).*?([A-Za-z][A-Za-z0-9 _-]*)\\s*$",
+          "captures": {
+            "2": { "name": "entity.name.function.structure.mermaid" }
+          }
+        }
+      ]
+    },
+    "nodeIds": {
+      "patterns": [
+        {
+          "name": "variable.other.node.mermaid",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b(?=\\s*[\\[\\(\\{])"
+        },
+        {
+          "name": "variable.other.node.mermaid",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b(?=\\s*(?:-\\.->|-->|==>|->>|-->>|---|--|<\\|--|\\|o--|\\|\\|--o\\{|\\|\\|--\\|\\|))"
+        }
+      ]
+    },
+    "edgeLabels": {
+      "patterns": [
+        {
+          "name": "string.other.edge-label.mermaid",
+          "match": "(?<=\\|)[^|\\n]+(?=\\|)"
+        }
+      ]
+    },
+    "messageLabels": {
+      "patterns": [
+        {
+          "name": "string.unquoted.message-label.mermaid",
+          "match": "(?<=:)\\s*[^%\\n]+$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.mermaid",
+          "begin": "\"",
+          "end": "\""
+        }
+      ]
+    },
+    "relationships": {
+      "patterns": [
+        {
+          "name": "keyword.operator.relationship.mermaid",
+          "match": "(<\\|--|--\\|>|\\|o--|--o\\||\\|\\|--o\\{|}o--\\|\\||\\|\\|--\\|\\||o\\{--o\\{|o\\|--\\|\\|)"
+        }
+      ]
+    },
+    "arrows": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arrow.mermaid",
+          "match": "(-\\.->|-->|==>|->>|-->>|---|--)"
+        }
+      ]
+    },
+    "brackets": {
+      "patterns": [
+        {
+          "name": "punctuation.definition.group.mermaid",
+          "match": "[\\[\\]\\(\\)\\{\\}]"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.mermaid",
+          "match": "\\b\\d+(?:\\.\\d+)?\\b"
+        }
+      ]
+    }
+  }
+}

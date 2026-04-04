@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mermaid Studio Harness — Mermaid Validation</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #111827;
+        --panel: #1f2937;
+        --border: #374151;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --ok: #34d399;
+        --fail: #f87171;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .summary, .case {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .summary-line {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .ok { color: var(--ok); }
+      .fail { color: var(--fail); }
+      .muted { color: var(--muted); }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: #0b1220;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .render {
+        background: white;
+        color: black;
+        border-radius: 8px;
+        padding: 12px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Mermaid Studio Harness — Mermaid Validation</h1>
+      <div id="summary" class="summary">
+        <div class="summary-line">
+          <strong>Status:</strong>
+          <span id="statusText" class="muted">Running…</span>
+        </div>
+      </div>
+      <div id="cases"></div>
+    </main>
+    <script src="./main.js"></script>
+  </body>
+</html>

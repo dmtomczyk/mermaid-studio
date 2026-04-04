@@ -1,0 +1,263 @@
+{
+  "Flowchart TD": {
+    "prefix": "mflowtd",
+    "body": [
+      "flowchart TD",
+      "    A[Start] --> B[End]"
+    ],
+    "description": "Mermaid flowchart TD"
+  },
+  "Flowchart LR": {
+    "prefix": "mflowlr",
+    "body": [
+      "flowchart LR",
+      "    A[Start] --> B[End]"
+    ],
+    "description": "Mermaid flowchart LR"
+  },
+  "Sequence Diagram": {
+    "prefix": "msequence",
+    "body": [
+      "sequenceDiagram",
+      "    participant User",
+      "    participant App",
+      "    User->>App: request",
+      "    App-->>User: response"
+    ],
+    "description": "Mermaid sequence diagram"
+  },
+  "Class Diagram": {
+    "prefix": "mclass",
+    "body": [
+      "classDiagram",
+      "    class Animal",
+      "    class Dog",
+      "    Animal <|-- Dog"
+    ],
+    "description": "Mermaid class diagram"
+  },
+  "State Diagram": {
+    "prefix": "mstate",
+    "body": [
+      "stateDiagram-v2",
+      "    [*] --> Idle",
+      "    Idle --> Running: start",
+      "    Running --> [*]: stop"
+    ],
+    "description": "Mermaid state diagram"
+  },
+  "ER Diagram": {
+    "prefix": "mer",
+    "body": [
+      "erDiagram",
+      "    CUSTOMER ||--o{ ORDER : places",
+      "    CUSTOMER {",
+      "        string id",
+      "        string name",
+      "    }",
+      "    ORDER {",
+      "        string id",
+      "        date createdAt",
+      "    }"
+    ],
+    "description": "Mermaid ER diagram"
+  },
+  "Gantt": {
+    "prefix": "mgantt",
+    "body": [
+      "gantt",
+      "    title Sample Schedule",
+      "    dateFormat YYYY-MM-DD",
+      "    section Build",
+      "    MVP :done, a1, 2026-04-01, 2d",
+      "    Testing :active, a2, 2026-04-03, 2d"
+    ],
+    "description": "Mermaid gantt chart"
+  },
+  "Mindmap": {
+    "prefix": "mmindmap",
+    "body": [
+      "mindmap",
+      "  root((Idea))",
+      "    Branch"
+    ],
+    "description": "Mermaid mindmap"
+  },
+  "Git Graph": {
+    "prefix": "mgitgraph",
+    "body": [
+      "gitGraph",
+      "    commit id:\"Init\"",
+      "    branch feature",
+      "    checkout feature",
+      "    commit id:\"Feature\"",
+      "    checkout main",
+      "    merge feature"
+    ],
+    "description": "Mermaid git graph"
+  },
+  "Architecture": {
+    "prefix": "march",
+    "body": [
+      "architecture-beta",
+      "    group app(cloud)[Application]",
+      "    service api(server)[API] in app",
+      "    service db(database)[Database] in app",
+      "    api:R --> L:db"
+    ],
+    "description": "Mermaid architecture diagram"
+  },
+  "Rectangle Node": {
+    "prefix": "mnode",
+    "body": [
+      "A[Label]"
+    ],
+    "description": "Flowchart rectangle node"
+  },
+  "Circle Node": {
+    "prefix": "mcircle",
+    "body": [
+      "A((Circle))"
+    ],
+    "description": "Flowchart circle node"
+  },
+  "Arrow": {
+    "prefix": "medge",
+    "body": [
+      "A --> B"
+    ],
+    "description": "Flowchart solid edge"
+  },
+  "Labeled Arrow": {
+    "prefix": "medgelabel",
+    "body": [
+      "A -->|text| B"
+    ],
+    "description": "Flowchart labeled edge"
+  },
+  "Subgraph": {
+    "prefix": "msubgraph",
+    "body": [
+      "subgraph Group",
+      "    A --> B",
+      "end"
+    ],
+    "description": "Flowchart subgraph block"
+  },
+  "Sequence Participant": {
+    "prefix": "mparticipant",
+    "body": [
+      "participant User"
+    ],
+    "description": "Sequence participant"
+  },
+  "Sequence Message": {
+    "prefix": "mmessage",
+    "body": [
+      "User->>App: login"
+    ],
+    "description": "Sequence message"
+  },
+  "Sequence Alt Block": {
+    "prefix": "malt",
+    "body": [
+      "alt success",
+      "    API-->>User: ok",
+      "else failure",
+      "    API-->>User: error",
+      "end"
+    ],
+    "description": "Sequence alt/else block"
+  },
+  "Class Inheritance": {
+    "prefix": "mclassinherit",
+    "body": [
+      "Animal <|-- Dog"
+    ],
+    "description": "Class inheritance relation"
+  },
+  "State Transition": {
+    "prefix": "mstatetransition",
+    "body": [
+      "Idle --> Running: start"
+    ],
+    "description": "State transition"
+  },
+  "ER Relationship": {
+    "prefix": "merrel",
+    "body": [
+      "CUSTOMER ||--o{ ORDER : places"
+    ],
+    "description": "ER relationship line"
+  },
+  "Gantt Title": {
+    "prefix": "mgantttitle",
+    "body": [
+      "title Project Plan"
+    ],
+    "description": "Gantt title directive"
+  },
+  "Gantt dateFormat": {
+    "prefix": "mganttdate",
+    "body": [
+      "dateFormat YYYY-MM-DD"
+    ],
+    "description": "Gantt date format directive"
+  },
+  "Gantt Section": {
+    "prefix": "mganttsection",
+    "body": [
+      "section Build"
+    ],
+    "description": "Gantt section"
+  },
+  "Gantt Task Row": {
+    "prefix": "mgantttask",
+    "body": [
+      "Task :active, t1, 2026-04-03, 3d"
+    ],
+    "description": "Gantt task row"
+  },
+  "GitGraph Commit": {
+    "prefix": "mgitcommit",
+    "body": [
+      "commit id:\"Init\""
+    ],
+    "description": "gitGraph commit"
+  },
+  "GitGraph Branch": {
+    "prefix": "mgitbranch",
+    "body": [
+      "branch feature"
+    ],
+    "description": "gitGraph branch"
+  },
+  "GitGraph Checkout": {
+    "prefix": "mgitcheckout",
+    "body": [
+      "checkout feature"
+    ],
+    "description": "gitGraph checkout"
+  },
+  "GitGraph Merge": {
+    "prefix": "mgitmerge",
+    "body": [
+      "merge feature"
+    ],
+    "description": "gitGraph merge"
+  },
+  "Architecture Group": {
+    "prefix": "marchgroup",
+    "body": [
+      "group app(cloud)[Application]"
+    ],
+    "description": "Architecture diagram group"
+  },
+  "Architecture Service": {
+    "prefix": "marchservice",
+    "body": [
+      "service api(server)[API] in app"
+    ],
+    "description": "Architecture diagram service"
+  }
+}

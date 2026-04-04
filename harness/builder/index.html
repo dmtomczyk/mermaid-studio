@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mermaid Studio Harness — Builder Review</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="page-header">
+        <div>
+          <h1>Mermaid Studio Harness — Builder Review</h1>
+          <p class="muted">Standalone browser review for Builder layout and Mermaid preview behavior.</p>
+        </div>
+        <div class="toolbar-row">
+          <label>
+            State
+            <select id="stateSelect"></select>
+          </label>
+          <label>
+            Width
+            <select id="viewportSelect"></select>
+          </label>
+        </div>
+      </header>
+
+      <main id="builderViewport" class="builder-viewport">
+        <section class="summary-card">
+          <div>
+            <strong id="stateTitle">Loading…</strong>
+            <div id="stateDescription" class="muted"></div>
+          </div>
+          <div class="summary-meta muted" id="viewportLabel"></div>
+        </section>
+
+        <section class="status-card section">
+          <div class="section-header">
+            <h2>Editor context</h2>
+            <span class="muted" id="editorSummary"></span>
+          </div>
+          <div class="muted" id="editorDetail"></div>
+          <div id="importStatus" class="meta-line"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Builder controls</h2>
+            <span class="muted" id="builderModeBadge"></span>
+          </div>
+          <div class="grid-2 compact-panel-grid compact-panel-grid-2">
+            <label>
+              Diagram type
+              <input id="diagramType" readonly />
+            </label>
+            <label>
+              Direction
+              <input id="direction" readonly />
+            </label>
+          </div>
+        </section>
+
+        <section class="section" id="flowSection">
+          <div class="section-header">
+            <h2>Flowchart quick add</h2>
+            <span class="muted" id="flowCounts"></span>
+          </div>
+          <div class="grid-3 compact-panel-grid compact-panel-grid-3">
+            <label>
+              Label
+              <input id="quickNodeLabel" readonly />
+            </label>
+            <label>
+              Node ID
+              <input id="quickNodeId" readonly />
+            </label>
+            <label>
+              Shape
+              <input id="quickNodeShape" readonly />
+            </label>
+          </div>
+          <div class="grid-2 compact-panel-grid compact-panel-grid-2">
+            <label>
+              From
+              <input id="quickEdgeFrom" readonly />
+            </label>
+            <label>
+              To
+              <input id="quickEdgeTo" readonly />
+            </label>
+          </div>
+          <div class="grid-2 compact-panel-grid compact-panel-grid-2">
+            <label>
+              Edge style
+              <input id="quickEdgeStyle" readonly />
+            </label>
+            <label>
+              Label
+              <input id="quickEdgeLabel" readonly />
+            </label>
+          </div>
+          <div id="flowNodes" class="card-list"></div>
+          <div id="flowEdges" class="card-list"></div>
+        </section>
+
+        <section class="section" id="sequenceSection">
+          <div class="section-header">
+            <h2>Sequence quick add</h2>
+            <span class="muted" id="sequenceCounts"></span>
+          </div>
+          <div class="grid-2 compact-panel-grid compact-panel-grid-2">
+            <label>
+              Label
+              <input id="quickParticipantLabel" readonly />
+            </label>
+            <label>
+              Participant ID
+              <input id="quickParticipantId" readonly />
+            </label>
+          </div>
+          <div class="grid-2 compact-panel-grid compact-panel-grid-2">
+            <label>
+              From
+              <input id="quickMessageFrom" readonly />
+            </label>
+            <label>
+              To
+              <input id="quickMessageTo" readonly />
+            </label>
+          </div>
+          <div class="grid-2 compact-panel-grid compact-panel-grid-2">
+            <label>
+              Message style
+              <input id="quickMessageStyle" readonly />
+            </label>
+            <label>
+              Label
+              <input id="quickMessageLabel" readonly />
+            </label>
+          </div>
+          <div id="participants" class="card-list"></div>
+          <div id="messages" class="card-list"></div>
+        </section>
+
+        <section class="section" id="flowCanvasSection">
+          <div class="section-header">
+            <h2>Mini canvas / overview</h2>
+            <span class="muted">Browser harness rendering</span>
+          </div>
+          <div id="flowCanvas" class="canvas"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Generated Mermaid</h2>
+            <span id="previewStatus" class="muted">Waiting…</span>
+          </div>
+          <textarea id="source" readonly></textarea>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Live preview</h2>
+            <span class="muted">Local Mermaid render</span>
+          </div>
+          <div id="preview" class="preview"><span class="muted">Waiting…</span></div>
+        </section>
+      </main>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>

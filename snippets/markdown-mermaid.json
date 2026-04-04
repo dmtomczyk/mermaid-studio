@@ -1,0 +1,129 @@
+{
+  "Mermaid Flowchart TD Block": {
+    "prefix": "mmdflowtd",
+    "body": [
+      "```mermaid",
+      "flowchart TD",
+      "    A[Start] --> B[End]",
+      "```"
+    ],
+    "description": "Insert a Mermaid flowchart block in Markdown"
+  },
+  "Mermaid Flowchart LR Block": {
+    "prefix": "mmdflowlr",
+    "body": [
+      "```mermaid",
+      "flowchart LR",
+      "    A[Start] --> B[End]",
+      "```"
+    ],
+    "description": "Insert a Mermaid LR flowchart block in Markdown"
+  },
+  "Mermaid Sequence Block": {
+    "prefix": "mmdsequence",
+    "body": [
+      "```mermaid",
+      "sequenceDiagram",
+      "    participant User",
+      "    participant App",
+      "    User->>App: request",
+      "    App-->>User: response",
+      "```"
+    ],
+    "description": "Insert a Mermaid sequence block in Markdown"
+  },
+  "Mermaid Class Block": {
+    "prefix": "mmdclass",
+    "body": [
+      "```mermaid",
+      "classDiagram",
+      "    class Animal",
+      "    class Dog",
+      "    Animal <|-- Dog",
+      "```"
+    ],
+    "description": "Insert a Mermaid class diagram block in Markdown"
+  },
+  "Mermaid State Block": {
+    "prefix": "mmdstate",
+    "body": [
+      "```mermaid",
+      "stateDiagram-v2",
+      "    [*] --> Idle",
+      "    Idle --> Running: start",
+      "    Running --> [*]: stop",
+      "```"
+    ],
+    "description": "Insert a Mermaid state diagram block in Markdown"
+  },
+  "Mermaid ER Block": {
+    "prefix": "mmder",
+    "body": [
+      "```mermaid",
+      "erDiagram",
+      "    CUSTOMER ||--o{ ORDER : places",
+      "    CUSTOMER {",
+      "        string id",
+      "        string name",
+      "    }",
+      "    ORDER {",
+      "        string id",
+      "        date createdAt",
+      "    }",
+      "```"
+    ],
+    "description": "Insert a Mermaid ER diagram block in Markdown"
+  },
+  "Mermaid Gantt Block": {
+    "prefix": "mmdgantt",
+    "body": [
+      "```mermaid",
+      "gantt",
+      "    title Project Plan",
+      "    dateFormat YYYY-MM-DD",
+      "    section Build",
+      "    MVP :active, t1, 2026-04-03, 3d",
+      "```"
+    ],
+    "description": "Insert a Mermaid gantt block in Markdown"
+  },
+  "Mermaid Mindmap Block": {
+    "prefix": "mmdmindmap",
+    "body": [
+      "```mermaid",
+      "mindmap",
+      "  root((Idea))",
+      "    Branch",
+      "```"
+    ],
+    "description": "Insert a Mermaid mindmap block in Markdown"
+  },
+  "Mermaid GitGraph Block": {
+    "prefix": "mmdgitgraph",
+    "body": [
+      "```mermaid",
+      "gitGraph",
+      "    commit id:\"Init\"",
+      "    branch feature",
+      "    checkout feature",
+      "    commit id:\"Feature\"",
+      "    checkout main",
+      "    merge feature",
+      "```"
+    ],
+    "description": "Insert a Mermaid gitGraph block in Markdown"
+  },
+  "Mermaid Architecture Block": {
+    "prefix": "mmdarch",
+    "body": [
+      "```mermaid",
+      "architecture-beta",
+      "    group app(cloud)[Application]",
+      "    service api(server)[API] in app",
+      "    service db(database)[Database] in app",
+      "    api:R --> L:db",
+      "```"
+    ],
+    "description": "Insert a Mermaid architecture block in Markdown"
+  }
+}

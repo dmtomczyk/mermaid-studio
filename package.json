@@ -1,0 +1,249 @@
+{
+  "name": "mermaid-studio",
+  "displayName": "Mermaid Studio",
+  "description": "A full Mermaid authoring toolkit for VS Code, with live preview, smart snippets, Markdown support, export, docs, and a visual builder.",
+  "icon": "media/mermaid-studio.png",
+  "version": "0.1.0",
+  "author": "Daymian Tomczyk",
+  "publisher": "daymian",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dmtomczyk/mermaid-studio"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Visualization",
+    "Other"
+  ],
+  "markdown": "standard",
+  "keywords": [
+    "mermaid",
+    "markdown",
+    "diagrams",
+    "flowchart",
+    "sequence diagram",
+    "mindmap",
+    "gantt",
+    "svg export",
+    "visual builder",
+    "vscode"
+  ],
+  "activationEvents": [
+    "onLanguage:mermaid",
+    "onLanguage:mermaidjs",
+    "onLanguage:markdown",
+    "onCommand:mermaidstudio.newDiagram",
+    "onCommand:mermaidstudio.openPreview",
+    "onCommand:mermaidstudio.previewMarkdownBlock",
+    "onCommand:mermaidstudio.openBuilder",
+    "onCommand:mermaidstudio.convertFastInput",
+    "onCommand:mermaidstudio.insertSnippet",
+    "onCommand:mermaidstudio.formatMermaidDocument",
+    "onCommand:mermaidstudio.exportSvg",
+    "onCommand:mermaidstudio.extractMermaidBlock",
+    "onCommand:mermaidstudio.openReferenceForSymbol",
+    "onCommand:mermaidstudio.openCurrentDiagramExample"
+  ],
+  "main": "./dist/extension.js",
+  "scripts": {
+    "compile:tests": "tsc -p ./",
+    "typecheck:webview": "tsc -p ./tsconfig.webview.json --noEmit",
+    "build:bundle": "node ./scripts/build.mjs",
+    "compile": "npm run compile:tests && npm run typecheck:webview && npm run build:bundle",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "package": "npm run compile && vsce package --no-rewrite-relative-links",
+    "verify:builder-ui": "./scripts/verify-builder-ui.sh",
+    "smoke:vsix": "npm run package && ./scripts/smoke-vsix.sh",
+    "capture:builder-ui": "npm run package && ./scripts/capture-builder-ui.sh",
+    "capture:builder-ui:desktop": "npm run package && ./scripts/capture-builder-ui.sh",
+    "harness:build": "node ./scripts/harness-build.mjs",
+    "harness:dev": "node ./scripts/harness-dev.mjs",
+    "harness:builder": "npm run compile && npm run harness:build && node ./scripts/harness-real-shell-capture.mjs",
+    "harness:builder:single": "npm run compile && npm run harness:build && node ./scripts/harness-real-shell-single.mjs",
+    "harness:builder:synthetic": "npm run harness:build && node ./scripts/harness-capture.mjs",
+    "harness:builder:synthetic:single": "npm run harness:build && node ./scripts/harness-capture-single.mjs",
+    "harness:builder:real-proof": "npm run compile && npm run harness:build && node ./scripts/harness-real-shell-proof.mjs",
+    "harness:mermaid": "npm run harness:build && node ./scripts/harness-validate.mjs",
+    "harness:check": "npm run harness:builder && npm run harness:mermaid"
+  },
+  "dependencies": {
+    "mermaid": "^11.12.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.17.57",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.28.0",
+    "glob": "^10.4.5",
+    "mocha": "^10.8.2",
+    "playwright": "^1.54.1",
+    "typescript": "^5.8.3",
+    "vsce": "^2.15.0"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "mermaid",
+        "aliases": [
+          "Mermaid",
+          "mermaid"
+        ],
+        "extensions": [
+          ".mmd",
+          ".mermaid"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "mermaidjs",
+        "aliases": [
+          "MermaidJS",
+          "mermaidjs"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mermaid",
+        "scopeName": "source.mermaid",
+        "path": "./syntaxes/mermaid.tmLanguage.json"
+      },
+      {
+        "language": "mermaidjs",
+        "scopeName": "source.mermaidjs",
+        "path": "./syntaxes/mermaidjs.tmLanguage.json"
+      },
+      {
+        "scopeName": "markdown.mermaid.codeblock.injection",
+        "path": "./syntaxes/markdown-mermaid.injection.json",
+        "injectTo": [
+          "text.html.markdown",
+          "source.gfm"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.mermaidjs": "mermaidjs"
+        },
+        "tokenTypes": {
+          "meta.embedded.block.mermaidjs": "other"
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "mermaidstudio.newDiagram",
+        "title": "Mermaid Studio: New Diagram"
+      },
+      {
+        "command": "mermaidstudio.openPreview",
+        "title": "Mermaid Studio: Open Preview"
+      },
+      {
+        "command": "mermaidstudio.previewMarkdownBlock",
+        "title": "Mermaid Studio: Preview Mermaid Block in Markdown"
+      },
+      {
+        "command": "mermaidstudio.openBuilder",
+        "title": "Mermaid Studio: Open Builder"
+      },
+      {
+        "command": "mermaidstudio.convertFastInput",
+        "title": "Mermaid Studio: Convert Fast Input to Mermaid"
+      },
+      {
+        "command": "mermaidstudio.insertSnippet",
+        "title": "Mermaid Studio: Insert Mermaid Snippet"
+      },
+      {
+        "command": "mermaidstudio.formatMermaidDocument",
+        "title": "Mermaid Studio: Format Mermaid Document"
+      },
+      {
+        "command": "mermaidstudio.exportSvg",
+        "title": "Mermaid Studio: Export Preview as SVG"
+      },
+      {
+        "command": "mermaidstudio.extractMermaidBlock",
+        "title": "Mermaid Studio: Extract Mermaid Block to File"
+      },
+      {
+        "command": "mermaidstudio.openReferenceForSymbol",
+        "title": "Mermaid Studio: Open Reference for Symbol Under Cursor"
+      },
+      {
+        "command": "mermaidstudio.openCurrentDiagramExample",
+        "title": "Mermaid Studio: Open Example for Current Diagram Type"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "mermaid",
+        "path": "./snippets/mermaid.json"
+      },
+      {
+        "language": "markdown",
+        "path": "./snippets/markdown-mermaid.json"
+      }
+    ],
+    "configuration": {
+      "title": "Mermaid Studio",
+      "properties": {
+        "mermaidstudio.markdownFenceLanguage": {
+          "type": "string",
+          "default": "mermaid",
+          "enum": [
+            "mermaidjs",
+            "mermaid"
+          ],
+          "description": "Fence language used when Mermaid content is inserted into Markdown."
+        },
+        "mermaidstudio.insertMarkdownFencesByDefault": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wrap Mermaid output in Markdown fenced blocks when working in Markdown files."
+        },
+        "mermaidstudio.preview.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh Mermaid previews when source text changes."
+        },
+        "mermaidstudio.preview.debounceMs": {
+          "type": "number",
+          "default": 250,
+          "minimum": 50,
+          "description": "Debounce delay for live Mermaid preview refreshes."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mermaidStudio",
+          "title": "Mermaid Studio",
+          "icon": "media/mermaid-activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "mermaidStudio": [
+        {
+          "type": "webview",
+          "id": "mermaidStudio.builderView",
+          "name": "Builder"
+        }
+      ]
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/dmtomczyk/mermaid-studio/issues"
+  },
+  "homepage": "https://github.com/dmtomczyk/mermaid-studio#readme"
+}
