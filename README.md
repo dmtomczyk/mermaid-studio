@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./media/mermaid-studio.png" alt="Mermaid Studio" width="160">
+  <img src="https://raw.githubusercontent.com/dmtomczyk/mermaid-studio/master/media/mermaid-studio.png" alt="Mermaid Studio" width="160">
 </p>
 
 <h1 align="center">Mermaid Studio</h1>
