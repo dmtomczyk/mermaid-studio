@@ -40,7 +40,6 @@
     "onCommand:mermaidstudio.openPreview",
     "onCommand:mermaidstudio.previewMarkdownBlock",
     "onCommand:mermaidstudio.openBuilder",
-    "onCommand:mermaidstudio.convertFastInput",
     "onCommand:mermaidstudio.insertSnippet",
     "onCommand:mermaidstudio.formatMermaidDocument",
     "onCommand:mermaidstudio.exportSvg",
@@ -152,10 +151,6 @@
       {
         "command": "mermaidstudio.openBuilder",
         "title": "Mermaid Studio: Open Builder"
-      },
-      {
-        "command": "mermaidstudio.convertFastInput",
-        "title": "Mermaid Studio: Convert Fast Input to Mermaid"
       },
       {
         "command": "mermaidstudio.insertSnippet",

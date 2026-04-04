@@ -13,6 +13,22 @@ Please read:
 
 If you are working on snippets, hover help, completions, preview/export, or the builder, try to understand the existing registry / utility layers before adding new one-off logic.
 
+## Documentation style
+
+Keep docs lean.
+
+The bias in this repo is:
+- slightly less documentation than you think you should add
+- but make what remains extremely clear, well written, and easy to find
+
+Good documentation here should do one of three things:
+- help users understand the product quickly
+- help contributors make the right change with low friction
+- preserve genuinely important project knowledge that would otherwise be easy to lose
+
+Avoid adding docs just to make the repo look complete.
+If a note is mainly temporary, planning-oriented, or useful only to active maintainers, prefer keeping it in local-only notes rather than public source control.
+
 ## Local setup
 
 ```bash
@@ -166,6 +182,13 @@ npm run package
 ## PR guidance
 
 Please keep PRs focused.
+
+Good low-friction contribution areas include:
+- bundled examples
+- snippets and snippet polish
+- docs clarity and wording improvements
+- hover/reference coverage
+- syntax/highlighting improvements
 
 A strong PR usually includes:
 - a clear problem statement

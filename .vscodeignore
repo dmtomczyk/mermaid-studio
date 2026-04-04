@@ -16,10 +16,16 @@ TODO.md
 docs/refactor-roadmap.md
 docs/TODO.md
 media/builder.js
+media/activity-concepts.png
+media/mermaid-studio-candidate.svg
+media/concepts/**
 assets/screenshots/fast-start.gif
+assets/screenshots/fast-start.archive-960w-12fps.gif
+assets/screenshots/fast-start.original-1280x720-33fps.gif
 .artifacts/**
 dist-harness/**
 harness/**
+.local-docs/**
 export-test/**
 README.embedded.md
 scripts/embed-readme-images.mjs

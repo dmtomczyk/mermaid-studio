@@ -26,6 +26,7 @@ Continue improving the strongest builder-supported families:
 - continue improving docs/example navigation
 - reduce friction for Markdown-first workflows
 - improve first-run discoverability via README/screenshots/examples
+- revisit compact shorthand authoring as a real planned capability rather than a lightly surfaced experimental command
 
 ### Export improvements
 Continue hardening export across diagram families and formats:
@@ -35,6 +36,12 @@ Continue hardening export across diagram families and formats:
 - more regression coverage around label rendering and bounds
 
 ## Medium term
+
+### Compact shorthand authoring
+- design a legitimate shorthand syntax that is meaningfully faster than writing Mermaid directly
+- support it intentionally rather than as a lightly exposed experiment
+- define scope carefully by diagram family and editing flow
+- make sure the UX is simpler than snippets/manual authoring before surfacing it broadly again
 
 ### Snippet refinement
 - unify snippet surfaces further
