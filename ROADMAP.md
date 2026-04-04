@@ -2,9 +2,6 @@
 
 This roadmap focuses on the next meaningful improvements after the initial public `0.1.x` release.
 
-For historical refactor notes and the completed architecture cleanup work, see:
-- `docs/refactor-roadmap.md`
-
 ## Near term
 
 ### Offline browser validation

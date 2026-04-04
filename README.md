@@ -39,26 +39,26 @@ A good default flow for most users is:
 
 ## Screenshots
 
-> If screenshots do not render in your VS Code environment, use the packaged offline guide from the Command Palette once it is available. The README screenshot strategy is intended for internet-connected installs; the extension will also provide an offline-friendly visual guide for locked-down environments.
+> If screenshots do not render in your VS Code environment, Mermaid Studio is planned to gain an offline-friendly in-extension visual guide for locked-down environments. The README screenshot strategy is intended primarily for internet-connected installs.
 
 ### Slash snippets
 Quick insertion for common Mermaid starters and patterns.
 
-_Public screenshot link to be restored once the GitHub-hosted image is live._
+![Slash snippets](https://raw.githubusercontent.com/dmtomczyk/mermaid-studio/master/assets/screenshots/slash-snippets.png)
 
 ### Live preview
 Instant Mermaid rendering while editing.
 
-_Public screenshot link to be restored once the GitHub-hosted image is live._
+![Live preview](https://raw.githubusercontent.com/dmtomczyk/mermaid-studio/master/assets/screenshots/live-preview.png)
 
 ### Builder sidebar
 Structured flowchart and sequence editing in the Builder.
 
-_Public screenshot link to be restored once the GitHub-hosted image is live._
+![Builder sidebar](https://raw.githubusercontent.com/dmtomczyk/mermaid-studio/master/assets/screenshots/builder-sidebar.png)
 
 > Screenshot strategy note:
-> - README screenshots will use public GitHub-hosted image URLs for the native VS Code Details/Marketplace surface.
-> - Mermaid Studio will also ship an offline-friendly in-extension guide with packaged local screenshots for environments without internet access.
+> - README screenshots use public GitHub-hosted image URLs for the native VS Code Details/Marketplace surface.
+> - Mermaid Studio is planned to ship an offline-friendly in-extension guide with packaged local screenshots for environments without internet access.
 > - The animated GIF can use a separate strategy later if size or Marketplace rendering makes that preferable.
 
 ## Features
@@ -190,13 +190,6 @@ Debounce delay for live preview refreshes.
 Default:
 - `250`
 
-## Release assets
-
-Planned screenshots/GIFs are tracked in:
-- `docs/screenshot-gif-plan.md`
-
-That plan now includes recommendations for what can be automated with Playwright/browser automation versus what should still be curated manually.
-
 ## Local examples
 
 Bundled example docs live in:
@@ -219,8 +212,6 @@ These examples are shipped with the extension and do not depend on a user checki
 - `CHANGELOG.md` — release notes/history
 - `ROADMAP.md` — forward-looking product and technical roadmap
 - `SECURITY.md` — security reporting policy
-- `docs/pre-publish-checklist.md` — release/publish checklist
-- `docs/screenshot-gif-plan.md` — screenshot and GIF capture plan
 
 ## Limitations
 

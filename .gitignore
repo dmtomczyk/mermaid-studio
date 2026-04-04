@@ -20,6 +20,7 @@ coverage/
 # Local generated artifacts
 .artifacts/
 dist-harness/
+.local-docs/
 
 # OS junk
 .DS_Store
@@ -34,3 +35,11 @@ Thumbs.db
 
 # Legacy local webview artifact no longer used (bundled webview lives in dist/)
 /media/builder.js
+
+# Large local source asset retained outside Git history
+/assets/screenshots/fast-start.original-1280x720-33fps.gif
+
+# Local concept-art exploration not intended for publish
+/media/activity-concepts.png
+/media/mermaid-studio-candidate.svg
+/media/concepts/

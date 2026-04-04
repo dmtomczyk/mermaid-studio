@@ -106,7 +106,6 @@ Please add or update tests when preview/export behavior changes.
 Look at:
 - `src/builder/`
 - `src/webview/builder/`
-- `docs/builder-ui-checklist.md`
 
 Keep in mind the current support tiers:
 - strongest structured editing support is for flowchart + sequence
@@ -120,7 +119,7 @@ For Builder UI sizing/layout changes, explicitly determine whether the change be
 
 Then verify the correct packaged artifact before claiming the change is visible.
 
-Required Builder UI follow-up after modifying Builder layout/sizing/cards/canvas:
+Recommended Builder UI follow-up after modifying Builder layout/sizing/cards/canvas:
 1. `npm run package`
 2. `npm run verify:builder-ui`
 3. `npm run smoke:vsix` (or `./scripts/reset-smoke.sh && ./scripts/smoke-vsix.sh`)
