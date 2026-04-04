@@ -2,6 +2,13 @@
 
 All notable changes to Mermaid Studio will be documented in this file.
 
+## 0.1.1
+
+Tiny Marketplace Patch
+
+- fixed README/Marketplace image rendering
+- small publish-facing polish
+
 ## 0.1.0
 
 Initial public release of Mermaid Studio.
