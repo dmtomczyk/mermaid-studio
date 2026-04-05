@@ -436,6 +436,21 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
         border-radius: 8px;
         background: color-mix(in srgb, var(--vscode-editor-background) 94%, var(--vscode-panel-border));
       }
+      .member-snippet-bar {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .member-snippet-bar button {
+        padding: 4px 8px;
+        font-size: 11px;
+      }
+      .member-editor-hint {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--vscode-descriptionForeground);
+      }
       .small-actions {
         display: flex;
         gap: 8px;
@@ -480,6 +495,7 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
       .tok-relation { color: #d4d4d4; font-weight: 700; }
       .tok-label { color: #ce9178; }
       .tok-comment { color: #6a9955; font-style: italic; }
+      .tok-invalid { text-decoration: underline wavy var(--vscode-errorForeground); text-underline-offset: 2px; }
       .validation-list {
         display: grid;
         gap: 8px;

@@ -52,4 +52,40 @@ suite('canvas webview helper regressions', () => {
     assert.ok(source.includes('function deleteRelation(relationId) {'));
     assert.ok(source.includes('function addClassAt(x, y, templateId = \'empty\') {'));
   });
+
+  test('render groups include member snippet bars in inline and inspector editors', () => {
+    const source = createCanvasRenderGroupsSource();
+    assert.ok(source.includes("renderMemberSnippetBar('node-members-input')"));
+    assert.ok(source.includes("renderMemberSnippetBar('classMembersInput')"));
+    assert.ok(source.includes("appendSnippetToMembersInput(membersInput, button.getAttribute('data-snippet-value') || '')"));
+  });
+
+  test('render groups expose smarter member parsing helpers', () => {
+    const source = createCanvasRenderGroupsSource();
+    assert.ok(source.includes('function parseNodeMemberLine(member) {'));
+    assert.ok(source.includes("kind: params ? 'method' : 'property'"));
+    assert.ok(source.includes("decorator: ''"));
+    assert.ok(source.includes("return { raw, visibility: '', name: '', params: '', type: '', decorator: '', kind: 'unknown' }"));
+    assert.ok(source.includes('function getMemberSnippetChoices() {'));
+    assert.ok(source.includes("+save(user: User): Promise<void>"));
+    assert.ok(source.includes("#load(id: string): User | undefined"));
+    assert.ok(source.includes("-cache: Map<string, User>"));
+  });
+
+  test('render groups flag unrecognized member syntax in preview', () => {
+    const source = createCanvasRenderGroupsSource();
+    assert.ok(source.includes("const invalidClass = parsed.kind === 'unknown' && parsed.raw ? ' tok-invalid' : '';"));
+    assert.ok(source.includes("unrecognized member syntax"));
+    assert.ok(source.includes('Invalid lines will be underlined in the preview.'));
+  });
+
+  test('render groups make member snippet insertion context-aware', () => {
+    const source = createCanvasRenderGroupsSource();
+    assert.ok(source.includes('function appendSnippetToMembersInput(textarea, snippet) {'));
+    assert.ok(source.includes('const currentLine = value.slice(lineStart, lineEnd);'));
+    assert.ok(source.includes('} else if (!trimmedCurrentLine) {'));
+    assert.ok(source.includes('} else if (start === lineEnd) {'));
+    assert.ok(source.includes("insertion = '"));
+    assert.ok(source.includes("' + snippet;"));
+  });
 });

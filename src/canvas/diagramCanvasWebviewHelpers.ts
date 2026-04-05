@@ -658,6 +658,7 @@ export function createCanvasRenderGroupsSource(): string {
             : '<div class="node-title" title="' + escapeHtml(entry.name) + '">' + escapeHtml(entry.name) + '</div>';
           const bodyMarkup = membersEditing
             ? '<textarea class="node-members-input" data-role="members-input">' + escapeHtml(entry.members.join('\\n')) + '</textarea>'
+              + renderMemberSnippetBar('node-members-input')
               + '<div class="members-editor-preview">' + renderMemberPreviewHtml(entry.members.join('\\n')) + '</div>'
             : '<div class="node-body">' + (entry.members.length ? entry.members.map((member) => '<span class="node-member-line">' + highlightNodeMemberLine(member) + '</span>').join('') : 'No members yet') + '</div>';
           card.innerHTML = '<div class="node-header">'
@@ -734,6 +735,15 @@ export function createCanvasRenderGroupsSource(): string {
             if (membersPreview) {
               membersPreview.innerHTML = renderMemberPreviewHtml(membersInput.value);
             }
+          });
+          card.querySelector('[data-role="member-snippet-bar"]')?.addEventListener('click', (event) => {
+            const button = event.target instanceof HTMLElement ? event.target.closest('[data-snippet-value]') : null;
+            if (!button || !membersInput) {
+              return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            appendSnippetToMembersInput(membersInput, button.getAttribute('data-snippet-value') || '');
           });
           membersInput?.addEventListener('keydown', (event) => {
             if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
@@ -946,69 +956,123 @@ export function createCanvasRenderGroupsSource(): string {
         if (!lines.some((line) => line.trim())) {
           return '<span class="inspector-empty">No members yet.</span>';
         }
-        return lines.map((line) => '<span class="node-member-line">' + highlightNodeMemberLine(line) + '</span>').join('');
+        return lines.map((line) => {
+          const parsed = parseNodeMemberLine(line);
+          const invalidClass = parsed.kind === 'unknown' && parsed.raw ? ' tok-invalid' : '';
+          const suffix = parsed.kind === 'unknown' && parsed.raw
+            ? '<span class="meta">  ← unrecognized member syntax</span>'
+            : '';
+          return '<span class="node-member-line' + invalidClass + '">' + highlightNodeMemberLine(line) + suffix + '</span>';
+        }).join('');
+      }
+
+      function parseNodeMemberLine(member) {
+        const raw = String(member || '').trim();
+        if (!raw) {
+          return { raw: '', visibility: '', name: '', params: '', type: '', decorator: '', kind: 'empty' };
+        }
+
+        const match = raw.match(/^(?:@([A-Za-z_][\w.<>-]*))?\s*([+\-#~])?\s*([A-Za-z_][\w]*)\s*(\([^)]*\))?\s*(?::\s*(.+))?$/);
+        if (!match) {
+          return { raw, visibility: '', name: '', params: '', type: '', decorator: '', kind: 'unknown' };
+        }
+
+        const [, decorator = '', visibility = '', name = '', params = '', type = ''] = match;
+        return {
+          raw,
+          decorator,
+          visibility,
+          name,
+          params,
+          type: String(type || '').trim(),
+          kind: params ? 'method' : 'property'
+        };
       }
 
       function highlightNodeMemberLine(member) {
-        const raw = String(member || '').trim();
-        const escaped = escapeHtml(raw);
-        if (!raw) {
+        const parsed = parseNodeMemberLine(member);
+        const escaped = escapeHtml(parsed.raw || '');
+        if (!parsed.raw) {
+          return escaped;
+        }
+        if (parsed.kind === 'unknown') {
           return escaped;
         }
 
-        let cursor = 0;
-        let visibility = '';
-        if ('+-#~'.includes(raw.charAt(0))) {
-          visibility = raw.charAt(0);
-          cursor = 1;
-        }
-
-        while (raw.charAt(cursor) === ' ') {
-          cursor += 1;
-        }
-
-        let name = '';
-        while (cursor < raw.length && /[A-Za-z0-9_]/.test(raw.charAt(cursor))) {
-          name += raw.charAt(cursor);
-          cursor += 1;
-        }
-
-        while (raw.charAt(cursor) === ' ') {
-          cursor += 1;
-        }
-
-        let params = '';
-        if (raw.charAt(cursor) === '(') {
-          const end = raw.indexOf(')', cursor);
-          if (end >= cursor) {
-            params = raw.slice(cursor, end + 1);
-            cursor = end + 1;
-          }
-        }
-
-        while (raw.charAt(cursor) === ' ') {
-          cursor += 1;
-        }
-
-        let type = '';
-        if (raw.charAt(cursor) === ':') {
-          type = raw.slice(cursor + 1).trim();
-        }
-
         let result = '';
-        if (visibility) {
-          result += '<span class="tok-visibility">' + escapeHtml(visibility) + '</span>';
+        if (parsed.decorator) {
+          result += '<span class="tok-keyword">@' + escapeHtml(parsed.decorator) + '</span>';
         }
-        if (name) {
-          result += '<span class="tok-member-name">' + escapeHtml(name) + '</span>';
+        if (parsed.visibility) {
+          result += '<span class="tok-visibility">' + escapeHtml(parsed.visibility) + '</span>';
         }
-        if (params) {
-          result += '<span class="tok-params">' + escapeHtml(params) + '</span>';
+        if (parsed.name) {
+          result += '<span class="tok-member-name">' + escapeHtml(parsed.name) + '</span>';
         }
-        if (type) {
-          result += '<span class="tok-type">: ' + escapeHtml(type) + '</span>';
+        if (parsed.params) {
+          result += '<span class="tok-params">' + escapeHtml(parsed.params) + '</span>';
+        }
+        if (parsed.type) {
+          result += '<span class="tok-type">: ' + escapeHtml(parsed.type) + '</span>';
         }
         return result || escaped;
+      }
+
+      function getMemberSnippetChoices() {
+        return [
+          { label: 'Field', value: '+name: string' },
+          { label: 'Id', value: '+id: string' },
+          { label: 'Flag', value: '+enabled: boolean' },
+          { label: 'Method', value: '+render(): void' },
+          { label: 'Async', value: '+save(user: User): Promise<void>' },
+          { label: 'Lookup', value: '#load(id: string): User | undefined' },
+          { label: 'Map', value: '-cache: Map<string, User>' },
+          { label: 'Date', value: '+createdAt: Date' }
+        ];
+      }
+
+      function appendSnippetToMembersInput(textarea, snippet) {
+        const value = textarea.value || '';
+        const start = textarea.selectionStart ?? value.length;
+        const end = textarea.selectionEnd ?? value.length;
+        const lineStart = value.lastIndexOf('\n', Math.max(0, start - 1)) + 1;
+        const nextNewline = value.indexOf('\n', end);
+        const lineEnd = nextNewline >= 0 ? nextNewline : value.length;
+        const currentLine = value.slice(lineStart, lineEnd);
+        const trimmedCurrentLine = currentLine.trim();
+
+        let replaceStart = start;
+        let replaceEnd = end;
+        let insertion = snippet;
+
+        if (start !== end) {
+          replaceStart = start;
+          replaceEnd = end;
+        } else if (!trimmedCurrentLine) {
+          replaceStart = lineStart;
+          replaceEnd = lineEnd;
+        } else if (start === lineEnd) {
+          insertion = '\n' + snippet;
+          replaceStart = start;
+          replaceEnd = end;
+        } else {
+          replaceStart = lineStart;
+          replaceEnd = lineEnd;
+        }
+
+        textarea.value = value.slice(0, replaceStart) + insertion + value.slice(replaceEnd);
+        const nextCursor = replaceStart + insertion.length;
+        textarea.selectionStart = nextCursor;
+        textarea.selectionEnd = nextCursor;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.focus();
+      }
+
+      function renderMemberSnippetBar(inputId) {
+        return '<div class="member-snippet-bar" data-role="member-snippet-bar" data-input-id="' + escapeHtml(inputId) + '">'
+          + getMemberSnippetChoices().map((choice) => '<button type="button" class="secondary" data-snippet-value="' + escapeHtml(choice.value) + '">' + escapeHtml(choice.label) + '</button>').join('')
+          + '</div>'
+          + '<div class="member-editor-hint">Member syntax: optional <span class="tok-keyword">@decorator</span>, optional visibility, name, optional params, optional type. Example: <span class="code-line-root">+save(user: User): Promise&lt;void&gt;</span>. Invalid lines will be underlined in the preview.</div>';
       }
 
       function renderDebugPanel() {
@@ -1330,6 +1394,7 @@ export function createCanvasRenderGroupsSource(): string {
             + 'Members (one per line)'
             + '<textarea id="classMembersInput" placeholder="+id: string\\n+render(): void"></textarea>'
             + '</label>'
+            + renderMemberSnippetBar('classMembersInput')
             + '<div id="classMembersPreview" class="members-editor-preview"></div>'
             + '<div class="small-actions">'
             + '<button id="renameClassButton" class="ghost">Rename</button>'
@@ -1348,6 +1413,14 @@ export function createCanvasRenderGroupsSource(): string {
             document.getElementById('classMembersPreview').innerHTML = renderMemberPreviewHtml(event.target.value);
             selectedClass.members = event.target.value.split(/\\r?\\n/).map((entry) => entry.trim()).filter(Boolean);
             emitStateChanged();
+          });
+          inspectorBody.querySelector('[data-role="member-snippet-bar"]')?.addEventListener('click', (event) => {
+            const button = event.target instanceof HTMLElement ? event.target.closest('[data-snippet-value]') : null;
+            const membersInput = document.getElementById('classMembersInput');
+            if (!button || !(membersInput instanceof HTMLTextAreaElement)) {
+              return;
+            }
+            appendSnippetToMembersInput(membersInput, button.getAttribute('data-snippet-value') || '');
           });
           document.getElementById('renameClassButton').addEventListener('click', () => renameClass(selectedClass.id));
           document.getElementById('addMemberButton').addEventListener('click', () => addMemberToClass(selectedClass.id));
