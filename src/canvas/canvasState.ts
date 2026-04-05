@@ -2,18 +2,19 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import {
   ClassDiagramCanvasModel,
-  ClassDiagramValidationIssue,
-  looksLikeClassDiagram
+  ClassDiagramValidationIssue
 } from './classDiagramModel';
 import {
   createEmptyCanvasFamilyModel,
   generateCanvasFamilyMermaid,
   parseCanvasFamilyMermaid
 } from './families';
+import { detectCanvasDiagramFamily } from './canvasFamilyDetection';
+import { CanvasDiagramFamily } from './types/canvasFamilies';
 
 export interface DiagramCanvasSource {
   documentUri?: vscode.Uri;
-  kind: 'classDiagram';
+  kind: CanvasDiagramFamily;
 }
 
 export interface DiagramCanvasViewState {
@@ -32,7 +33,7 @@ export interface DiagramCanvasViewState {
 export function getDiagramCanvasTitle(source: DiagramCanvasSource): string {
   return source.documentUri
     ? `Diagram Canvas: ${path.basename(source.documentUri.fsPath)}`
-    : 'Diagram Canvas: classDiagram';
+    : `Diagram Canvas: ${source.kind}`;
 }
 
 export function buildDiagramCanvasViewState(
@@ -73,13 +74,24 @@ export async function resolveInitialCanvasSource(): Promise<{ source: DiagramCan
   }
 
   const text = editor.document.getText();
-  if (looksLikeClassDiagram(text)) {
+  const detectedFamily = detectCanvasDiagramFamily(text);
+  if (detectedFamily === 'classDiagram') {
     return {
       source: {
         kind: 'classDiagram',
         documentUri: editor.document.uri
       },
       model: parseCanvasFamilyMermaid('classDiagram', text) as ClassDiagramCanvasModel
+    };
+  }
+
+  if (detectedFamily === 'flowchart') {
+    return {
+      source: {
+        kind: 'flowchart',
+        documentUri: editor.document.uri
+      },
+      model: createEmptyCanvasFamilyModel('classDiagram') as ClassDiagramCanvasModel
     };
   }
 

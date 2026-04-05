@@ -13,6 +13,10 @@ const DEFAULT_NODE_HEIGHT = 84;
 const DEFAULT_DIRECTION: FlowchartDirection = 'TB';
 const DEFAULT_EDGE_TYPE: FlowchartEdgeType = '-->';
 
+export function looksLikeFlowchart(source: string): boolean {
+  return /^\s*(?:flowchart|graph)\s+(?:TB|TD|BT|LR|RL)\b/im.test(source);
+}
+
 export function createEmptyFlowchartModel(): FlowchartCanvasModel {
   return {
     family: 'flowchart',

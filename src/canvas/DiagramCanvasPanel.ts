@@ -11,6 +11,7 @@ import {
 import { createDiagramCanvasHtml } from './diagramCanvasHtml';
 import { logCanvasHostEvent } from './canvasOutput';
 import { runCanvasWebviewDiagnostics } from './canvasWebviewDiagnostics';
+import { isCanvasFamilyImplemented } from './canvasFamilyDetection';
 import {
   buildDiagramCanvasViewState,
   DiagramCanvasSource,
@@ -28,8 +29,13 @@ import {
 export class DiagramCanvasPanel {
   public static current: DiagramCanvasPanel | undefined;
 
-  public static async createOrShow(extensionUri: vscode.Uri): Promise<DiagramCanvasPanel> {
+  public static async createOrShow(extensionUri: vscode.Uri): Promise<DiagramCanvasPanel | undefined> {
     const source = await resolveInitialCanvasSource();
+
+    if (!isCanvasFamilyImplemented(source.source.kind)) {
+      await vscode.window.showInformationMessage(`Diagram Canvas support for ${source.source.kind} is not wired yet. Host-side family detection is in place; runtime editing is next.`);
+      return undefined;
+    }
 
     if (DiagramCanvasPanel.current) {
       DiagramCanvasPanel.current.source = source.source;
