@@ -403,18 +403,31 @@ export function createCanvasRenderHelpersSource(): string {
   return `
       function initializeViewportIfNeeded() {
         if (viewportInitialized) {
+          pushDebugEvent('viewport:init:skip', { reason: 'already-initialized' });
           return;
         }
         if (!state.model.classes.length) {
+          pushDebugEvent('viewport:init:skip', { reason: 'no-classes' });
           return;
         }
         const shellRect = canvasShell.getBoundingClientRect();
         if (!shellRect.width || !shellRect.height) {
+          pushDebugEvent('viewport:init:defer', { width: shellRect.width, height: shellRect.height });
           requestAnimationFrame(() => requestAnimationFrame(() => initializeViewportIfNeeded()));
           return;
         }
         viewportInitialized = true;
-        fitBounds(getDiagramBounds());
+        const bounds = getDiagramBounds();
+        pushDebugEvent('viewport:init:fit', {
+          classCount: state.model.classes.length,
+          width: shellRect.width,
+          height: shellRect.height,
+          boundsX: bounds ? bounds.x : null,
+          boundsY: bounds ? bounds.y : null,
+          boundsW: bounds ? bounds.width : null,
+          boundsH: bounds ? bounds.height : null
+        });
+        fitBounds(bounds);
         requestAnimationFrame(() => renderMinimap());
       }
 
@@ -647,6 +660,7 @@ export function createCanvasRenderGroupsSource(): string {
 
           header.addEventListener('pointerdown', (event) => {
             event.stopPropagation();
+            pushDebugEvent('drag:start', { id: entry.id, clientX: event.clientX, clientY: event.clientY, x: entry.x, y: entry.y });
             selectedClassId = entry.id;
             selectedRelationId = undefined;
             dragState = {
@@ -677,6 +691,7 @@ export function createCanvasRenderGroupsSource(): string {
             if (!dragState || dragState.id !== entry.id || dragState.pointerId !== event.pointerId) {
               return;
             }
+            pushDebugEvent('drag:end', { id: entry.id, clientX: event.clientX, clientY: event.clientY, x: entry.x, y: entry.y });
             if (header.hasPointerCapture && header.hasPointerCapture(event.pointerId)) {
               header.releasePointerCapture(event.pointerId);
             }
@@ -936,6 +951,31 @@ export function createCanvasRenderGroupsSource(): string {
           + '<div class="member-editor-hint">Member syntax: optional <span class="tok-keyword">@decorator</span>, optional visibility, name, optional params, optional type. Example: <span class="code-line-root">+save(user: User): Promise&lt;void&gt;</span>. Invalid lines will be underlined in the preview.</div>';
       }
 
+      function pushDebugEvent(kind, details) {
+        if (!CANVAS_DEBUG) {
+          return;
+        }
+        const event = {
+          t: Date.now(),
+          kind,
+          details: details || null
+        };
+        debugState.events.push(event);
+        if (debugState.events.length > 20) {
+          debugState.events.shift();
+        }
+        try {
+          console.debug('[diagram-canvas]', kind, details || {});
+        } catch {
+          // ignore console transport issues in constrained webviews
+        }
+        postCanvasHostEvent('canvasDebug', {
+          kind,
+          details: details || null,
+          timestamp: event.t
+        });
+      }
+
       function renderDebugPanel() {
         if (!CANVAS_DEBUG || !debugPanel) {
           return;
@@ -951,8 +991,19 @@ export function createCanvasRenderGroupsSource(): string {
           'targetZoomScroll=' + formatDebugPoint(debugState.targetZoomScroll),
           'postZoomScroll=' + formatDebugPoint(debugState.postZoomScroll),
           'scrollMetrics=' + formatDebugPoint(debugState.scrollMetrics),
-          'minimap=' + formatDebugPoint(debugState.lastMinimap)
+          'minimap=' + formatDebugPoint(debugState.lastMinimap),
+          '',
+          'DEBUG EVENTS',
+          ...debugState.events.slice(-8).map((entry) => formatDebugEvent(entry))
         ].join('\\n');
+      }
+
+      function formatDebugEvent(entry) {
+        if (!entry) {
+          return '∅';
+        }
+        const time = new Date(entry.t).toLocaleTimeString();
+        return time + ' ' + entry.kind + ' ' + formatDebugPoint(entry.details);
       }
 
       function formatDebugPoint(point) {
@@ -1023,6 +1074,7 @@ export function createCanvasRenderGroupsSource(): string {
         const measuredWidth = Math.round(rect.width);
         const measuredHeight = Math.round(rect.height);
         if (!measuredWidth || !measuredHeight) {
+          pushDebugEvent('minimap:defer', { width: measuredWidth, height: measuredHeight });
           requestAnimationFrame(() => requestAnimationFrame(() => renderMinimap()));
           return;
         }
@@ -1049,6 +1101,16 @@ export function createCanvasRenderGroupsSource(): string {
         viewport.style.width = Math.max(12, (canvasShell.clientWidth / zoom) * scaleX) + 'px';
         viewport.style.height = Math.max(12, (canvasShell.clientHeight / zoom) * scaleY) + 'px';
         minimapBody.appendChild(viewport);
+        pushDebugEvent('minimap:render', {
+          width,
+          height,
+          classCount: state.model.classes.length,
+          cameraX,
+          cameraY,
+          zoom,
+          viewportWidth: canvasShell.clientWidth,
+          viewportHeight: canvasShell.clientHeight
+        });
       }
 
       function closeEdgeEditor() {
@@ -1378,7 +1440,7 @@ export function createCanvasRenderGroupsSource(): string {
 
         contextMenu.hidden = false;
         contextMenu.innerHTML = '<div class="context-menu-title muted">' + escapeHtml(title) + '</div>'
-          + items.map(([action, label]) => '<button type="button" data-action="' + escapeHtml(action) + '" class="' + (action === 'delete' ? 'danger' : '') + '">' + escapeHtml(label) + '</button>').join('');
+          + items.map(([action, label]) => '<button type="button" data-context-action="' + escapeHtml(action) + '" class="' + (action === 'delete' ? 'danger' : '') + '">' + escapeHtml(label) + '</button>').join('');
         contextMenu.style.left = canvasContextMenu.x + 'px';
         contextMenu.style.top = canvasContextMenu.y + 'px';
       }
@@ -1643,19 +1705,45 @@ export function createCanvasEventBindingsSource(): string {
         if (!action || !canvasContextMenu) {
           return;
         }
-        if (action === 'add-class') {
+        if (action === 'add-class' || action === 'add-empty') {
           contextDeleteArmed = false;
           addClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY, 'empty');
-        } else if (action === 'add-template-class') {
+        } else if (action === 'add-template-class' || action === 'add-template') {
           contextDeleteArmed = false;
           addClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY, selectedTemplateId);
-        } else if (action === 'duplicate-class') {
+        } else if (action === 'duplicate-class' || action === 'duplicate') {
           contextDeleteArmed = false;
           duplicateSelectedClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY);
-        } else if (action === 'connect-here') {
+        } else if (action === 'connect-here' || action === 'connect-selected') {
           contextDeleteArmed = false;
           addConnectedClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY);
-        } else if (action === 'delete-selected') {
+        } else if (action === 'rename') {
+          contextDeleteArmed = false;
+          if (selectedClassId) {
+            renameClass(selectedClassId);
+          }
+          closeCanvasContextMenu();
+        } else if (action === 'member') {
+          contextDeleteArmed = false;
+          if (selectedClassId) {
+            addMemberToClass(selectedClassId);
+          }
+          closeCanvasContextMenu();
+        } else if (action === 'connect') {
+          contextDeleteArmed = false;
+          if (selectedClassId) {
+            startConnectFrom(selectedClassId);
+          }
+          closeCanvasContextMenu();
+        } else if (action === 'label') {
+          contextDeleteArmed = false;
+          if (selectedRelationId) {
+            selectRelation(selectedRelationId);
+            shouldFocusEdgeEditorLabel = true;
+            render();
+          }
+          closeCanvasContextMenu();
+        } else if (action === 'delete-selected' || action === 'delete') {
           if (!contextDeleteArmed) {
             contextDeleteArmed = true;
             renderContextMenu();
@@ -1683,6 +1771,11 @@ export function createCanvasEventBindingsSource(): string {
       window.addEventListener('message', (event) => {
         const message = event.data;
         if (message.type === 'setState') {
+          pushDebugEvent('message:setState', {
+            classCount: Array.isArray(message.model?.classes) ? message.model.classes.length : -1,
+            relationCount: Array.isArray(message.model?.relations) ? message.model.relations.length : -1,
+            sourceLabel: message.sourceLabel || ''
+          });
           state = {
             sourceLabel: message.sourceLabel,
             linkedFileLabel: message.linkedFileLabel || message.sourceLabel,
@@ -1698,6 +1791,7 @@ export function createCanvasEventBindingsSource(): string {
           if (!hasReceivedInitialState) {
             hasReceivedInitialState = true;
             viewportInitialized = false;
+            pushDebugEvent('startup:first-state', { classCount: state.model.classes.length, relationCount: state.model.relations.length });
             requestAnimationFrame(() => requestAnimationFrame(() => {
               initializeViewportIfNeeded();
               renderMinimap();

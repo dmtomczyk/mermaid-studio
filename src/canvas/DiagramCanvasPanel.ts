@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 declare const __DEBUG__: boolean;
@@ -8,6 +9,8 @@ import {
   validateClassDiagramModel
 } from './classDiagramModel';
 import { createDiagramCanvasHtml } from './diagramCanvasHtml';
+import { logCanvasHostEvent } from './canvasOutput';
+import { runCanvasWebviewDiagnostics } from './canvasWebviewDiagnostics';
 import {
   buildDiagramCanvasViewState,
   DiagramCanvasSource,
@@ -67,6 +70,19 @@ export class DiagramCanvasPanel {
     this.panel.webview.onDidReceiveMessage(async (message) => {
       try {
         switch (message?.type) {
+          case 'canvasDebug':
+            logCanvasHostEvent(`webview:${message.kind || 'debug'}`, message.details);
+            break;
+          case 'canvasError':
+            logCanvasHostEvent(`webview:error:${message.kind || 'runtime'}`, {
+              message: message.message,
+              source: message.source,
+              lineno: message.lineno,
+              colno: message.colno,
+              stack: message.stack,
+              details: message.details
+            });
+            break;
           case 'requestState':
             await this.pushState();
             break;
@@ -136,11 +152,33 @@ export class DiagramCanvasPanel {
   }
 
   private getHtml(): string {
-    return createDiagramCanvasHtml({
+    const html = createDiagramCanvasHtml({
       cspSource: this.panel.webview.cspSource,
       nonce: createNonce(),
       debugEnabled: __DEBUG__
     });
+
+    const diagnostics = runCanvasWebviewDiagnostics(html, {
+      debugEnabled: __DEBUG__,
+      outputDir: path.join(process.cwd(), '.local-docs', 'logs')
+    });
+
+    if (!diagnostics.syntaxOk) {
+      logCanvasHostEvent('webview:syntax-preflight:failed', {
+        error: diagnostics.syntaxError,
+        htmlPath: diagnostics.htmlPath,
+        scriptPath: diagnostics.scriptPath
+      });
+    } else {
+      logCanvasHostEvent('webview:syntax-preflight:passed', __DEBUG__
+        ? {
+            htmlPath: diagnostics.htmlPath,
+            scriptPath: diagnostics.scriptPath
+          }
+        : undefined);
+    }
+
+    return html;
   }
 }
 

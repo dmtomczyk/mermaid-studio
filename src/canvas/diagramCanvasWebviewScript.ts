@@ -17,6 +17,31 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
   return `
       const vscode = acquireVsCodeApi();
       const CANVAS_DEBUG = ${debugEnabled ? 'true' : 'false'};
+      function postCanvasHostEvent(type, payload) {
+        try {
+          vscode.postMessage({ type, ...payload });
+        } catch {
+          // ignore bridge failures
+        }
+      }
+      window.addEventListener('error', (event) => {
+        postCanvasHostEvent('canvasError', {
+          kind: 'window-error',
+          message: event.message,
+          source: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+          stack: event.error && event.error.stack ? String(event.error.stack) : undefined
+        });
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        const reason = event.reason;
+        postCanvasHostEvent('canvasError', {
+          kind: 'unhandledrejection',
+          message: reason && reason.message ? String(reason.message) : String(reason),
+          stack: reason && reason.stack ? String(reason.stack) : undefined
+        });
+      });
       let state = {
         sourceLabel: 'classDiagram canvas',
         linkedFileLabel: 'Untitled canvas',
@@ -64,7 +89,8 @@ ${createClassDiagramWebviewSource()}
         scrollMetrics: null,
         lastWheel: null,
         lastMinimap: null,
-        lastPointerViewport: null
+        lastPointerViewport: null,
+        events: []
       };
 
       const sourceLabel = document.getElementById('sourceLabel');

@@ -67,6 +67,28 @@ suite('canvas webview helper regressions', () => {
     assert.ok(source.includes('openCanvasContextMenu(stageX, stageY, actionCanvasX, actionCanvasY);'));
   });
 
+  test('generated helper sources expose required startup render functions', () => {
+    const renderGroups = createCanvasRenderGroupsSource();
+    const renderHelpers = createCanvasRenderHelpersSource();
+    assert.ok(renderHelpers.includes('function renderToolbarStatus() {'));
+    assert.ok(renderGroups.includes('function renderContextMenu() {'));
+    assert.ok(renderGroups.includes('data-context-action="'));
+  });
+
+  test('context menu render and click bindings stay aligned on action names', () => {
+    const renderGroups = createCanvasRenderGroupsSource();
+    const eventBindings = createCanvasEventBindingsSource();
+    assert.ok(renderGroups.includes("['rename', 'Rename']"));
+    assert.ok(renderGroups.includes("['member', 'Edit members']"));
+    assert.ok(renderGroups.includes("['add-empty', 'Add blank class']"));
+    assert.ok(renderGroups.includes("['add-template', 'Add selected template']"));
+    assert.ok(eventBindings.includes("action === 'rename'"));
+    assert.ok(eventBindings.includes("action === 'member'"));
+    assert.ok(eventBindings.includes("action === 'add-empty'"));
+    assert.ok(eventBindings.includes("action === 'add-template'"));
+    assert.ok(eventBindings.includes("action === 'delete'"));
+  });
+
   test('selection core exposes generic focus and bare-canvas defocus helpers', () => {
     const source = createCanvasSelectionCoreSource();
     assert.ok(source.includes('function ensureSelection() {'));
@@ -108,6 +130,20 @@ suite('canvas webview helper regressions', () => {
     assert.ok(source.includes("const invalidClass = parsed.kind === 'unknown' && parsed.raw ? ' tok-invalid' : '';"));
     assert.ok(source.includes("unrecognized member syntax"));
     assert.ok(source.includes('Invalid lines will be underlined in the preview.'));
+  });
+
+  test('generated helper sources include startup and minimap debug instrumentation', () => {
+    const renderGroups = createCanvasRenderGroupsSource();
+    const renderHelpers = createCanvasRenderHelpersSource();
+    const eventBindings = createCanvasEventBindingsSource();
+    assert.ok(renderGroups.includes("function pushDebugEvent(kind, details) {"));
+    assert.ok(renderGroups.includes("postCanvasHostEvent('canvasDebug'"));
+    assert.ok(renderGroups.includes("pushDebugEvent('minimap:render'"));
+    assert.ok(renderGroups.includes("pushDebugEvent('drag:start'"));
+    assert.ok(renderGroups.includes("pushDebugEvent('drag:end'"));
+    assert.ok(renderHelpers.includes("pushDebugEvent('viewport:init:fit'"));
+    assert.ok(eventBindings.includes("pushDebugEvent('startup:first-state'"));
+    assert.ok(eventBindings.includes("pushDebugEvent('message:setState'"));
   });
 
   test('render groups make member snippet insertion context-aware', () => {
