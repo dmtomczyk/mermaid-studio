@@ -5,6 +5,7 @@ import {
   createCanvasRenderGroupsSource,
   createCanvasRenderHelpersSource
 } from './diagramCanvasWebviewHelpers';
+import { createClassDiagramWebviewSource } from './families/classDiagram/classDiagramWebviewSource';
 
 export interface DiagramCanvasWebviewScriptParams {
   debugEnabled: boolean;
@@ -31,15 +32,7 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
       const WORLD_HEIGHT = 4000;
       const WORLD_ORIGIN_X = 1900;
       const WORLD_ORIGIN_Y = 1300;
-      const CLASS_TEMPLATES = [
-        { id: 'empty', label: 'Empty Class', description: 'Start from a blank class shell.', defaultName: 'NewClass', members: [] },
-        { id: 'entity', label: 'Entity / Model', description: 'Good starting point for persisted domain objects.', defaultName: 'User', members: ['+id: string', '+createdAt: Date', '+updatedAt: Date'] },
-        { id: 'service', label: 'Service', description: 'Common service-layer methods and return types.', defaultName: 'UserService', members: ['+getById(id: string): User', '+list(): User[]', '+save(user: User): void'] },
-        { id: 'repository', label: 'Repository', description: 'Data-access style methods for fetching and saving.', defaultName: 'UserRepository', members: ['+findById(id: string): User', '+findAll(): User[]', '+save(user: User): void', '+delete(id: string): void'] },
-        { id: 'controller', label: 'Controller', description: 'Endpoint-oriented controller actions.', defaultName: 'UserController', members: ['+index(): void', '+show(id: string): void', '+create(): void', '+update(id: string): void'] },
-        { id: 'dto', label: 'DTO', description: 'Lightweight data-transfer shape.', defaultName: 'UserDto', members: ['+id: string', '+name: string', '+email: string'] },
-        { id: 'component', label: 'Component', description: 'UI-ish component shell with props/state.', defaultName: 'UserCard', members: ['+render(): void', '+props: UserCardProps', '+state: UserCardState'] }
-      ];
+${createClassDiagramWebviewSource()}
       let viewportInitialized = false;
       let selectedClassId;
       let selectedRelationId;

@@ -787,7 +787,7 @@ export function createCanvasRenderGroupsSource(): string {
           return { raw: '', visibility: '', name: '', params: '', type: '', decorator: '', kind: 'empty' };
         }
 
-        const match = raw.match(/^(?:@([A-Za-z_][\w.<>-]*))?\s*([+\-#~])?\s*([A-Za-z_][\w]*)\s*(\([^)]*\))?\s*(?::\s*(.+))?$/);
+        const match = raw.match(/^(?:@([A-Za-z_][\\w.<>-]*))?\\s*([+\\-#~])?\\s*([A-Za-z_][\\w]*)\\s*(\\([^)]*\\))?\\s*(?::\\s*(.+))?$/);
         if (!match) {
           return { raw, visibility: '', name: '', params: '', type: '', decorator: '', kind: 'unknown' };
         }
@@ -850,8 +850,8 @@ export function createCanvasRenderGroupsSource(): string {
         const value = textarea.value || '';
         const start = textarea.selectionStart ?? value.length;
         const end = textarea.selectionEnd ?? value.length;
-        const lineStart = value.lastIndexOf('\n', Math.max(0, start - 1)) + 1;
-        const nextNewline = value.indexOf('\n', end);
+        const lineStart = value.lastIndexOf('\\n', Math.max(0, start - 1)) + 1;
+        const nextNewline = value.indexOf('\\n', end);
         const lineEnd = nextNewline >= 0 ? nextNewline : value.length;
         const currentLine = value.slice(lineStart, lineEnd);
         const trimmedCurrentLine = currentLine.trim();
@@ -867,7 +867,7 @@ export function createCanvasRenderGroupsSource(): string {
           replaceStart = lineStart;
           replaceEnd = lineEnd;
         } else if (start === lineEnd) {
-          insertion = '\n' + snippet;
+          insertion = '\\n' + snippet;
           replaceStart = start;
           replaceEnd = end;
         } else {
