@@ -6,6 +6,7 @@ import {
   createCanvasRenderHelpersSource
 } from './diagramCanvasWebviewHelpers';
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
+import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createClassDiagramWebviewSource } from './families/classDiagram/classDiagramWebviewSource';
@@ -83,6 +84,7 @@ ${createClassDiagramWebviewSource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
 ${createCanvasHostBridgeSource()}
+${createCanvasPersistedStateSource()}
       let viewportInitialized = false;
       let hasReceivedInitialState = false;
       let selectedClassId;
@@ -166,22 +168,22 @@ ${createCanvasRenderGroupsSource()}
 
 ${createCanvasEventBindingsSource()}
 
-      const persisted = vscode.getState();
-      if (persisted && persisted.state) {
-        state = persisted.state;
-        selectedClassId = persisted.selectedClassId;
-        selectedRelationId = persisted.selectedRelationId;
-        connectFromClassId = persisted.connectFromClassId;
-        connectPreviewPoint = persisted.connectPreviewPoint || null;
-        selectedTemplateId = persisted.selectedTemplateId || 'empty';
-        connectDragActive = persisted.connectDragActive || false;
-        edgeEditorRelationId = persisted.edgeEditorRelationId;
-        canvasContextMenu = persisted.canvasContextMenu || null;
-        editingTitleClassId = persisted.editingTitleClassId;
-        editingMembersClassId = persisted.editingMembersClassId;
-        zoom = persisted.zoom || 1;
-        render();
-      }
+      restoreCanvasPersistedState({
+        restoreSelection(persisted) {
+          selectedClassId = persisted.selectedClassId;
+          selectedRelationId = persisted.selectedRelationId;
+          connectFromClassId = persisted.connectFromClassId;
+          connectPreviewPoint = persisted.connectPreviewPoint || null;
+        },
+        restoreExtras(persisted) {
+          selectedTemplateId = persisted.selectedTemplateId || 'empty';
+          connectDragActive = persisted.connectDragActive || false;
+          edgeEditorRelationId = persisted.edgeEditorRelationId;
+          canvasContextMenu = persisted.canvasContextMenu || null;
+          editingTitleClassId = persisted.editingTitleClassId;
+          editingMembersClassId = persisted.editingMembersClassId;
+        }
+      });
       requestInitialCanvasState();
 `;
 }

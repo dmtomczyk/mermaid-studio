@@ -1,4 +1,5 @@
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
+import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createCanvasViewportCoreSource } from './core/canvasViewportSource';
@@ -64,6 +65,7 @@ ${createFlowchartWebviewSource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
 ${createCanvasHostBridgeSource()}
+${createCanvasPersistedStateSource()}
 ${createCanvasViewportCoreSource()}
       let viewportInitialized = false;
       let selectedNodeId;
@@ -762,17 +764,17 @@ ${createCanvasViewportCoreSource()}
         vscode.setState({ state, selectedNodeId, selectedEdgeId, connectFromNodeId, connectPreviewPoint, selectedTemplateId, zoom });
       }
 
-      const persisted = vscode.getState();
-      if (persisted && persisted.state) {
-        state = persisted.state;
-        selectedNodeId = persisted.selectedNodeId;
-        selectedEdgeId = persisted.selectedEdgeId;
-        connectFromNodeId = persisted.connectFromNodeId;
-        connectPreviewPoint = persisted.connectPreviewPoint || null;
-        selectedTemplateId = persisted.selectedTemplateId || 'process';
-        zoom = persisted.zoom || 1;
-        render();
-      }
+      restoreCanvasPersistedState({
+        restoreSelection(persisted) {
+          selectedNodeId = persisted.selectedNodeId;
+          selectedEdgeId = persisted.selectedEdgeId;
+          connectFromNodeId = persisted.connectFromNodeId;
+          connectPreviewPoint = persisted.connectPreviewPoint || null;
+        },
+        restoreExtras(persisted) {
+          selectedTemplateId = persisted.selectedTemplateId || 'process';
+        }
+      });
 
       classTemplateSelect.innerHTML = FLOWCHART_TEMPLATES.map((template) => '<option value="' + template.id + '">' + escapeHtml(template.label) + '</option>').join('');
       classTemplateSelect.addEventListener('change', () => {
