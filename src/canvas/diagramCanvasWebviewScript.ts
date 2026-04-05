@@ -5,6 +5,7 @@ import {
   createCanvasRenderGroupsSource,
   createCanvasRenderHelpersSource
 } from './diagramCanvasWebviewHelpers';
+import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createClassDiagramWebviewSource } from './families/classDiagram/classDiagramWebviewSource';
@@ -81,6 +82,7 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
 ${createClassDiagramWebviewSource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
+${createCanvasHostBridgeSource()}
       let viewportInitialized = false;
       let hasReceivedInitialState = false;
       let selectedClassId;
@@ -180,6 +182,6 @@ ${createCanvasEventBindingsSource()}
         zoom = persisted.zoom || 1;
         render();
       }
-      vscode.postMessage({ type: 'requestState' });
+      requestInitialCanvasState();
 `;
 }

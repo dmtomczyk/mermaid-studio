@@ -1,3 +1,4 @@
+import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createCanvasViewportCoreSource } from './core/canvasViewportSource';
@@ -62,6 +63,7 @@ export function createFlowchartCanvasWebviewScript(debugEnabled: boolean): strin
 ${createFlowchartWebviewSource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
+${createCanvasHostBridgeSource()}
 ${createCanvasViewportCoreSource()}
       let viewportInitialized = false;
       let selectedNodeId;
@@ -898,12 +900,7 @@ ${createCanvasViewportCoreSource()}
       zoomInButton.addEventListener('click', () => setZoomAroundClientPoint(zoom + 0.1, canvasShell.getBoundingClientRect().left + (canvasShell.clientWidth / 2), canvasShell.getBoundingClientRect().top + (canvasShell.clientHeight / 2)));
       fitSelectionButton.addEventListener('click', () => { const bounds = getSelectionBounds(); if (bounds) { fitBounds(bounds); } });
       fitDiagramButton.addEventListener('click', () => fitBounds(getDiagramBounds()));
-      applyButton.addEventListener('click', () => vscode.postMessage({ type: 'applyToDocument', model: state.model }));
-      copyButton.addEventListener('click', () => vscode.postMessage({ type: 'copyMermaid', model: state.model }));
-      createFileButton.addEventListener('click', () => vscode.postMessage({ type: 'createFile', model: state.model }));
-      openLinkedFileButton.addEventListener('click', () => vscode.postMessage({ type: 'openLinkedFile' }));
-      previewButton.addEventListener('click', () => vscode.postMessage({ type: 'openPreview', model: state.model }));
-      reimportButton.addEventListener('click', () => vscode.postMessage({ type: 'reimportFromDocument' }));
+      bindCanvasHostActionButtons();
       minimap.addEventListener('pointerdown', (event) => {
         const viewport = event.target instanceof Element ? event.target.closest('[data-role="minimap-viewport"]') : null;
         const rect = minimapBody.getBoundingClientRect();
@@ -933,6 +930,6 @@ ${createCanvasViewportCoreSource()}
           initializeViewportIfNeeded();
         }
       });
-      vscode.postMessage({ type: 'requestState' });
+      requestInitialCanvasState();
 `;
 }
