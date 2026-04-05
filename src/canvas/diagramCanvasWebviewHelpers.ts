@@ -38,10 +38,12 @@ export function createCanvasGeometryHelpersSource(): string {
       }
 
       function clampCamera() {
-        const maxCameraX = Math.max(0, WORLD_WIDTH - canvasShell.clientWidth / zoom);
-        const maxCameraY = Math.max(0, WORLD_HEIGHT - canvasShell.clientHeight / zoom);
-        cameraX = Math.max(0, Math.min(maxCameraX, cameraX));
-        cameraY = Math.max(0, Math.min(maxCameraY, cameraY));
+        const minCameraX = -WORLD_ORIGIN_X;
+        const minCameraY = -WORLD_ORIGIN_Y;
+        const maxCameraX = WORLD_WIDTH - canvasShell.clientWidth / zoom;
+        const maxCameraY = WORLD_HEIGHT - canvasShell.clientHeight / zoom;
+        cameraX = Math.max(minCameraX, Math.min(maxCameraX, cameraX));
+        cameraY = Math.max(minCameraY, Math.min(maxCameraY, cameraY));
       }
 
       function scrollToKeepStagePointAtViewportAnchor(stageX, stageY, anchorX, anchorY) {
@@ -217,8 +219,8 @@ export function createCanvasGeometryHelpersSource(): string {
         const rect = canvasShell.getBoundingClientRect();
         const stagePoint = viewportPointToStagePoint(clientX - rect.left, clientY - rect.top);
         connectPreviewPoint = {
-          x: stageToWorldX(stagePoint.x),
-          y: stageToWorldY(stagePoint.y)
+          x: stagePoint.x,
+          y: stagePoint.y
         };
         renderEdges();
       }
@@ -599,7 +601,7 @@ export function createCanvasRenderHelpersSource(): string {
         renderTemplatePreview();
         renderRelations();
         renderValidation();
-        renderMermaid();
+        renderMermaidSource();
         renderToolbarStatus();
         renderContextMenu();
         renderEdgeEditor();
@@ -1442,19 +1444,6 @@ export function createCanvasEventBindingsSource(): string {
           clientY: event.clientY
         };
       });
-
-      function updateConnectPreviewFromClientPoint(clientX, clientY) {
-        if (!connectFromClassId) {
-          return;
-        }
-        const rect = canvasShell.getBoundingClientRect();
-        const stagePoint = viewportPointToStagePoint(clientX - rect.left, clientY - rect.top);
-        connectPreviewPoint = {
-          x: stageToWorldX(stagePoint.x),
-          y: stageToWorldY(stagePoint.y)
-        };
-        renderEdges();
-      }
 
       canvasShell.addEventListener('mousemove', (event) => {
         lastCanvasPointerClientPoint = { x: event.clientX, y: event.clientY };
