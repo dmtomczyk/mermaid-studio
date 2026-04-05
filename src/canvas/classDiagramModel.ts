@@ -1,25 +1,21 @@
-export interface ClassDiagramClass {
-  id: string;
-  name: string;
-  members: string[];
-  x: number;
-  y: number;
-  width?: number;
-  height?: number;
-}
+import {
+  ClassDiagramCanvasEdge,
+  ClassDiagramCanvasModel,
+  ClassDiagramCanvasNode,
+  ClassDiagramRelationType
+} from './families/classDiagram/classDiagramTypes';
 
-export interface ClassDiagramRelation {
-  id: string;
-  from: string;
-  to: string;
+export type {
+  ClassDiagramCanvasEdge,
+  ClassDiagramCanvasModel,
+  ClassDiagramCanvasNode,
+  ClassDiagramRelationType
+} from './families/classDiagram/classDiagramTypes';
+
+export interface ClassDiagramClass extends ClassDiagramCanvasNode {}
+
+export interface ClassDiagramRelation extends ClassDiagramCanvasEdge {
   type: string;
-  label?: string;
-}
-
-export interface ClassDiagramCanvasModel {
-  family: 'classDiagram';
-  classes: ClassDiagramClass[];
-  relations: ClassDiagramRelation[];
 }
 
 export interface ClassDiagramValidationIssue {
