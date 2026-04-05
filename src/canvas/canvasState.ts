@@ -3,11 +3,13 @@ import * as vscode from 'vscode';
 import {
   ClassDiagramCanvasModel,
   ClassDiagramValidationIssue,
-  createEmptyClassDiagramModel,
-  generateClassDiagramSource,
-  looksLikeClassDiagram,
-  parseClassDiagramToModel
+  looksLikeClassDiagram
 } from './classDiagramModel';
+import {
+  createEmptyCanvasFamilyModel,
+  generateCanvasFamilyMermaid,
+  parseCanvasFamilyMermaid
+} from './families';
 
 export interface DiagramCanvasSource {
   documentUri?: vscode.Uri;
@@ -53,7 +55,7 @@ export function buildDiagramCanvasViewState(
     linkedFileLabel,
     linkedFileKind,
     model,
-    mermaid: generateClassDiagramSource(model),
+    mermaid: generateCanvasFamilyMermaid('classDiagram', model),
     canReimport: Boolean(source.documentUri),
     canOpenLinkedFile: Boolean(source.documentUri),
     canApply: !issues.some((issue) => issue.level === 'error'),
@@ -66,7 +68,7 @@ export async function resolveInitialCanvasSource(): Promise<{ source: DiagramCan
   if (!editor) {
     return {
       source: { kind: 'classDiagram' },
-      model: createEmptyClassDiagramModel()
+      model: createEmptyCanvasFamilyModel('classDiagram') as ClassDiagramCanvasModel
     };
   }
 
@@ -77,12 +79,12 @@ export async function resolveInitialCanvasSource(): Promise<{ source: DiagramCan
         kind: 'classDiagram',
         documentUri: editor.document.uri
       },
-      model: parseClassDiagramToModel(text)
+      model: parseCanvasFamilyMermaid('classDiagram', text) as ClassDiagramCanvasModel
     };
   }
 
   return {
     source: { kind: 'classDiagram' },
-    model: createEmptyClassDiagramModel()
+    model: createEmptyCanvasFamilyModel('classDiagram') as ClassDiagramCanvasModel
   };
 }

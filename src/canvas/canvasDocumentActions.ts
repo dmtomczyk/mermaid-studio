@@ -2,29 +2,31 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import {
   ClassDiagramCanvasModel,
-  generateClassDiagramSource,
-  looksLikeClassDiagram,
-  parseClassDiagramToModel,
-  validateClassDiagramModel
+  looksLikeClassDiagram
 } from './classDiagramModel';
+import {
+  generateCanvasFamilyMermaid,
+  parseCanvasFamilyMermaid,
+  validateCanvasFamilyModel
+} from './families';
 import { createUntitledMermaidDocument, getEditorContext, insertMermaidText } from '../utils/editor';
 import { MermaidPreviewPanel } from '../preview/MermaidPreviewPanel';
 import { DiagramCanvasSource } from './canvasState';
 
 export async function createCanvasFile(model: ClassDiagramCanvasModel): Promise<void> {
-  await createUntitledMermaidDocument(generateClassDiagramSource(model));
+  await createUntitledMermaidDocument(generateCanvasFamilyMermaid('classDiagram', model));
 }
 
 export async function applyCanvasToDocument(
   source: DiagramCanvasSource,
   model: ClassDiagramCanvasModel
 ): Promise<DiagramCanvasSource> {
-  const issues = validateClassDiagramModel(model).filter((issue) => issue.level === 'error');
+  const issues = validateCanvasFamilyModel('classDiagram', model).filter((issue) => issue.level === 'error');
   if (issues.length) {
     throw new Error(`Fix ${issues.length} validation error${issues.length === 1 ? '' : 's'} before applying the canvas.`);
   }
 
-  const mermaid = generateClassDiagramSource(model);
+  const mermaid = generateCanvasFamilyMermaid('classDiagram', model);
   const targetEditor = await resolveTargetEditorForApply(source, mermaid);
   const context = getEditorContext(targetEditor);
 
@@ -60,7 +62,7 @@ export async function reimportCanvasFromDocument(
     throw new Error('The linked document is no longer a supported classDiagram source.');
   }
 
-  return parseClassDiagramToModel(text);
+  return parseCanvasFamilyMermaid('classDiagram', text) as ClassDiagramCanvasModel;
 }
 
 export async function openCanvasPreview(
@@ -79,7 +81,7 @@ export async function openCanvasPreview(
     mode: 'virtual',
     key: 'diagram-canvas-preview',
     title: 'Mermaid Preview: Diagram Canvas',
-    mermaid: generateClassDiagramSource(model)
+    mermaid: generateCanvasFamilyMermaid('classDiagram', model)
   });
 }
 
