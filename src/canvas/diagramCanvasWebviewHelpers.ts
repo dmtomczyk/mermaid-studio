@@ -401,6 +401,48 @@ ${createCanvasSelectionCoreSource()}
 
 export function createCanvasRenderHelpersSource(): string {
   return `
+      function initializeViewportIfNeeded() {
+        if (viewportInitialized) {
+          return;
+        }
+        if (!state.model.classes.length) {
+          return;
+        }
+        const shellRect = canvasShell.getBoundingClientRect();
+        if (!shellRect.width || !shellRect.height) {
+          requestAnimationFrame(() => requestAnimationFrame(() => initializeViewportIfNeeded()));
+          return;
+        }
+        viewportInitialized = true;
+        fitBounds(getDiagramBounds());
+        requestAnimationFrame(() => renderMinimap());
+      }
+
+      function renderToolbarStatus() {
+        if (!toolbarStatus) {
+          return;
+        }
+        if (connectFromClassId) {
+          const source = state.model.classes.find((entry) => entry.id === connectFromClassId);
+          toolbarStatus.textContent = source
+            ? 'Connecting from ' + source.name + '. Release on another class to create a relationship.'
+            : 'Connecting classes. Release on another class to create a relationship.';
+          return;
+        }
+        if (selectedRelationId) {
+          toolbarStatus.textContent = 'Relationship selected. Edit it from the edge editor or delete it from the canvas.';
+          return;
+        }
+        if (selectedClassId) {
+          const selected = state.model.classes.find((entry) => entry.id === selectedClassId);
+          toolbarStatus.textContent = selected
+            ? 'Selected ' + selected.name + '. Drag to move, edit members in the inspector, or start a connection.'
+            : 'Class selected. Drag to move or start a connection.';
+          return;
+        }
+        toolbarStatus.textContent = 'Drag classes. Double-click bare canvas to place the selected template. Drag from ports to connect.';
+      }
+
       function render() {
         sourceLabel.textContent = state.sourceLabel || 'classDiagram canvas';
         reimportButton.disabled = !state.canReimport;
@@ -616,7 +658,6 @@ export function createCanvasRenderGroupsSource(): string {
               originY: entry.y
             };
             header.setPointerCapture(event.pointerId);
-            render();
           });
 
           header.addEventListener('pointermove', (event) => {
@@ -627,7 +668,8 @@ export function createCanvasRenderGroupsSource(): string {
             const deltaY = (event.clientY - dragState.startY) / zoom;
             entry.x = Math.max(-WORLD_ORIGIN_X + 40, Math.round(dragState.originX + deltaX));
             entry.y = Math.max(-WORLD_ORIGIN_Y + 40, Math.round(dragState.originY + deltaY));
-            renderNodes();
+            card.style.left = worldToStageX(entry.x) + 'px';
+            card.style.top = worldToStageY(entry.y) + 'px';
             renderEdges();
           });
 
@@ -635,7 +677,11 @@ export function createCanvasRenderGroupsSource(): string {
             if (!dragState || dragState.id !== entry.id || dragState.pointerId !== event.pointerId) {
               return;
             }
+            if (header.hasPointerCapture && header.hasPointerCapture(event.pointerId)) {
+              header.releasePointerCapture(event.pointerId);
+            }
             dragState = null;
+            render();
             emitStateChanged();
           };
 
@@ -973,8 +1019,15 @@ export function createCanvasRenderGroupsSource(): string {
 
       function renderMinimap() {
         minimapBody.innerHTML = '';
-        const width = minimapBody.clientWidth || 220;
-        const height = minimapBody.clientHeight || 111;
+        const rect = minimapBody.getBoundingClientRect();
+        const measuredWidth = Math.round(rect.width);
+        const measuredHeight = Math.round(rect.height);
+        if (!measuredWidth || !measuredHeight) {
+          requestAnimationFrame(() => requestAnimationFrame(() => renderMinimap()));
+          return;
+        }
+        const width = measuredWidth || 220;
+        const height = measuredHeight || 111;
         const scaleX = width / WORLD_WIDTH;
         const scaleY = height / WORLD_HEIGHT;
 
@@ -1288,6 +1341,47 @@ export function createCanvasRenderGroupsSource(): string {
         });
       }
 
+      function renderContextMenu() {
+        if (!canvasContextMenu) {
+          contextMenu.hidden = true;
+          contextMenu.innerHTML = '';
+          return;
+        }
+
+        const hasSelectedClass = Boolean(getSelectedClass());
+        const hasSelectedRelation = Boolean(getSelectedRelation());
+        const title = hasSelectedClass
+          ? 'Class actions'
+          : hasSelectedRelation
+            ? 'Relationship actions'
+            : 'Canvas actions';
+
+        const items = hasSelectedClass
+          ? [
+              ['rename', 'Rename'],
+              ['member', 'Edit members'],
+              ['duplicate', 'Duplicate'],
+              ['connect', 'Connect'],
+              ['delete', contextDeleteArmed ? 'Confirm delete' : 'Delete']
+            ]
+          : hasSelectedRelation
+            ? [
+                ['label', 'Rename label'],
+                ['delete', contextDeleteArmed ? 'Confirm delete' : 'Delete']
+              ]
+            : [
+                ['add-empty', 'Add blank class'],
+                ['add-template', 'Add selected template'],
+                ['duplicate', 'Duplicate selected'],
+                ['connect-selected', 'Add connected class']
+              ];
+
+        contextMenu.hidden = false;
+        contextMenu.innerHTML = '<div class="context-menu-title muted">' + escapeHtml(title) + '</div>'
+          + items.map(([action, label]) => '<button type="button" data-action="' + escapeHtml(action) + '" class="' + (action === 'delete' ? 'danger' : '') + '">' + escapeHtml(label) + '</button>').join('');
+        contextMenu.style.left = canvasContextMenu.x + 'px';
+        contextMenu.style.top = canvasContextMenu.y + 'px';
+      }
 
 `;
 }
@@ -1579,6 +1673,13 @@ export function createCanvasEventBindingsSource(): string {
         }
       });
 
+      window.addEventListener('resize', () => {
+        renderMinimap();
+        if (!viewportInitialized) {
+          initializeViewportIfNeeded();
+        }
+      });
+
       window.addEventListener('message', (event) => {
         const message = event.data;
         if (message.type === 'setState') {
@@ -1594,9 +1695,16 @@ export function createCanvasEventBindingsSource(): string {
             mermaid: message.mermaid
           };
           render();
-          if (!viewportInitialized) {
-            viewportInitialized = true;
-            fitBounds(getDiagramBounds());
+          if (!hasReceivedInitialState) {
+            hasReceivedInitialState = true;
+            viewportInitialized = false;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              initializeViewportIfNeeded();
+              renderMinimap();
+            }));
+          } else {
+            initializeViewportIfNeeded();
+            renderMinimap();
           }
         }
       });

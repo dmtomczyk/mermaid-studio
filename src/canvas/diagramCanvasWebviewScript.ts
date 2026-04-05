@@ -34,6 +34,7 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
       const WORLD_ORIGIN_Y = 1300;
 ${createClassDiagramWebviewSource()}
       let viewportInitialized = false;
+      let hasReceivedInitialState = false;
       let selectedClassId;
       let selectedRelationId;
       let connectFromClassId;
