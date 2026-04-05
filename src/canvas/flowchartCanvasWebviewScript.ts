@@ -31,6 +31,18 @@ export function createFlowchartCanvasWebviewScript(debugEnabled: boolean): strin
         });
       });
       let state = {
+        family: 'flowchart',
+        familyLabel: 'Flowchart',
+        availableFamilies: [
+          { id: 'classDiagram', label: 'Class Diagram' },
+          { id: 'flowchart', label: 'Flowchart' }
+        ],
+        shellLabels: {
+          templateSelect: 'Node template',
+          addTemplateButton: 'Add this node template',
+          sidebarTemplateSection: 'Add Node',
+          relationSection: 'Edges'
+        },
         sourceLabel: 'flowchart canvas',
         linkedFileLabel: 'Untitled canvas',
         linkedFileKind: 'ephemeral',
@@ -66,6 +78,9 @@ ${createCanvasViewportCoreSource()}
       let debugState = { events: [] };
 
       const sourceLabel = document.getElementById('sourceLabel');
+      const familySelect = document.getElementById('familySelect');
+      const templateSectionTitle = document.getElementById('templateSectionTitle');
+      const relationSectionTitle = document.getElementById('relationSectionTitle');
       const toolbarStatus = document.getElementById('toolbarStatus');
       const debugPanel = CANVAS_DEBUG ? document.getElementById('debugPanel') : null;
       const canvasShell = document.getElementById('canvasShell');
@@ -102,13 +117,12 @@ ${createCanvasViewportCoreSource()}
       edgeEditor.hidden = true;
       contextMenu.hidden = true;
       contextMenu.innerHTML = '';
-      document.querySelectorAll('.section h2').forEach((heading) => {
-        if (heading.textContent === 'Add Class') {
-          heading.textContent = 'Add Node';
-        } else if (heading.textContent === 'Relationships') {
-          heading.textContent = 'Edges';
-        }
-      });
+      if (templateSectionTitle) {
+        templateSectionTitle.textContent = 'Add Node';
+      }
+      if (relationSectionTitle) {
+        relationSectionTitle.textContent = 'Edges';
+      }
       addClassButton.textContent = 'Add Node';
 
       function pushDebugEvent(kind, details) {
@@ -717,6 +731,22 @@ ${createCanvasViewportCoreSource()}
 
       function render() {
         sourceLabel.textContent = state.sourceLabel || 'flowchart canvas';
+        if (familySelect) {
+          familySelect.innerHTML = (state.availableFamilies || []).map((entry) => '<option value="' + entry.id + '">' + escapeHtml(entry.label) + '</option>').join('');
+          familySelect.value = state.family || 'flowchart';
+        }
+        if (templateSectionTitle) {
+          templateSectionTitle.textContent = state.shellLabels?.sidebarTemplateSection || 'Add Node';
+        }
+        if (relationSectionTitle) {
+          relationSectionTitle.textContent = state.shellLabels?.relationSection || 'Edges';
+        }
+        if (addClassButton) {
+          addClassButton.textContent = state.shellLabels?.addTemplateButton || 'Add Node';
+        }
+        if (addTemplateFromSidebarButton) {
+          addTemplateFromSidebarButton.textContent = (state.shellLabels?.addTemplateButton || 'Add Node') + ' to canvas';
+        }
         reimportButton.disabled = !state.canReimport;
         openLinkedFileButton.disabled = !state.canOpenLinkedFile;
         classTemplateSelect.value = selectedTemplateId;
@@ -752,6 +782,15 @@ ${createCanvasViewportCoreSource()}
       classTemplateSelect.addEventListener('change', () => {
         selectedTemplateId = classTemplateSelect.value || 'process';
         renderTemplatePreview();
+      });
+      familySelect?.addEventListener('change', () => {
+        const nextFamily = familySelect.value;
+        const hasContent = Array.isArray(state.model?.nodes) ? state.model.nodes.length || state.model.edges.length : false;
+        if (hasContent && !confirm('Switch diagram family and reset the current canvas?')) {
+          familySelect.value = state.family || 'flowchart';
+          return;
+        }
+        vscode.postMessage({ type: 'switchFamily', family: nextFamily });
       });
       addClassButton.addEventListener('click', () => {
         addNodeAt(160 + state.model.nodes.length * 28, 120 + state.model.nodes.length * 18, selectedTemplateId);
@@ -898,6 +937,10 @@ ${createCanvasViewportCoreSource()}
         if (message.type === 'setState') {
           pushDebugEvent('message:setState', { nodeCount: Array.isArray(message.model?.nodes) ? message.model.nodes.length : -1, edgeCount: Array.isArray(message.model?.edges) ? message.model.edges.length : -1 });
           state = {
+            family: message.family || 'flowchart',
+            familyLabel: message.familyLabel || 'Flowchart',
+            availableFamilies: Array.isArray(message.availableFamilies) ? message.availableFamilies : state.availableFamilies,
+            shellLabels: message.shellLabels || state.shellLabels,
             sourceLabel: message.sourceLabel,
             linkedFileLabel: message.linkedFileLabel || message.sourceLabel,
             linkedFileKind: message.linkedFileKind || 'ephemeral',

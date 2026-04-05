@@ -50,6 +50,18 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
         });
       });
       let state = {
+        family: 'classDiagram',
+        familyLabel: 'Class Diagram',
+        availableFamilies: [
+          { id: 'classDiagram', label: 'Class Diagram' },
+          { id: 'flowchart', label: 'Flowchart' }
+        ],
+        shellLabels: {
+          templateSelect: 'Class template',
+          addTemplateButton: 'Add this template',
+          sidebarTemplateSection: 'Add Class',
+          relationSection: 'Relationships'
+        },
         sourceLabel: 'classDiagram canvas',
         linkedFileLabel: 'Untitled canvas',
         linkedFileKind: 'ephemeral',
@@ -101,6 +113,9 @@ ${createClassDiagramWebviewSource()}
       };
 
       const sourceLabel = document.getElementById('sourceLabel');
+      const familySelect = document.getElementById('familySelect');
+      const templateSectionTitle = document.getElementById('templateSectionTitle');
+      const relationSectionTitle = document.getElementById('relationSectionTitle');
       const toolbarStatus = document.getElementById('toolbarStatus');
       const debugPanel = CANVAS_DEBUG ? document.getElementById('debugPanel') : null;
       const canvasShell = document.getElementById('canvasShell');

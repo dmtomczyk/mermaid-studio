@@ -524,7 +524,16 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
     <header>
       <div>
         <h1>Diagram Canvas</h1>
-        <div id="sourceLabel" class="meta">classDiagram canvas</div>
+        <div class="meta" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <span id="sourceLabel">classDiagram canvas</span>
+          <label style="display:inline-flex; gap:6px; align-items:center; margin:0;">
+            <span id="familyPickerLabel">Family</span>
+            <select id="familySelect" class="secondary" aria-label="Diagram family">
+              <option value="classDiagram">Class Diagram</option>
+              <option value="flowchart">Flowchart</option>
+            </select>
+          </label>
+        </div>
       </div>
       <div class="actions">
         <button id="copyButton" class="secondary">Copy Mermaid</button>
@@ -536,7 +545,7 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
     <main>
       <section class="canvas-pane">
         <div class="toolbar">
-          <select id="classTemplateSelect" class="secondary" aria-label="Class template">
+          <select id="classTemplateSelect" class="secondary" aria-label="Canvas template">
             <option value="empty">Empty Class</option>
             <option value="entity">Entity / Model</option>
             <option value="service">Service</option>
@@ -598,7 +607,7 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
         </section>
 
         <section class="section">
-          <h2>Add Class</h2>
+          <h2 id="templateSectionTitle">Add Class</h2>
           <div id="templatePreview" class="meta"></div>
           <div class="small-actions" style="margin-top:10px;">
             <button id="addTemplateFromSidebarButton">Add this template to canvas</button>
@@ -611,7 +620,7 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
         </section>
 
         <section class="section">
-          <h2>Relationships</h2>
+          <h2 id="relationSectionTitle">Relationships</h2>
           <div id="relationList" class="relation-list"></div>
         </section>
 

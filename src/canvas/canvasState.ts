@@ -19,6 +19,15 @@ export interface DiagramCanvasSource {
 
 export interface DiagramCanvasViewState {
   type: 'setState';
+  family: CanvasDiagramFamily;
+  familyLabel: string;
+  availableFamilies: { id: CanvasDiagramFamily; label: string }[];
+  shellLabels: {
+    templateSelect: string;
+    addTemplateButton: string;
+    sidebarTemplateSection: string;
+    relationSection: string;
+  };
   sourceLabel: string;
   linkedFileLabel: string;
   linkedFileKind: 'markdown' | 'mermaid' | 'ephemeral';
@@ -30,10 +39,37 @@ export interface DiagramCanvasViewState {
   issues: ValidationIssue[];
 }
 
+const CANVAS_FAMILY_OPTIONS: { id: CanvasDiagramFamily; label: string }[] = [
+  { id: 'classDiagram', label: 'Class Diagram' },
+  { id: 'flowchart', label: 'Flowchart' }
+];
+
+export function getCanvasFamilyLabel(family: CanvasDiagramFamily): string {
+  return CANVAS_FAMILY_OPTIONS.find((entry) => entry.id === family)?.label || family;
+}
+
+function getCanvasShellLabels(family: CanvasDiagramFamily): DiagramCanvasViewState['shellLabels'] {
+  if (family === 'flowchart') {
+    return {
+      templateSelect: 'Node template',
+      addTemplateButton: 'Add this node template',
+      sidebarTemplateSection: 'Add Node',
+      relationSection: 'Edges'
+    };
+  }
+
+  return {
+    templateSelect: 'Class template',
+    addTemplateButton: 'Add this template',
+    sidebarTemplateSection: 'Add Class',
+    relationSection: 'Relationships'
+  };
+}
+
 export function getDiagramCanvasTitle(source: DiagramCanvasSource): string {
   return source.documentUri
     ? `Diagram Canvas: ${path.basename(source.documentUri.fsPath)}`
-    : `Diagram Canvas: ${source.kind}`;
+    : `Diagram Canvas: ${getCanvasFamilyLabel(source.kind)}`;
 }
 
 export function buildDiagramCanvasViewState(
@@ -52,6 +88,10 @@ export function buildDiagramCanvasViewState(
 
   return {
     type: 'setState',
+    family: source.kind,
+    familyLabel: getCanvasFamilyLabel(source.kind),
+    availableFamilies: CANVAS_FAMILY_OPTIONS,
+    shellLabels: getCanvasShellLabels(source.kind),
     sourceLabel: linkedFileLabel,
     linkedFileLabel,
     linkedFileKind,

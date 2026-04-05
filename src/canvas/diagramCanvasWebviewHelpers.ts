@@ -458,6 +458,22 @@ export function createCanvasRenderHelpersSource(): string {
 
       function render() {
         sourceLabel.textContent = state.sourceLabel || 'classDiagram canvas';
+        if (familySelect) {
+          familySelect.innerHTML = (state.availableFamilies || []).map((entry) => '<option value="' + escapeHtml(entry.id) + '">' + escapeHtml(entry.label) + '</option>').join('');
+          familySelect.value = state.family || 'classDiagram';
+        }
+        if (templateSectionTitle) {
+          templateSectionTitle.textContent = state.shellLabels?.sidebarTemplateSection || 'Add Class';
+        }
+        if (relationSectionTitle) {
+          relationSectionTitle.textContent = state.shellLabels?.relationSection || 'Relationships';
+        }
+        if (addClassButton) {
+          addClassButton.textContent = state.shellLabels?.addTemplateButton || 'Add this template';
+        }
+        if (addTemplateFromSidebarButton) {
+          addTemplateFromSidebarButton.textContent = (state.shellLabels?.addTemplateButton || 'Add this template') + ' to canvas';
+        }
         reimportButton.disabled = !state.canReimport;
         openLinkedFileButton.disabled = !state.canOpenLinkedFile;
         classTemplateSelect.value = selectedTemplateId;
@@ -1456,6 +1472,16 @@ export function createCanvasEventBindingsSource(): string {
         renderTemplatePreview();
       });
 
+      familySelect?.addEventListener('change', () => {
+        const nextFamily = familySelect.value;
+        const hasContent = Array.isArray(state.model?.classes) ? state.model.classes.length || state.model.relations.length : false;
+        if (hasContent && !confirm('Switch diagram family and reset the current canvas?')) {
+          familySelect.value = state.family || 'classDiagram';
+          return;
+        }
+        vscode.postMessage({ type: 'switchFamily', family: nextFamily });
+      });
+
       addClassButton.addEventListener('click', () => {
         addClassAt(160 + state.model.classes.length * 28, 120 + state.model.classes.length * 18, selectedTemplateId);
       });
@@ -1777,6 +1803,10 @@ export function createCanvasEventBindingsSource(): string {
             sourceLabel: message.sourceLabel || ''
           });
           state = {
+            family: message.family || 'classDiagram',
+            familyLabel: message.familyLabel || 'Class Diagram',
+            availableFamilies: Array.isArray(message.availableFamilies) ? message.availableFamilies : state.availableFamilies,
+            shellLabels: message.shellLabels || state.shellLabels,
             sourceLabel: message.sourceLabel,
             linkedFileLabel: message.linkedFileLabel || message.sourceLabel,
             linkedFileKind: message.linkedFileKind || 'ephemeral',

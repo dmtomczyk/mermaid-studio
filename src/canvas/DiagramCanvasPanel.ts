@@ -8,7 +8,7 @@ import {
 } from './classDiagramModel';
 import { normalizeFlowchartModel } from './families/flowchart/flowchartModel';
 import { createDiagramCanvasHtml } from './diagramCanvasHtml';
-import { generateCanvasFamilyMermaid, validateCanvasFamilyModel } from './families';
+import { createEmptyCanvasFamilyModel, generateCanvasFamilyMermaid, validateCanvasFamilyModel } from './families';
 import { logCanvasHostEvent } from './canvasOutput';
 import { runCanvasWebviewDiagnostics } from './canvasWebviewDiagnostics';
 import { isCanvasFamilyImplemented } from './canvasFamilyDetection';
@@ -18,6 +18,7 @@ import {
   getDiagramCanvasTitle,
   resolveInitialCanvasSource
 } from './canvasState';
+import { CanvasDiagramFamily } from './types/canvasFamilies';
 import {
   applyCanvasToDocument,
   createCanvasFile,
@@ -120,6 +121,9 @@ export class DiagramCanvasPanel {
           case 'openLinkedFile':
             await this.openLinkedFile();
             break;
+          case 'switchFamily':
+            await this.switchFamily(message.family);
+            break;
         }
       } catch (error) {
         const messageText = error instanceof Error ? error.message : String(error);
@@ -129,6 +133,9 @@ export class DiagramCanvasPanel {
   }
 
   private normalizeIncomingModel(model: any): any {
+    if (model === undefined) {
+      return createEmptyCanvasFamilyModel(this.source.kind as any);
+    }
     if (this.source.kind === 'flowchart') {
       return normalizeFlowchartModel(model);
     }
@@ -163,6 +170,23 @@ export class DiagramCanvasPanel {
 
   private async openLinkedFile(): Promise<void> {
     await openCanvasLinkedFile(this.source);
+  }
+
+  private async switchFamily(nextFamily: CanvasDiagramFamily | undefined): Promise<void> {
+    if (!nextFamily || nextFamily === this.source.kind) {
+      return;
+    }
+
+    if (!isCanvasFamilyImplemented(nextFamily)) {
+      await vscode.window.showInformationMessage(`Diagram Canvas support for ${nextFamily} is not wired yet.`);
+      return;
+    }
+
+    this.source = { kind: nextFamily };
+    this.model = this.normalizeIncomingModel(undefined);
+    this.panel.webview.html = this.getHtml();
+    await this.refresh();
+    await vscode.window.showInformationMessage(`Switched Diagram Canvas to ${nextFamily}.`);
   }
 
   private getHtml(): string {
