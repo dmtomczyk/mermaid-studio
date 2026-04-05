@@ -7,6 +7,7 @@ import {
 } from './diagramCanvasWebviewHelpers';
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
+import { createCanvasRuntimeFamilySource } from './core/canvasRuntimeFamilySource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createClassDiagramWebviewSource } from './families/classDiagram/classDiagramWebviewSource';
@@ -81,10 +82,12 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
       const WORLD_ORIGIN_X = 1900;
       const WORLD_ORIGIN_Y = 1300;
 ${createClassDiagramWebviewSource()}
+${createCanvasRuntimeFamilySource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
 ${createCanvasHostBridgeSource()}
 ${createCanvasPersistedStateSource()}
+      const runtimeFamily = createClassDiagramRuntimeFamilyConfig();
       let viewportInitialized = false;
       let hasReceivedInitialState = false;
       let selectedClassId;
@@ -168,22 +171,7 @@ ${createCanvasRenderGroupsSource()}
 
 ${createCanvasEventBindingsSource()}
 
-      restoreCanvasPersistedState({
-        restoreSelection(persisted) {
-          selectedClassId = persisted.selectedClassId;
-          selectedRelationId = persisted.selectedRelationId;
-          connectFromClassId = persisted.connectFromClassId;
-          connectPreviewPoint = persisted.connectPreviewPoint || null;
-        },
-        restoreExtras(persisted) {
-          selectedTemplateId = persisted.selectedTemplateId || 'empty';
-          connectDragActive = persisted.connectDragActive || false;
-          edgeEditorRelationId = persisted.edgeEditorRelationId;
-          canvasContextMenu = persisted.canvasContextMenu || null;
-          editingTitleClassId = persisted.editingTitleClassId;
-          editingMembersClassId = persisted.editingMembersClassId;
-        }
-      });
+      restoreCanvasPersistedState(runtimeFamily);
       requestInitialCanvasState();
 `;
 }

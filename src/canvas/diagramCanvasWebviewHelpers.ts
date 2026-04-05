@@ -457,13 +457,7 @@ export function createCanvasRenderHelpersSource(): string {
       }
 
       function render() {
-        renderCanvasShellChrome({
-          family: 'classDiagram',
-          sourceLabel: 'classDiagram canvas',
-          templateSectionTitle: 'Add Class',
-          relationSectionTitle: 'Relationships',
-          addTemplateButton: 'Add this template'
-        });
+        renderCanvasShellChrome(runtimeFamily);
         reimportButton.disabled = !state.canReimport;
         openLinkedFileButton.disabled = !state.canOpenLinkedFile;
         classTemplateSelect.value = selectedTemplateId;
@@ -1462,11 +1456,7 @@ export function createCanvasEventBindingsSource(): string {
         renderTemplatePreview();
       });
 
-      function hasCanvasContentForFamilySwitch() {
-        return Array.isArray(state.model?.classes) ? state.model.classes.length || state.model.relations.length : false;
-      }
-
-      bindCanvasFamilySwitcher('classDiagram');
+      bindCanvasFamilySwitcher(runtimeFamily);
 
       addClassButton.addEventListener('click', () => {
         addClassAt(160 + state.model.classes.length * 28, 120 + state.model.classes.length * 18, selectedTemplateId);

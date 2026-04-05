@@ -1,17 +1,17 @@
 export function createCanvasPersistedStateSource(): string {
   return `
-      function restoreCanvasPersistedState(config) {
+      function restoreCanvasPersistedState(runtimeFamily) {
         const persisted = vscode.getState();
         if (!persisted || !persisted.state) {
           return false;
         }
         state = persisted.state;
         zoom = persisted.zoom || 1;
-        if (typeof config.restoreSelection === 'function') {
-          config.restoreSelection(persisted);
+        if (typeof runtimeFamily.restoreSelection === 'function') {
+          runtimeFamily.restoreSelection(persisted);
         }
-        if (typeof config.restoreExtras === 'function') {
-          config.restoreExtras(persisted);
+        if (typeof runtimeFamily.restoreExtras === 'function') {
+          runtimeFamily.restoreExtras(persisted);
         }
         render();
         return true;

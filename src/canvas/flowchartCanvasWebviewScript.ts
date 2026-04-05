@@ -1,5 +1,6 @@
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
+import { createCanvasRuntimeFamilySource } from './core/canvasRuntimeFamilySource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createCanvasViewportCoreSource } from './core/canvasViewportSource';
@@ -61,12 +62,14 @@ export function createFlowchartCanvasWebviewScript(debugEnabled: boolean): strin
       const WORLD_HEIGHT = 4000;
       const WORLD_ORIGIN_X = 1900;
       const WORLD_ORIGIN_Y = 1300;
+${createCanvasRuntimeFamilySource()}
 ${createFlowchartWebviewSource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
 ${createCanvasHostBridgeSource()}
 ${createCanvasPersistedStateSource()}
 ${createCanvasViewportCoreSource()}
+      const runtimeFamily = createFlowchartRuntimeFamilyConfig();
       let viewportInitialized = false;
       let selectedNodeId;
       let selectedEdgeId;
@@ -126,12 +129,12 @@ ${createCanvasViewportCoreSource()}
       contextMenu.hidden = true;
       contextMenu.innerHTML = '';
       if (templateSectionTitle) {
-        templateSectionTitle.textContent = 'Add Node';
+        templateSectionTitle.textContent = runtimeFamily.shell.templateSectionTitle;
       }
       if (relationSectionTitle) {
-        relationSectionTitle.textContent = 'Edges';
+        relationSectionTitle.textContent = runtimeFamily.shell.relationSectionTitle;
       }
-      addClassButton.textContent = 'Add Node';
+      addClassButton.textContent = runtimeFamily.shell.addTemplateButton;
 
       function pushDebugEvent(kind, details) {
         if (!CANVAS_DEBUG) {
@@ -738,13 +741,7 @@ ${createCanvasViewportCoreSource()}
       }
 
       function render() {
-        renderCanvasShellChrome({
-          family: 'flowchart',
-          sourceLabel: 'flowchart canvas',
-          templateSectionTitle: 'Add Node',
-          relationSectionTitle: 'Edges',
-          addTemplateButton: 'Add Node'
-        });
+        renderCanvasShellChrome(runtimeFamily);
         reimportButton.disabled = !state.canReimport;
         openLinkedFileButton.disabled = !state.canOpenLinkedFile;
         classTemplateSelect.value = selectedTemplateId;
@@ -764,27 +761,14 @@ ${createCanvasViewportCoreSource()}
         vscode.setState({ state, selectedNodeId, selectedEdgeId, connectFromNodeId, connectPreviewPoint, selectedTemplateId, zoom });
       }
 
-      restoreCanvasPersistedState({
-        restoreSelection(persisted) {
-          selectedNodeId = persisted.selectedNodeId;
-          selectedEdgeId = persisted.selectedEdgeId;
-          connectFromNodeId = persisted.connectFromNodeId;
-          connectPreviewPoint = persisted.connectPreviewPoint || null;
-        },
-        restoreExtras(persisted) {
-          selectedTemplateId = persisted.selectedTemplateId || 'process';
-        }
-      });
+      restoreCanvasPersistedState(runtimeFamily);
 
       classTemplateSelect.innerHTML = FLOWCHART_TEMPLATES.map((template) => '<option value="' + template.id + '">' + escapeHtml(template.label) + '</option>').join('');
       classTemplateSelect.addEventListener('change', () => {
         selectedTemplateId = classTemplateSelect.value || 'process';
         renderTemplatePreview();
       });
-      function hasCanvasContentForFamilySwitch() {
-        return Array.isArray(state.model?.nodes) ? state.model.nodes.length || state.model.edges.length : false;
-      }
-      bindCanvasFamilySwitcher('flowchart');
+      bindCanvasFamilySwitcher(runtimeFamily);
       addClassButton.addEventListener('click', () => {
         addNodeAt(160 + state.model.nodes.length * 28, 120 + state.model.nodes.length * 18, selectedTemplateId);
       });
