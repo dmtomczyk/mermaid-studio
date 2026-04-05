@@ -6,13 +6,20 @@ import {
   createCanvasRenderHelpersSource
 } from './diagramCanvasWebviewHelpers';
 import { createClassDiagramWebviewSource } from './families/classDiagram/classDiagramWebviewSource';
+import { CanvasDiagramFamily } from './types/canvasFamilies';
+import { createFlowchartCanvasWebviewScript } from './flowchartCanvasWebviewScript';
 
 export interface DiagramCanvasWebviewScriptParams {
   debugEnabled: boolean;
+  family: CanvasDiagramFamily;
 }
 
 export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScriptParams): string {
-  const { debugEnabled } = params;
+  const { debugEnabled, family } = params;
+
+  if (family === 'flowchart') {
+    return createFlowchartCanvasWebviewScript(debugEnabled);
+  }
 
   return `
       const vscode = acquireVsCodeApi();

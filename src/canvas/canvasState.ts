@@ -64,7 +64,7 @@ export function buildDiagramCanvasViewState(
   };
 }
 
-export async function resolveInitialCanvasSource(): Promise<{ source: DiagramCanvasSource; model: ClassDiagramCanvasModel }> {
+export async function resolveInitialCanvasSource(): Promise<{ source: DiagramCanvasSource; model: any }> {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
     return {
@@ -91,7 +91,7 @@ export async function resolveInitialCanvasSource(): Promise<{ source: DiagramCan
         kind: 'flowchart',
         documentUri: editor.document.uri
       },
-      model: createEmptyCanvasFamilyModel('classDiagram') as ClassDiagramCanvasModel
+      model: parseCanvasFamilyMermaid('flowchart', text) as any
     };
   }
 

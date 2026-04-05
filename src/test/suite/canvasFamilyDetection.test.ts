@@ -17,8 +17,8 @@ suite('canvas family detection', () => {
     assert.strictEqual(looksLikeFlowchart('A --> B\n'), false);
   });
 
-  test('implemented-family gate is currently classDiagram-only', () => {
+  test('implemented-family gate includes flowchart runtime path', () => {
     assert.strictEqual(isCanvasFamilyImplemented('classDiagram'), true);
-    assert.strictEqual(isCanvasFamilyImplemented('flowchart'), false);
+    assert.strictEqual(isCanvasFamilyImplemented('flowchart'), true);
   });
 });

@@ -1,13 +1,15 @@
 import { createDiagramCanvasWebviewScript } from './diagramCanvasWebviewScript';
+import { CanvasDiagramFamily } from './types/canvasFamilies';
 
 export interface DiagramCanvasHtmlParams {
   cspSource: string;
   nonce: string;
   debugEnabled: boolean;
+  family: CanvasDiagramFamily;
 }
 
 export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string {
-  const { cspSource, nonce, debugEnabled } = params;
+  const { cspSource, nonce, debugEnabled, family } = params;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -625,7 +627,7 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
       </aside>
     </main>
 
-    <script nonce="${nonce}">${createDiagramCanvasWebviewScript({ debugEnabled })}</script>
+    <script nonce="${nonce}">${createDiagramCanvasWebviewScript({ debugEnabled, family })}</script>
   </body>
 </html>`;
 }

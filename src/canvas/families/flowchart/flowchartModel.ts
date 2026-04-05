@@ -17,6 +17,40 @@ export function looksLikeFlowchart(source: string): boolean {
   return /^\s*(?:flowchart|graph)\s+(?:TB|TD|BT|LR|RL)\b/im.test(source);
 }
 
+export function normalizeFlowchartModel(model: Partial<FlowchartCanvasModel> | undefined): FlowchartCanvasModel {
+  return {
+    family: 'flowchart',
+    direction: model?.direction && ['TB', 'TD', 'BT', 'LR', 'RL'].includes(model.direction) ? model.direction : DEFAULT_DIRECTION,
+    nodes: Array.isArray(model?.nodes)
+      ? model.nodes.map((node, index) => ({
+          id: String(node?.id || `node-${index + 1}`),
+          label: String(node?.label || humanizeFlowchartId(String(node?.id || `node-${index + 1}`))),
+          shape: isFlowchartShape(node?.shape) ? node.shape : 'rect',
+          x: Number.isFinite(node?.x) ? Number(node.x) : 160 + (index % 3) * 240,
+          y: Number.isFinite(node?.y) ? Number(node.y) : 120 + Math.floor(index / 3) * 160,
+          width: Number.isFinite(node?.width) ? Number(node.width) : DEFAULT_NODE_WIDTH,
+          height: Number.isFinite(node?.height) ? Number(node.height) : DEFAULT_NODE_HEIGHT,
+          style: node?.style,
+          className: node?.className
+        }))
+      : [],
+    edges: Array.isArray(model?.edges)
+      ? model.edges.map((edge, index) => ({
+          id: String(edge?.id || `edge-${index + 1}`),
+          from: String(edge?.from || ''),
+          to: String(edge?.to || ''),
+          type: sanitizeFlowchartEdgeType(edge?.type),
+          label: edge?.label ? String(edge.label) : undefined,
+          style: edge?.style,
+          className: edge?.className,
+          animate: Boolean(edge?.animate),
+          animationSpeed: edge?.animationSpeed === 'slow' ? 'slow' : edge?.animationSpeed === 'fast' ? 'fast' : undefined,
+          curve: edge?.curve ? String(edge.curve) : undefined
+        }))
+      : []
+  };
+}
+
 export function createEmptyFlowchartModel(): FlowchartCanvasModel {
   return {
     family: 'flowchart',
@@ -179,6 +213,10 @@ function ensureFlowchartNode(
   seen.set(id, node);
   model.nodes.push(node);
   return node;
+}
+
+function isFlowchartShape(value: unknown): value is FlowchartNodeShape {
+  return typeof value === 'string' && ['rect', 'rounded', 'stadium', 'diam', 'hexagon', 'cyl', 'circle', 'dbl-circ', 'lean-r', 'lean-l', 'trap-b', 'trap-t', 'fr-rect', 'text'].includes(value);
 }
 
 function parseFlowchartNodeTail(tail: string): { label?: string; shape?: FlowchartNodeShape } {

@@ -6,6 +6,7 @@ import {
   ClassDiagramCanvasModel,
   normalizeClassDiagramModel
 } from './classDiagramModel';
+import { normalizeFlowchartModel } from './families/flowchart/flowchartModel';
 import { createDiagramCanvasHtml } from './diagramCanvasHtml';
 import { generateCanvasFamilyMermaid, validateCanvasFamilyModel } from './families';
 import { logCanvasHostEvent } from './canvasOutput';
@@ -39,6 +40,7 @@ export class DiagramCanvasPanel {
     if (DiagramCanvasPanel.current) {
       DiagramCanvasPanel.current.source = source.source;
       DiagramCanvasPanel.current.model = source.model;
+      DiagramCanvasPanel.current.panel.webview.html = DiagramCanvasPanel.current.getHtml();
       DiagramCanvasPanel.current.panel.reveal(vscode.ViewColumn.Active);
       await DiagramCanvasPanel.current.refresh();
       return DiagramCanvasPanel.current;
@@ -64,7 +66,7 @@ export class DiagramCanvasPanel {
     private readonly extensionUri: vscode.Uri,
     private readonly panel: vscode.WebviewPanel,
     private source: DiagramCanvasSource,
-    private model: ClassDiagramCanvasModel
+    private model: any
   ) {
     this.panel.webview.html = this.getHtml();
 
@@ -92,20 +94,20 @@ export class DiagramCanvasPanel {
             await this.pushState();
             break;
           case 'stateChanged':
-            this.model = normalizeClassDiagramModel(message.model);
+            this.model = this.normalizeIncomingModel(message.model);
             await this.pushState();
             break;
           case 'applyToDocument':
-            this.model = normalizeClassDiagramModel(message.model);
+            this.model = this.normalizeIncomingModel(message.model);
             await this.applyToDocument();
             break;
           case 'createFile':
-            this.model = normalizeClassDiagramModel(message.model);
+            this.model = this.normalizeIncomingModel(message.model);
             await createCanvasFile(this.source, this.model);
             await vscode.window.showInformationMessage('Created a new Mermaid file from the Diagram Canvas.');
             break;
           case 'copyMermaid':
-            this.model = normalizeClassDiagramModel(message.model);
+            this.model = this.normalizeIncomingModel(message.model);
             await vscode.env.clipboard.writeText(generateCanvasFamilyMermaid(this.source.kind as any, this.model));
             await vscode.window.showInformationMessage('Copied Mermaid source from the Diagram Canvas.');
             break;
@@ -124,6 +126,13 @@ export class DiagramCanvasPanel {
         await vscode.window.showErrorMessage(messageText);
       }
     });
+  }
+
+  private normalizeIncomingModel(model: any): any {
+    if (this.source.kind === 'flowchart') {
+      return normalizeFlowchartModel(model);
+    }
+    return normalizeClassDiagramModel(model);
   }
 
   private async refresh(): Promise<void> {
@@ -160,7 +169,8 @@ export class DiagramCanvasPanel {
     const html = createDiagramCanvasHtml({
       cspSource: this.panel.webview.cspSource,
       nonce: createNonce(),
-      debugEnabled: __DEBUG__
+      debugEnabled: __DEBUG__,
+      family: this.source.kind
     });
 
     const diagnostics = runCanvasWebviewDiagnostics(html, {

@@ -13,5 +13,5 @@ export function detectCanvasDiagramFamily(source: string): CanvasDiagramFamily |
 }
 
 export function isCanvasFamilyImplemented(family: CanvasDiagramFamily): boolean {
-  return family === 'classDiagram';
+  return family === 'classDiagram' || family === 'flowchart';
 }
