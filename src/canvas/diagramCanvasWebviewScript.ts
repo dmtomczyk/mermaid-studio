@@ -7,6 +7,7 @@ import {
 } from './diagramCanvasWebviewHelpers';
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
+import { createCanvasRuntimeDefaultsSource } from './core/canvasRuntimeDefaultsSource';
 import { createCanvasRuntimeFamilySource } from './core/canvasRuntimeFamilySource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
@@ -54,29 +55,9 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
           stack: reason && reason.stack ? String(reason.stack) : undefined
         });
       });
-      let state = {
-        family: 'classDiagram',
-        familyLabel: 'Class Diagram',
-        availableFamilies: [
-          { id: 'classDiagram', label: 'Class Diagram' },
-          { id: 'flowchart', label: 'Flowchart' }
-        ],
-        shellLabels: {
-          templateSelect: 'Class template',
-          addTemplateButton: 'Add this template',
-          sidebarTemplateSection: 'Add Class',
-          relationSection: 'Relationships'
-        },
-        sourceLabel: 'classDiagram canvas',
-        linkedFileLabel: 'Untitled canvas',
-        linkedFileKind: 'ephemeral',
-        canReimport: false,
-        canOpenLinkedFile: false,
-        canApply: true,
-        issues: [],
-        model: { family: 'classDiagram', classes: [], relations: [] },
-        mermaid: ''
-      };
+${createCanvasRuntimeDefaultsSource()}
+      const runtimeDefaults = createClassDiagramRuntimeDefaults();
+      let state = runtimeDefaults.initialState;
       const WORLD_WIDTH = 6000;
       const WORLD_HEIGHT = 4000;
       const WORLD_ORIGIN_X = 1900;
@@ -109,7 +90,7 @@ ${createCanvasPersistedStateSource()}
       let shouldFocusEdgeEditorLabel = false;
       let lastCanvasPointerClientPoint = null;
       let bareCanvasPointerDown = null;
-      let selectedTemplateId = 'empty';
+      let selectedTemplateId = runtimeFamily.defaultTemplateId;
       let contextDeleteArmed = false;
       let debugState = {
         zoomAnchor: null,

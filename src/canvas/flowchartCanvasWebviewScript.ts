@@ -1,5 +1,6 @@
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
+import { createCanvasRuntimeDefaultsSource } from './core/canvasRuntimeDefaultsSource';
 import { createCanvasRuntimeFamilySource } from './core/canvasRuntimeFamilySource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
@@ -35,29 +36,9 @@ export function createFlowchartCanvasWebviewScript(debugEnabled: boolean): strin
           stack: reason && reason.stack ? String(reason.stack) : undefined
         });
       });
-      let state = {
-        family: 'flowchart',
-        familyLabel: 'Flowchart',
-        availableFamilies: [
-          { id: 'classDiagram', label: 'Class Diagram' },
-          { id: 'flowchart', label: 'Flowchart' }
-        ],
-        shellLabels: {
-          templateSelect: 'Node template',
-          addTemplateButton: 'Add this node template',
-          sidebarTemplateSection: 'Add Node',
-          relationSection: 'Edges'
-        },
-        sourceLabel: 'flowchart canvas',
-        linkedFileLabel: 'Untitled canvas',
-        linkedFileKind: 'ephemeral',
-        canReimport: false,
-        canOpenLinkedFile: false,
-        canApply: true,
-        issues: [],
-        model: { family: 'flowchart', direction: 'TB', nodes: [], edges: [] },
-        mermaid: ''
-      };
+${createCanvasRuntimeDefaultsSource()}
+      const runtimeDefaults = createFlowchartRuntimeDefaults();
+      let state = runtimeDefaults.initialState;
       const WORLD_WIDTH = 6000;
       const WORLD_HEIGHT = 4000;
       const WORLD_ORIGIN_X = 1900;
@@ -76,7 +57,7 @@ ${createCanvasViewportCoreSource()}
       let connectFromNodeId;
       let connectPreviewPoint = null;
       let connectDragActive = false;
-      let selectedTemplateId = 'process';
+      let selectedTemplateId = runtimeFamily.defaultTemplateId;
       let zoom = 1;
       let cameraX = 0;
       let cameraY = 0;
