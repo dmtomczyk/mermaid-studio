@@ -45,7 +45,8 @@
     "onCommand:mermaidstudio.exportSvg",
     "onCommand:mermaidstudio.extractMermaidBlock",
     "onCommand:mermaidstudio.openReferenceForSymbol",
-    "onCommand:mermaidstudio.openCurrentDiagramExample"
+    "onCommand:mermaidstudio.openCurrentDiagramExample",
+    "onCommand:mermaidstudio.openDiagramCanvas"
   ],
   "main": "./dist/extension.js",
   "scripts": {
@@ -151,6 +152,10 @@
       {
         "command": "mermaidstudio.openBuilder",
         "title": "Mermaid Studio: Open Builder"
+      },
+      {
+        "command": "mermaidstudio.openDiagramCanvas",
+        "title": "Mermaid Studio: Open Diagram Canvas"
       },
       {
         "command": "mermaidstudio.insertSnippet",

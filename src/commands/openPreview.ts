@@ -14,6 +14,7 @@ export function registerOpenPreviewCommand(commandContext: CommandContext): vsco
     }
 
     await MermaidPreviewPanel.createOrShow(commandContext.extensionUri, commandContext.diagnostics, {
+      mode: 'document',
       documentUri: editor.document.uri,
       kind: editorContext.kind,
       markdownMode: editorContext.kind === 'markdown' ? 'nearest' : undefined,

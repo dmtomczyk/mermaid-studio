@@ -11,6 +11,7 @@ export function registerPreviewMarkdownBlockCommand(commandContext: CommandConte
     }
 
     await MermaidPreviewPanel.createOrShow(commandContext.extensionUri, commandContext.diagnostics, {
+      mode: 'document',
       documentUri: editor.document.uri,
       kind: 'markdown',
       markdownMode: 'containing',

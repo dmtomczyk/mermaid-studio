@@ -7,6 +7,7 @@ import { registerFormatMermaidDocumentCommand } from './commands/formatMermaidDo
 import { registerInsertSnippetCommand } from './commands/insertSnippet';
 import { registerNewDiagramCommand } from './commands/newDiagram';
 import { registerOpenBuilderCommand } from './commands/openBuilder';
+import { registerOpenDiagramCanvasCommand } from './commands/openDiagramCanvas';
 import { registerOpenPreviewCommand } from './commands/openPreview';
 import { registerPreviewMarkdownBlockCommand } from './commands/previewMarkdownBlock';
 import { registerOpenReferenceExampleCommand } from './commands/openReferenceExample';
@@ -39,6 +40,7 @@ export function activate(context: vscode.ExtensionContext): void {
     registerOpenPreviewCommand(commandContext),
     registerPreviewMarkdownBlockCommand(commandContext),
     registerOpenBuilderCommand(),
+    registerOpenDiagramCanvasCommand(context.extensionUri),
     registerOpenReferenceExampleCommand(context.extensionUri),
     registerOpenReferenceForSymbolCommand(context.extensionUri),
     registerOpenCurrentDiagramExampleCommand(context.extensionUri),

@@ -13,19 +13,27 @@ import {
   PreviewRenderState
 } from './renderState';
 
-interface PreviewSource {
-  documentUri: vscode.Uri;
-  kind: 'mermaid' | 'markdown';
-  markdownMode?: 'nearest' | 'containing';
-  anchorPosition: { line: number; character: number };
-}
+type PreviewSource =
+  | {
+      mode: 'document';
+      documentUri: vscode.Uri;
+      kind: 'mermaid' | 'markdown';
+      markdownMode?: 'nearest' | 'containing';
+      anchorPosition: { line: number; character: number };
+    }
+  | {
+      mode: 'virtual';
+      key: string;
+      title: string;
+      mermaid: string;
+    };
 
 export class MermaidPreviewPanel {
   public static current: MermaidPreviewPanel | undefined;
 
   public static async createOrShow(
     extensionUri: vscode.Uri,
-    diagnostics: MermaidDiagnostics,
+    diagnostics: MermaidDiagnostics | undefined,
     source: PreviewSource
   ): Promise<MermaidPreviewPanel> {
     if (MermaidPreviewPanel.current) {
@@ -56,25 +64,29 @@ export class MermaidPreviewPanel {
   private constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly panel: vscode.WebviewPanel,
-    private readonly diagnostics: MermaidDiagnostics,
+    private readonly diagnostics: MermaidDiagnostics | undefined,
     private source: PreviewSource
   ) {
     this.panel.webview.html = this.getHtml();
 
     this.panel.onDidDispose(() => {
       MermaidPreviewPanel.current = undefined;
-      this.diagnostics.clear();
+      this.diagnostics?.clear();
     });
 
     this.panel.webview.onDidReceiveMessage((message) => {
       if (message.type === 'renderSuccess') {
         this.lastSvg = message.svg ?? '';
-        this.diagnostics.clear(this.source.documentUri);
+        if (this.source.mode === 'document') {
+          this.diagnostics?.clear(this.source.documentUri);
+        }
       }
 
       if (message.type === 'renderError') {
         const range = this.currentRange ?? new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
-        this.diagnostics.setSingleError(this.source.documentUri, range, String(message.message ?? 'Mermaid render failed.'));
+        if (this.source.mode === 'document') {
+          this.diagnostics?.setSingleError(this.source.documentUri, range, String(message.message ?? 'Mermaid render failed.'));
+        }
       }
 
       if (message.type === 'activeSvgResponse') {
@@ -120,6 +132,9 @@ export class MermaidPreviewPanel {
   }
 
   updateSelection(editor: vscode.TextEditor): void {
+    if (this.source.mode !== 'document') {
+      return;
+    }
     if (editor.document.uri.toString() !== this.source.documentUri.toString()) {
       return;
     }
@@ -131,6 +146,9 @@ export class MermaidPreviewPanel {
   }
 
   async handleDocumentChanged(document: vscode.TextDocument): Promise<void> {
+    if (this.source.mode !== 'document') {
+      return;
+    }
     if (document.uri.toString() !== this.source.documentUri.toString()) {
       return;
     }
@@ -138,6 +156,28 @@ export class MermaidPreviewPanel {
   }
 
   async refresh(): Promise<void> {
+    if (this.source.mode === 'virtual') {
+      this.panel.title = this.source.title || 'Mermaid Preview';
+      const model = buildMermaidPreviewModel(this.source.mermaid, this.source.title || 'Diagram Canvas', 0);
+      if (!model) {
+        this.currentRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+        this.panel.webview.postMessage({
+          type: 'empty',
+          message: 'No Mermaid diagram content available from this canvas.'
+        });
+        return;
+      }
+
+      this.currentRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
+      this.panel.webview.postMessage({
+        type: 'renderBlocks',
+        blocks: model.blocks,
+        activeIndex: model.activeIndex,
+        title: model.title
+      });
+      return;
+    }
+
     const document = await vscode.workspace.openTextDocument(this.source.documentUri);
     this.panel.title = document.fileName ? `Mermaid Preview: ${path.basename(document.fileName)}` : 'Mermaid Preview';
 
@@ -151,7 +191,7 @@ export class MermaidPreviewPanel {
           type: 'empty',
           message: 'No Mermaid diagram content found in this file.'
         });
-        this.diagnostics.clear(this.source.documentUri);
+        this.diagnostics?.clear(this.source.documentUri);
         return;
       }
 
@@ -178,7 +218,7 @@ export class MermaidPreviewPanel {
         type: 'empty',
         message: 'No Mermaid block found in this Markdown document.'
       });
-      this.diagnostics.clear(this.source.documentUri);
+      this.diagnostics?.clear(this.source.documentUri);
       return;
     }
 
