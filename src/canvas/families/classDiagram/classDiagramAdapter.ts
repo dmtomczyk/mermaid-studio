@@ -1,5 +1,4 @@
 import { CanvasFamilyAdapter } from '../../types/canvasContracts';
-import { CanvasBounds } from '../../types/canvasCoreTypes';
 import { CanvasSelectionState } from '../../types/canvasStateTypes';
 import { CanvasTemplate } from '../../types/templates';
 import {
@@ -13,6 +12,10 @@ import {
   parseClassDiagramToModel,
   validateClassDiagramModel
 } from '../../classDiagramModel';
+import {
+  getClassDiagramDiagramBounds,
+  getClassDiagramSelectionBounds
+} from './classDiagramBounds';
 
 const CLASS_TEMPLATES: CanvasTemplate[] = [
   { id: 'empty', label: 'Blank Class', category: 'class' },
@@ -25,15 +28,6 @@ const CLASS_TEMPLATES: CanvasTemplate[] = [
 
 function getClassById(model: ClassDiagramCanvasModel, nodeId: string): ClassDiagramCanvasNode | undefined {
   return model.classes.find((entry) => entry.id === nodeId);
-}
-
-function getClassBounds(entry: ClassDiagramCanvasNode): CanvasBounds {
-  return {
-    x: entry.x,
-    y: entry.y,
-    width: entry.width || 220,
-    height: entry.height || 120
-  };
 }
 
 export const classDiagramAdapter: CanvasFamilyAdapter<
@@ -133,56 +127,14 @@ export const classDiagramAdapter: CanvasFamilyAdapter<
     };
   },
 
-  getDiagramBounds(model: ClassDiagramCanvasModel): CanvasBounds | null {
-    if (!model.classes.length) {
-      return null;
-    }
-    const bounds = model.classes.map(getClassBounds);
-    const minX = Math.min(...bounds.map((entry) => entry.x));
-    const minY = Math.min(...bounds.map((entry) => entry.y));
-    const maxX = Math.max(...bounds.map((entry) => entry.x + entry.width));
-    const maxY = Math.max(...bounds.map((entry) => entry.y + entry.height));
-    return {
-      x: minX,
-      y: minY,
-      width: maxX - minX,
-      height: maxY - minY
-    };
+  getDiagramBounds(model: ClassDiagramCanvasModel) {
+    return getClassDiagramDiagramBounds(model);
   },
 
   getSelectionBounds(
     model: ClassDiagramCanvasModel,
     selection: CanvasSelectionState
-  ): CanvasBounds | null {
-    if (selection.selectedNodeId) {
-      const selected = getClassById(model, selection.selectedNodeId);
-      return selected ? getClassBounds(selected) : null;
-    }
-
-    if (selection.selectedEdgeId) {
-      const relation = model.relations.find((entry) => entry.id === selection.selectedEdgeId);
-      if (!relation) {
-        return null;
-      }
-      const fromClass = getClassById(model, relation.from);
-      const toClass = getClassById(model, relation.to);
-      if (!fromClass || !toClass) {
-        return null;
-      }
-      const fromBounds = getClassBounds(fromClass);
-      const toBounds = getClassBounds(toClass);
-      const minX = Math.min(fromBounds.x, toBounds.x);
-      const minY = Math.min(fromBounds.y, toBounds.y);
-      const maxX = Math.max(fromBounds.x + fromBounds.width, toBounds.x + toBounds.width);
-      const maxY = Math.max(fromBounds.y + fromBounds.height, toBounds.y + toBounds.height);
-      return {
-        x: minX,
-        y: minY,
-        width: maxX - minX,
-        height: maxY - minY
-      };
-    }
-
-    return null;
+  ) {
+    return getClassDiagramSelectionBounds(model, selection);
   }
 };
