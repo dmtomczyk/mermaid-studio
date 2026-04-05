@@ -1,10 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import {
-  ClassDiagramCanvasModel,
-  looksLikeClassDiagram
-} from './classDiagramModel';
-import {
   generateCanvasFamilyMermaid,
   parseCanvasFamilyMermaid,
   validateCanvasFamilyModel
@@ -12,21 +8,22 @@ import {
 import { createUntitledMermaidDocument, getEditorContext, insertMermaidText } from '../utils/editor';
 import { MermaidPreviewPanel } from '../preview/MermaidPreviewPanel';
 import { DiagramCanvasSource } from './canvasState';
+import { detectCanvasDiagramFamily } from './canvasFamilyDetection';
 
-export async function createCanvasFile(model: ClassDiagramCanvasModel): Promise<void> {
-  await createUntitledMermaidDocument(generateCanvasFamilyMermaid('classDiagram', model));
+export async function createCanvasFile(source: DiagramCanvasSource, model: any): Promise<void> {
+  await createUntitledMermaidDocument(generateCanvasFamilyMermaid(source.kind as any, model));
 }
 
 export async function applyCanvasToDocument(
   source: DiagramCanvasSource,
-  model: ClassDiagramCanvasModel
+  model: any
 ): Promise<DiagramCanvasSource> {
-  const issues = validateCanvasFamilyModel('classDiagram', model).filter((issue) => issue.level === 'error');
+  const issues = validateCanvasFamilyModel(source.kind as any, model).filter((issue) => issue.level === 'error');
   if (issues.length) {
     throw new Error(`Fix ${issues.length} validation error${issues.length === 1 ? '' : 's'} before applying the canvas.`);
   }
 
-  const mermaid = generateCanvasFamilyMermaid('classDiagram', model);
+  const mermaid = generateCanvasFamilyMermaid(source.kind as any, model);
   const targetEditor = await resolveTargetEditorForApply(source, mermaid);
   const context = getEditorContext(targetEditor);
 
@@ -44,31 +41,32 @@ export async function applyCanvasToDocument(
   }
 
   return {
-    kind: 'classDiagram',
+    kind: source.kind,
     documentUri: targetEditor.document.uri
   };
 }
 
 export async function reimportCanvasFromDocument(
   source: DiagramCanvasSource
-): Promise<ClassDiagramCanvasModel> {
+): Promise<any> {
   if (!source.documentUri) {
     throw new Error('This canvas was not opened from a Mermaid document.');
   }
 
   const document = await vscode.workspace.openTextDocument(source.documentUri);
   const text = document.getText();
-  if (!looksLikeClassDiagram(text)) {
-    throw new Error('The linked document is no longer a supported classDiagram source.');
+  const detectedFamily = detectCanvasDiagramFamily(text);
+  if (detectedFamily !== source.kind) {
+    throw new Error(`The linked document is no longer a supported ${source.kind} source.`);
   }
 
-  return parseCanvasFamilyMermaid('classDiagram', text) as ClassDiagramCanvasModel;
+  return parseCanvasFamilyMermaid(source.kind as any, text);
 }
 
 export async function openCanvasPreview(
   extensionUri: vscode.Uri,
   source: DiagramCanvasSource,
-  model: ClassDiagramCanvasModel
+  model: any
 ): Promise<void> {
   if (source.documentUri) {
     const document = await vscode.workspace.openTextDocument(source.documentUri);
@@ -81,7 +79,7 @@ export async function openCanvasPreview(
     mode: 'virtual',
     key: 'diagram-canvas-preview',
     title: 'Mermaid Preview: Diagram Canvas',
-    mermaid: generateCanvasFamilyMermaid('classDiagram', model)
+    mermaid: generateCanvasFamilyMermaid(source.kind as any, model)
   });
 }
 

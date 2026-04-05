@@ -4,11 +4,10 @@ import * as vscode from 'vscode';
 declare const __DEBUG__: boolean;
 import {
   ClassDiagramCanvasModel,
-  generateClassDiagramSource,
-  normalizeClassDiagramModel,
-  validateClassDiagramModel
+  normalizeClassDiagramModel
 } from './classDiagramModel';
 import { createDiagramCanvasHtml } from './diagramCanvasHtml';
+import { generateCanvasFamilyMermaid, validateCanvasFamilyModel } from './families';
 import { logCanvasHostEvent } from './canvasOutput';
 import { runCanvasWebviewDiagnostics } from './canvasWebviewDiagnostics';
 import { isCanvasFamilyImplemented } from './canvasFamilyDetection';
@@ -102,12 +101,12 @@ export class DiagramCanvasPanel {
             break;
           case 'createFile':
             this.model = normalizeClassDiagramModel(message.model);
-            await createCanvasFile(this.model);
+            await createCanvasFile(this.source, this.model);
             await vscode.window.showInformationMessage('Created a new Mermaid file from the Diagram Canvas.');
             break;
           case 'copyMermaid':
             this.model = normalizeClassDiagramModel(message.model);
-            await vscode.env.clipboard.writeText(generateClassDiagramSource(this.model));
+            await vscode.env.clipboard.writeText(generateCanvasFamilyMermaid(this.source.kind as any, this.model));
             await vscode.window.showInformationMessage('Copied Mermaid source from the Diagram Canvas.');
             break;
           case 'reimportFromDocument':
@@ -133,7 +132,7 @@ export class DiagramCanvasPanel {
   }
 
   private async pushState(): Promise<void> {
-    const issues = validateClassDiagramModel(this.model);
+    const issues = validateCanvasFamilyModel(this.source.kind as any, this.model);
     this.panel.webview.postMessage(buildDiagramCanvasViewState(this.source, this.model, issues));
   }
 
@@ -146,7 +145,7 @@ export class DiagramCanvasPanel {
   private async reimportFromDocument(): Promise<void> {
     this.model = await reimportCanvasFromDocument(this.source);
     await this.refresh();
-    await vscode.window.showInformationMessage('Re-imported class diagram source into the Diagram Canvas.');
+    await vscode.window.showInformationMessage(`Re-imported ${this.source.kind} source into the Diagram Canvas.`);
   }
 
   private async openPreview(): Promise<void> {

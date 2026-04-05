@@ -1,8 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import {
-  ClassDiagramCanvasModel,
-  ClassDiagramValidationIssue
+  ClassDiagramCanvasModel
 } from './classDiagramModel';
 import {
   createEmptyCanvasFamilyModel,
@@ -11,6 +10,7 @@ import {
 } from './families';
 import { detectCanvasDiagramFamily } from './canvasFamilyDetection';
 import { CanvasDiagramFamily } from './types/canvasFamilies';
+import { ValidationIssue } from './types/validationTypes';
 
 export interface DiagramCanvasSource {
   documentUri?: vscode.Uri;
@@ -22,12 +22,12 @@ export interface DiagramCanvasViewState {
   sourceLabel: string;
   linkedFileLabel: string;
   linkedFileKind: 'markdown' | 'mermaid' | 'ephemeral';
-  model: ClassDiagramCanvasModel;
+  model: any;
   mermaid: string;
   canReimport: boolean;
   canOpenLinkedFile: boolean;
   canApply: boolean;
-  issues: ClassDiagramValidationIssue[];
+  issues: ValidationIssue[];
 }
 
 export function getDiagramCanvasTitle(source: DiagramCanvasSource): string {
@@ -38,8 +38,8 @@ export function getDiagramCanvasTitle(source: DiagramCanvasSource): string {
 
 export function buildDiagramCanvasViewState(
   source: DiagramCanvasSource,
-  model: ClassDiagramCanvasModel,
-  issues: ClassDiagramValidationIssue[]
+  model: any,
+  issues: ValidationIssue[]
 ): DiagramCanvasViewState {
   const linkedFileLabel = source.documentUri
     ? path.basename(source.documentUri.fsPath)
@@ -56,7 +56,7 @@ export function buildDiagramCanvasViewState(
     linkedFileLabel,
     linkedFileKind,
     model,
-    mermaid: generateCanvasFamilyMermaid('classDiagram', model),
+    mermaid: generateCanvasFamilyMermaid(source.kind as any, model),
     canReimport: Boolean(source.documentUri),
     canOpenLinkedFile: Boolean(source.documentUri),
     canApply: !issues.some((issue) => issue.level === 'error'),
