@@ -1451,10 +1451,7 @@ export function createCanvasRenderGroupsSource(): string {
 
 export function createCanvasEventBindingsSource(): string {
   return `
-      classTemplateSelect.addEventListener('change', () => {
-        selectedTemplateId = classTemplateSelect.value || 'empty';
-        renderTemplatePreview();
-      });
+      initializeCanvasTemplateSelect(runtimeFamily.templateOptions(), runtimeFamily.defaultTemplateId);
 
       bindCanvasFamilySwitcher(runtimeFamily);
 

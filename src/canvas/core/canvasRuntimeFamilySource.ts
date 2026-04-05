@@ -11,6 +11,9 @@ export function createCanvasRuntimeFamilySource(): string {
             addTemplateButton: 'Add this template'
           },
           defaultTemplateId: 'empty',
+          templateOptions() {
+            return CLASS_TEMPLATES.map((template) => ({ value: template.id, label: template.label }));
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -42,6 +45,9 @@ export function createCanvasRuntimeFamilySource(): string {
             addTemplateButton: 'Add Node'
           },
           defaultTemplateId: 'process',
+          templateOptions() {
+            return FLOWCHART_TEMPLATES.map((template) => ({ value: template.id, label: template.label }));
+          },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;
           },

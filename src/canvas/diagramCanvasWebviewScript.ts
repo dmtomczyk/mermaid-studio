@@ -11,6 +11,7 @@ import { createCanvasRuntimeDefaultsSource } from './core/canvasRuntimeDefaultsS
 import { createCanvasRuntimeFamilySource } from './core/canvasRuntimeFamilySource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
+import { createCanvasTemplateBootstrapSource } from './core/canvasTemplateBootstrapSource';
 import { createClassDiagramWebviewSource } from './families/classDiagram/classDiagramWebviewSource';
 import { CanvasDiagramFamily } from './types/canvasFamilies';
 import { createFlowchartCanvasWebviewScript } from './flowchartCanvasWebviewScript';
@@ -68,6 +69,7 @@ ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
 ${createCanvasHostBridgeSource()}
 ${createCanvasPersistedStateSource()}
+${createCanvasTemplateBootstrapSource()}
       const runtimeFamily = createClassDiagramRuntimeFamilyConfig();
       let viewportInitialized = false;
       let hasReceivedInitialState = false;

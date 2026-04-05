@@ -4,6 +4,7 @@ import { createCanvasRuntimeDefaultsSource } from './core/canvasRuntimeDefaultsS
 import { createCanvasRuntimeFamilySource } from './core/canvasRuntimeFamilySource';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
+import { createCanvasTemplateBootstrapSource } from './core/canvasTemplateBootstrapSource';
 import { createCanvasViewportCoreSource } from './core/canvasViewportSource';
 import { createFlowchartWebviewSource } from './families/flowchart/flowchartWebviewSource';
 
@@ -49,6 +50,7 @@ ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
 ${createCanvasHostBridgeSource()}
 ${createCanvasPersistedStateSource()}
+${createCanvasTemplateBootstrapSource()}
 ${createCanvasViewportCoreSource()}
       const runtimeFamily = createFlowchartRuntimeFamilyConfig();
       let viewportInitialized = false;
@@ -744,11 +746,7 @@ ${createCanvasViewportCoreSource()}
 
       restoreCanvasPersistedState(runtimeFamily);
 
-      classTemplateSelect.innerHTML = FLOWCHART_TEMPLATES.map((template) => '<option value="' + template.id + '">' + escapeHtml(template.label) + '</option>').join('');
-      classTemplateSelect.addEventListener('change', () => {
-        selectedTemplateId = classTemplateSelect.value || 'process';
-        renderTemplatePreview();
-      });
+      initializeCanvasTemplateSelect(runtimeFamily.templateOptions(), runtimeFamily.defaultTemplateId);
       bindCanvasFamilySwitcher(runtimeFamily);
       addClassButton.addEventListener('click', () => {
         addNodeAt(160 + state.model.nodes.length * 28, 120 + state.model.nodes.length * 18, selectedTemplateId);
