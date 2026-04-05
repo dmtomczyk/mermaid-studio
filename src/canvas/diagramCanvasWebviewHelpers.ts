@@ -816,7 +816,7 @@ export function createCanvasRenderGroupsSource(): string {
 
       function renderValidation() {
         if (!Array.isArray(state.issues) || !state.issues.length) {
-          validationList.innerHTML = '<div class="inspector-empty">No validation issues.</div>';
+          validationList.innerHTML = '<div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.emptyValidation || 'No validation issues.') + '</div>';
           return;
         }
         validationList.innerHTML = state.issues.map((issue) =>
@@ -1368,7 +1368,7 @@ export function createCanvasRenderGroupsSource(): string {
       function renderRelations() {
         relationList.innerHTML = '';
         if (!state.model.relations.length) {
-          relationList.innerHTML = '<div class="inspector-empty">No relationships yet. Select a class, then use Connect Selected or the Connect button on the node.</div>';
+          relationList.innerHTML = '<div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.emptyRelationList || 'No relationships yet.') + '</div>';
           return;
         }
 

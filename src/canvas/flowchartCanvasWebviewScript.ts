@@ -563,7 +563,7 @@ ${createCanvasViewportCoreSource()}
 
       function renderValidation() {
         if (!state.issues.length) {
-          validationList.innerHTML = '<div class="inspector-empty">No validation issues.</div>';
+          validationList.innerHTML = '<div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.emptyValidation || 'No validation issues.') + '</div>';
           return;
         }
         validationList.innerHTML = state.issues.map((issue) => '<div class="validation-item ' + escapeHtml(issue.level || 'warning') + '"><strong>' + escapeHtml((issue.level || 'warning').toUpperCase()) + '</strong><br/>' + escapeHtml(issue.message || 'Unknown issue') + '</div>').join('');
@@ -576,7 +576,7 @@ ${createCanvasViewportCoreSource()}
       function renderRelations() {
         relationList.innerHTML = '';
         if (!state.model.edges.length) {
-          relationList.innerHTML = '<div class="inspector-empty">No edges yet.</div>';
+          relationList.innerHTML = '<div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.emptyRelationList || 'No edges yet.') + '</div>';
           return;
         }
         state.model.edges.forEach((edge) => {
@@ -649,8 +649,8 @@ ${createCanvasViewportCoreSource()}
           document.getElementById('deleteNodeButton').addEventListener('click', () => deleteNode(selectedNode.id));
           return;
         }
-        inspectorTitle.textContent = 'Flowchart';
-        inspectorBody.innerHTML = '<label>Direction<select id="diagramDirectionInput"></select></label><div class="inspector-empty">Select a node or edge on the canvas to edit it.</div>';
+        inspectorTitle.textContent = runtimeFamily.copy.inspectorTitle || 'Flowchart';
+        inspectorBody.innerHTML = '<label>Direction<select id="diagramDirectionInput"></select></label><div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.inspectorEmpty || 'Select a node or edge on the canvas to edit it.') + '</div>';
         const directionSelect = document.getElementById('diagramDirectionInput');
         directionSelect.innerHTML = ['TB', 'TD', 'BT', 'LR', 'RL'].map((dir) => '<option value="' + dir + '"' + (state.model.direction === dir ? ' selected' : '') + '>' + dir + '</option>').join('');
         directionSelect.addEventListener('change', () => { state.model.direction = directionSelect.value; emitStateChanged(); renderMermaidSource(); });

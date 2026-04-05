@@ -10,6 +10,10 @@ export function createCanvasRuntimeFamilySource(): string {
             relationSectionTitle: 'Relationships',
             addTemplateButton: 'Add this template'
           },
+          copy: {
+            emptyRelationList: 'No relationships yet. Select a class, then use Connect Selected or the Connect button on the node.',
+            emptyValidation: 'No validation issues.'
+          },
           defaultTemplateId: 'empty',
           templateOptions() {
             return CLASS_TEMPLATES.map((template) => ({ value: template.id, label: template.label }));
@@ -43,6 +47,12 @@ export function createCanvasRuntimeFamilySource(): string {
             templateSectionTitle: 'Add Node',
             relationSectionTitle: 'Edges',
             addTemplateButton: 'Add Node'
+          },
+          copy: {
+            emptyRelationList: 'No edges yet.',
+            emptyValidation: 'No validation issues.',
+            inspectorTitle: 'Flowchart',
+            inspectorEmpty: 'Select a node or edge on the canvas to edit it.'
           },
           defaultTemplateId: 'process',
           templateOptions() {

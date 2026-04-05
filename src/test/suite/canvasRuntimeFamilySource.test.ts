@@ -8,6 +8,8 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes('function createFlowchartRuntimeFamilyConfig() {'));
     assert.ok(source.includes("defaultTemplateId: 'empty'"));
     assert.ok(source.includes("defaultTemplateId: 'process'"));
+    assert.ok(source.includes('copy: {'));
+    assert.ok(source.includes("emptyRelationList:"));
     assert.ok(source.includes('hasContent(model) {'));
     assert.ok(source.includes('restoreSelection(persisted) {'));
   });
