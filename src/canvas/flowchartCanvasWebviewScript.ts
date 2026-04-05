@@ -1,3 +1,4 @@
+import { createCanvasShellUiSource } from './core/canvasShellUiSource';
 import { createCanvasViewportCoreSource } from './core/canvasViewportSource';
 import { createFlowchartWebviewSource } from './families/flowchart/flowchartWebviewSource';
 
@@ -58,6 +59,7 @@ export function createFlowchartCanvasWebviewScript(debugEnabled: boolean): strin
       const WORLD_ORIGIN_X = 1900;
       const WORLD_ORIGIN_Y = 1300;
 ${createFlowchartWebviewSource()}
+${createCanvasShellUiSource()}
 ${createCanvasViewportCoreSource()}
       let viewportInitialized = false;
       let selectedNodeId;
@@ -730,23 +732,13 @@ ${createCanvasViewportCoreSource()}
       }
 
       function render() {
-        sourceLabel.textContent = state.sourceLabel || 'flowchart canvas';
-        if (familySelect) {
-          familySelect.innerHTML = (state.availableFamilies || []).map((entry) => '<option value="' + entry.id + '">' + escapeHtml(entry.label) + '</option>').join('');
-          familySelect.value = state.family || 'flowchart';
-        }
-        if (templateSectionTitle) {
-          templateSectionTitle.textContent = state.shellLabels?.sidebarTemplateSection || 'Add Node';
-        }
-        if (relationSectionTitle) {
-          relationSectionTitle.textContent = state.shellLabels?.relationSection || 'Edges';
-        }
-        if (addClassButton) {
-          addClassButton.textContent = state.shellLabels?.addTemplateButton || 'Add Node';
-        }
-        if (addTemplateFromSidebarButton) {
-          addTemplateFromSidebarButton.textContent = (state.shellLabels?.addTemplateButton || 'Add Node') + ' to canvas';
-        }
+        renderCanvasShellChrome({
+          family: 'flowchart',
+          sourceLabel: 'flowchart canvas',
+          templateSectionTitle: 'Add Node',
+          relationSectionTitle: 'Edges',
+          addTemplateButton: 'Add Node'
+        });
         reimportButton.disabled = !state.canReimport;
         openLinkedFileButton.disabled = !state.canOpenLinkedFile;
         classTemplateSelect.value = selectedTemplateId;
@@ -783,15 +775,10 @@ ${createCanvasViewportCoreSource()}
         selectedTemplateId = classTemplateSelect.value || 'process';
         renderTemplatePreview();
       });
-      familySelect?.addEventListener('change', () => {
-        const nextFamily = familySelect.value;
-        const hasContent = Array.isArray(state.model?.nodes) ? state.model.nodes.length || state.model.edges.length : false;
-        if (hasContent && !confirm('Switch diagram family and reset the current canvas?')) {
-          familySelect.value = state.family || 'flowchart';
-          return;
-        }
-        vscode.postMessage({ type: 'switchFamily', family: nextFamily });
-      });
+      function hasCanvasContentForFamilySwitch() {
+        return Array.isArray(state.model?.nodes) ? state.model.nodes.length || state.model.edges.length : false;
+      }
+      bindCanvasFamilySwitcher('flowchart');
       addClassButton.addEventListener('click', () => {
         addNodeAt(160 + state.model.nodes.length * 28, 120 + state.model.nodes.length * 18, selectedTemplateId);
       });

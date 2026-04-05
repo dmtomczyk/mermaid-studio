@@ -457,23 +457,13 @@ export function createCanvasRenderHelpersSource(): string {
       }
 
       function render() {
-        sourceLabel.textContent = state.sourceLabel || 'classDiagram canvas';
-        if (familySelect) {
-          familySelect.innerHTML = (state.availableFamilies || []).map((entry) => '<option value="' + escapeHtml(entry.id) + '">' + escapeHtml(entry.label) + '</option>').join('');
-          familySelect.value = state.family || 'classDiagram';
-        }
-        if (templateSectionTitle) {
-          templateSectionTitle.textContent = state.shellLabels?.sidebarTemplateSection || 'Add Class';
-        }
-        if (relationSectionTitle) {
-          relationSectionTitle.textContent = state.shellLabels?.relationSection || 'Relationships';
-        }
-        if (addClassButton) {
-          addClassButton.textContent = state.shellLabels?.addTemplateButton || 'Add this template';
-        }
-        if (addTemplateFromSidebarButton) {
-          addTemplateFromSidebarButton.textContent = (state.shellLabels?.addTemplateButton || 'Add this template') + ' to canvas';
-        }
+        renderCanvasShellChrome({
+          family: 'classDiagram',
+          sourceLabel: 'classDiagram canvas',
+          templateSectionTitle: 'Add Class',
+          relationSectionTitle: 'Relationships',
+          addTemplateButton: 'Add this template'
+        });
         reimportButton.disabled = !state.canReimport;
         openLinkedFileButton.disabled = !state.canOpenLinkedFile;
         classTemplateSelect.value = selectedTemplateId;
@@ -1472,15 +1462,11 @@ export function createCanvasEventBindingsSource(): string {
         renderTemplatePreview();
       });
 
-      familySelect?.addEventListener('change', () => {
-        const nextFamily = familySelect.value;
-        const hasContent = Array.isArray(state.model?.classes) ? state.model.classes.length || state.model.relations.length : false;
-        if (hasContent && !confirm('Switch diagram family and reset the current canvas?')) {
-          familySelect.value = state.family || 'classDiagram';
-          return;
-        }
-        vscode.postMessage({ type: 'switchFamily', family: nextFamily });
-      });
+      function hasCanvasContentForFamilySwitch() {
+        return Array.isArray(state.model?.classes) ? state.model.classes.length || state.model.relations.length : false;
+      }
+
+      bindCanvasFamilySwitcher('classDiagram');
 
       addClassButton.addEventListener('click', () => {
         addClassAt(160 + state.model.classes.length * 28, 120 + state.model.classes.length * 18, selectedTemplateId);
