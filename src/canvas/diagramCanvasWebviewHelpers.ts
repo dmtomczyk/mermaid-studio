@@ -1,117 +1,11 @@
+import { createCanvasConnectionCoreSource } from './core/canvasConnectionSource';
+import { createCanvasContextMenuCoreSource } from './core/canvasContextMenuSource';
+import { createCanvasSelectionCoreSource } from './core/canvasSelectionSource';
+import { createCanvasViewportCoreSource } from './core/canvasViewportSource';
+
 export function createCanvasGeometryHelpersSource(): string {
   return `
-      function worldToStageX(x) {
-        return x + WORLD_ORIGIN_X;
-      }
-
-      function worldToStageY(y) {
-        return y + WORLD_ORIGIN_Y;
-      }
-
-      function stageToWorldX(x) {
-        return x - WORLD_ORIGIN_X;
-      }
-
-      function stageToWorldY(y) {
-        return y - WORLD_ORIGIN_Y;
-      }
-
-      function viewportPointToStagePoint(anchorX, anchorY) {
-        return {
-          x: cameraX + (anchorX / zoom),
-          y: cameraY + (anchorY / zoom)
-        };
-      }
-
-      function stagePointToViewportPoint(stageX, stageY) {
-        return {
-          x: (stageX - cameraX) * zoom,
-          y: (stageY - cameraY) * zoom
-        };
-      }
-
-      function viewportPointToStageOffset(deltaX, deltaY) {
-        return {
-          x: deltaX / zoom,
-          y: deltaY / zoom
-        };
-      }
-
-      function clampCamera() {
-        const minCameraX = -WORLD_ORIGIN_X;
-        const minCameraY = -WORLD_ORIGIN_Y;
-        const maxCameraX = WORLD_WIDTH - canvasShell.clientWidth / zoom;
-        const maxCameraY = WORLD_HEIGHT - canvasShell.clientHeight / zoom;
-        cameraX = Math.max(minCameraX, Math.min(maxCameraX, cameraX));
-        cameraY = Math.max(minCameraY, Math.min(maxCameraY, cameraY));
-      }
-
-      function scrollToKeepStagePointAtViewportAnchor(stageX, stageY, anchorX, anchorY) {
-        cameraX = stageX - (anchorX / zoom);
-        cameraY = stageY - (anchorY / zoom);
-        clampCamera();
-        applyZoom();
-      }
-
-      function applyZoom() {
-        clampCamera();
-        canvasStage.style.zoom = '';
-        canvasStage.style.transformOrigin = '0 0';
-        canvasStage.style.transform = 'translate(' + (-cameraX * zoom) + 'px, ' + (-cameraY * zoom) + 'px) scale(' + zoom + ')';
-        zoomResetButton.textContent = Math.round(zoom * 100) + '%';
-        canvasShell.classList.toggle('panning', Boolean(panState));
-      }
-
-      function animateViewportTo(targetLeft, targetTop) {
-        cameraX = Math.max(0, targetLeft / zoom);
-        cameraY = Math.max(0, targetTop / zoom);
-        applyZoom();
-      }
-
-      function clampZoom(value) {
-        return Math.max(0.5, Math.min(1.8, Math.round(value * 10) / 10));
-      }
-
-      function setZoomAroundViewportPoint(nextZoom, anchorX, anchorY) {
-        const oldZoom = zoom;
-        const clamped = clampZoom(nextZoom);
-        if (clamped === oldZoom) {
-          return;
-        }
-        const stageX = cameraX + (anchorX / oldZoom);
-        const stageY = cameraY + (anchorY / oldZoom);
-        debugState.zoomAnchor = { anchorX, anchorY, oldZoom, nextZoom: clamped };
-        debugState.preZoomStagePoint = { stageX, stageY };
-        zoom = clamped;
-        applyZoom();
-        requestAnimationFrame(() => {
-          const targetLeft = Math.max(0, stageX * zoom - anchorX);
-          const targetTop = Math.max(0, stageY * zoom - anchorY);
-          debugState.targetZoomScroll = { left: targetLeft, top: targetTop, cameraX: stageX - (anchorX / zoom), cameraY: stageY - (anchorY / zoom) };
-          scrollToKeepStagePointAtViewportAnchor(stageX, stageY, anchorX, anchorY);
-          requestAnimationFrame(() => {
-            scrollToKeepStagePointAtViewportAnchor(stageX, stageY, anchorX, anchorY);
-            debugState.postZoomScroll = { cameraX, cameraY, zoom };
-            debugState.scrollMetrics = {
-              worldWidth: WORLD_WIDTH,
-              worldHeight: WORLD_HEIGHT,
-              clientWidth: canvasShell.clientWidth,
-              clientHeight: canvasShell.clientHeight
-            };
-            zoomResetButton.textContent = Math.round(zoom * 100) + '%';
-            renderDebugPanel();
-            renderEdges();
-            renderContextMenu();
-            renderEdgeEditor();
-            renderMinimap();
-          });
-        });
-      }
-
-      function setZoomAroundClientPoint(nextZoom, clientX, clientY) {
-        const rect = canvasShell.getBoundingClientRect();
-        setZoomAroundViewportPoint(nextZoom, clientX - rect.left, clientY - rect.top);
-      }
+${createCanvasViewportCoreSource()}
 
       function getDiagramBounds() {
         const padding = 80;
@@ -167,49 +61,17 @@ export function createCanvasGeometryHelpersSource(): string {
       }
 
       function fitBounds(bounds) {
-        if (!bounds) {
-          return;
-        }
-        const viewportWidth = Math.max(200, canvasShell.clientWidth - 24);
-        const viewportHeight = Math.max(160, canvasShell.clientHeight - 24);
-        const scaleX = viewportWidth / bounds.width;
-        const scaleY = viewportHeight / bounds.height;
-        zoom = clampZoom(Math.min(scaleX, scaleY));
-        render();
-        animateViewportTo(
-          worldToStageX(bounds.x) * zoom - (canvasShell.clientWidth - bounds.width * zoom) / 2,
-          worldToStageY(bounds.y) * zoom - (canvasShell.clientHeight - bounds.height * zoom) / 2
-        );
-        renderEdges();
-        renderContextMenu();
-        renderEdgeEditor();
-        renderMinimap();
+        fitViewportToBounds(bounds);
       }
 
       function fitWidth() {
         const bounds = getSelectionBounds() || getDiagramBounds();
-        const viewportWidth = Math.max(200, canvasShell.clientWidth - 24);
-        zoom = clampZoom(viewportWidth / Math.max(240, bounds.width));
-        render();
-        animateViewportTo(worldToStageX(bounds.x) * zoom - 12, worldToStageY(bounds.y) * zoom - 24);
-        renderEdges();
-        renderContextMenu();
-        renderEdgeEditor();
-        renderMinimap();
+        fitViewportWidthToBounds(bounds);
       }
 
       function fitActualSize() {
         const bounds = getSelectionBounds() || getDiagramBounds();
-        zoom = 1;
-        render();
-        animateViewportTo(
-          worldToStageX(bounds.x) * zoom - (canvasShell.clientWidth - bounds.width * zoom) / 2,
-          worldToStageY(bounds.y) * zoom - (canvasShell.clientHeight - bounds.height * zoom) / 2
-        );
-        renderEdges();
-        renderContextMenu();
-        renderEdgeEditor();
-        renderMinimap();
+        fitViewportActualSize(bounds);
       }
 
       function updateConnectPreviewFromClientPoint(clientX, clientY) {
@@ -229,24 +91,12 @@ export function createCanvasGeometryHelpersSource(): string {
 
 export function createCanvasActionsSource(): string {
   return `
+${createCanvasConnectionCoreSource()}
+${createCanvasContextMenuCoreSource()}
+${createCanvasSelectionCoreSource()}
+
       function nextId(prefix) {
         return prefix + '-' + Math.random().toString(36).slice(2, 10);
-      }
-
-      function ensureSelection() {
-        if (!state.model.classes.length) {
-          selectedClassId = undefined;
-          connectFromClassId = undefined;
-        }
-        if (selectedClassId && !state.model.classes.some((entry) => entry.id === selectedClassId)) {
-          selectedClassId = undefined;
-        }
-        if (selectedRelationId && !state.model.relations.some((entry) => entry.id === selectedRelationId)) {
-          selectedRelationId = undefined;
-        }
-        if (connectFromClassId && !state.model.classes.some((entry) => entry.id === connectFromClassId)) {
-          connectFromClassId = undefined;
-        }
       }
 
       function getSelectedClass() {
@@ -265,18 +115,6 @@ export function createCanvasActionsSource(): string {
           && !target.closest('#edgeEditor')
           && !target.closest('.canvas-hud')
           && (target === canvasShell || target === canvasStage || target === nodeLayer || target === edgeLayer || target instanceof SVGSVGElement);
-      }
-
-      function clearCanvasFocus() {
-        selectedClassId = undefined;
-        selectedRelationId = undefined;
-        connectFromClassId = undefined;
-        connectPreviewPoint = null;
-        editingTitleClassId = undefined;
-        editingMembersClassId = undefined;
-        edgeEditorRelationId = undefined;
-        canvasContextMenu = null;
-        render();
       }
 
       function emitStateChanged() {
@@ -333,28 +171,7 @@ export function createCanvasActionsSource(): string {
         connectPreviewPoint = source
           ? { x: source.x + (source.width || 220) / 2, y: source.y + (source.height || 120) / 2 }
           : null;
-        render();
-      }
-
-      function cancelConnectMode() {
-        connectFromClassId = undefined;
-        connectPreviewPoint = null;
         connectDragActive = false;
-        render();
-      }
-
-      function openCanvasContextMenu(menuStageX, menuStageY, actionCanvasX, actionCanvasY) {
-        contextDeleteArmed = false;
-        canvasContextMenu = { x: menuStageX, y: menuStageY, canvasX: actionCanvasX, canvasY: actionCanvasY };
-        render();
-      }
-
-      function closeCanvasContextMenu() {
-        if (!canvasContextMenu) {
-          return;
-        }
-        contextDeleteArmed = false;
-        canvasContextMenu = null;
         render();
       }
 
@@ -436,8 +253,7 @@ export function createCanvasActionsSource(): string {
 
       function createRelation(fromId, toId) {
         if (!fromId || !toId || fromId === toId) {
-          connectFromClassId = undefined;
-          connectPreviewPoint = null;
+          clearConnectionPreview();
           render();
           return;
         }
@@ -450,9 +266,7 @@ export function createCanvasActionsSource(): string {
         });
         selectedClassId = undefined;
         selectedRelationId = state.model.relations[state.model.relations.length - 1].id;
-        connectFromClassId = undefined;
-        connectPreviewPoint = null;
-        connectDragActive = false;
+        clearConnectionPreview();
         emitStateChanged();
       }
 
@@ -686,9 +500,10 @@ export function createCanvasRenderGroupsSource(): string {
           card.addEventListener('click', (event) => {
             event.stopPropagation();
             canvasContextMenu = null;
-            if (connectFromClassId && connectFromClassId !== entry.id && !connectDragActive) {
-              createRelation(connectFromClassId, entry.id);
-              return;
+            if (connectFromClassId && !connectDragActive) {
+              if (completeConnectionGesture(entry.id)) {
+                return;
+              }
             }
             selectedClassId = entry.id;
             selectedRelationId = undefined;
@@ -696,9 +511,9 @@ export function createCanvasRenderGroupsSource(): string {
           });
 
           card.addEventListener('pointerup', (event) => {
-            if (connectDragActive && connectFromClassId && connectFromClassId !== entry.id) {
+            if (connectDragActive) {
               event.stopPropagation();
-              createRelation(connectFromClassId, entry.id);
+              completeConnectionGesture(entry.id);
             }
           });
 
@@ -1606,17 +1421,7 @@ export function createCanvasEventBindingsSource(): string {
 
       window.addEventListener('pointerup', (event) => {
         const target = event.target instanceof Element ? event.target : null;
-        const bareCanvasRelease = isBareCanvasTarget(target);
-        const releaseDistance = bareCanvasPointerDown
-          ? Math.hypot(event.clientX - bareCanvasPointerDown.clientX, event.clientY - bareCanvasPointerDown.clientY)
-          : Infinity;
-        const shouldDefocusBareCanvas = !!bareCanvasPointerDown
-          && bareCanvasPointerDown.pointerId === event.pointerId
-          && bareCanvasRelease
-          && releaseDistance < 6
-          && !panState
-          && !dragState
-          && !connectDragActive;
+        const shouldDefocusBareCanvas = shouldDefocusBareCanvasPointerUp(event, target);
 
         if (minimapDragState) {
           minimapDragState = null;
@@ -1651,15 +1456,7 @@ export function createCanvasEventBindingsSource(): string {
           selectedRelationId = relationTarget.dataset.relationId;
           selectedClassId = undefined;
         }
-        const rect = canvasShell.getBoundingClientRect();
-        const stagePoint = viewportPointToStagePoint(event.clientX - rect.left, event.clientY - rect.top);
-        const stageX = stagePoint.x;
-        const stageY = stagePoint.y;
-        const rawCanvasX = stageToWorldX(stageX);
-        const rawCanvasY = stageToWorldY(stageY);
-        const actionCanvasX = rawCanvasX - 110;
-        const actionCanvasY = rawCanvasY - 50;
-        openCanvasContextMenu(stageX, stageY, actionCanvasX, actionCanvasY);
+        openCanvasContextMenuFromPointerEvent(event, { x: 110, y: 50 });
       });
 
       zoomOutButton.addEventListener('click', () => {
@@ -1708,9 +1505,7 @@ export function createCanvasEventBindingsSource(): string {
       });
 
       window.addEventListener('pointerdown', (event) => {
-        if (canvasContextMenu && !event.target.closest('#contextMenu')) {
-          closeCanvasContextMenu();
-        }
+        dismissCanvasContextMenuOnPointerDown(event);
         if (selectedRelationId && !event.target.closest('#edgeEditor') && !event.target.closest('[data-relation-id]')) {
           closeEdgeEditor();
         }

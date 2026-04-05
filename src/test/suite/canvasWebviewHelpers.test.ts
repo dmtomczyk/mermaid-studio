@@ -6,6 +6,9 @@ import {
   createCanvasRenderGroupsSource,
   createCanvasRenderHelpersSource
 } from '../../canvas/diagramCanvasWebviewHelpers';
+import { createCanvasConnectionCoreSource } from '../../canvas/core/canvasConnectionSource';
+import { createCanvasContextMenuCoreSource } from '../../canvas/core/canvasContextMenuSource';
+import { createCanvasSelectionCoreSource } from '../../canvas/core/canvasSelectionSource';
 
 suite('canvas webview helper regressions', () => {
   test('render helper uses renderMermaidSource for generated Mermaid panel', () => {
@@ -43,7 +46,35 @@ suite('canvas webview helper regressions', () => {
     assert.ok(source.includes("const quickConnectButton = card.querySelector('[data-action=\"quick-connect\"]');"));
     assert.ok(source.includes('connectDragActive = true;'));
     assert.ok(source.includes('card.addEventListener(\'pointerup\''));
-    assert.ok(source.includes('createRelation(connectFromClassId, entry.id);'));
+    assert.ok(source.includes('completeConnectionGesture(entry.id);'));
+  });
+
+  test('connection core exposes generic preview lifecycle helpers', () => {
+    const source = createCanvasConnectionCoreSource();
+    assert.ok(source.includes('function clearConnectionPreview() {'));
+    assert.ok(source.includes('function updateConnectPreviewFromClientPoint(clientX, clientY) {'));
+    assert.ok(source.includes('function cancelConnectMode() {'));
+    assert.ok(source.includes('function completeConnectionGesture(targetClassId) {'));
+    assert.ok(source.includes('createRelation(connectFromClassId, targetClassId);'));
+  });
+
+  test('context menu core exposes generic open/close/placement helpers', () => {
+    const source = createCanvasContextMenuCoreSource();
+    assert.ok(source.includes('function openCanvasContextMenu(menuStageX, menuStageY, actionCanvasX, actionCanvasY) {'));
+    assert.ok(source.includes('function closeCanvasContextMenu() {'));
+    assert.ok(source.includes('function openCanvasContextMenuFromPointerEvent(event, offsets) {'));
+    assert.ok(source.includes('function dismissCanvasContextMenuOnPointerDown(event) {'));
+    assert.ok(source.includes('openCanvasContextMenu(stageX, stageY, actionCanvasX, actionCanvasY);'));
+  });
+
+  test('selection core exposes generic focus and bare-canvas defocus helpers', () => {
+    const source = createCanvasSelectionCoreSource();
+    assert.ok(source.includes('function ensureSelection() {'));
+    assert.ok(source.includes('function clearCanvasFocus() {'));
+    assert.ok(source.includes('function shouldDefocusBareCanvasPointerUp(event, target) {'));
+    assert.ok(source.includes('releaseDistance < 6'));
+    assert.ok(source.includes('!panState'));
+    assert.ok(source.includes('!dragState'));
   });
 
   test('actions source still exposes relation/class mutation helpers', () => {
