@@ -5,6 +5,7 @@ import {
   createCanvasRenderGroupsSource,
   createCanvasRenderHelpersSource
 } from './diagramCanvasWebviewHelpers';
+import { createCanvasConfirmationUiSource } from './core/canvasConfirmationUiSource';
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
 import { createCanvasRuntimeDefaultsSource } from './core/canvasRuntimeDefaultsSource';
@@ -65,6 +66,7 @@ ${createCanvasRuntimeDefaultsSource()}
       const WORLD_ORIGIN_Y = 1300;
 ${createClassDiagramWebviewSource()}
 ${createCanvasRuntimeFamilySource()}
+${createCanvasConfirmationUiSource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
 ${createCanvasHostBridgeSource()}
@@ -121,6 +123,11 @@ ${createCanvasTemplateBootstrapSource()}
       const edgeEditor = document.getElementById('edgeEditor');
       const contextMenu = document.getElementById('contextMenu');
       const contextMenuTitle = document.getElementById('contextMenuTitle');
+      const canvasConfirmOverlay = document.getElementById('canvasConfirmOverlay');
+      const canvasConfirmTitle = document.getElementById('canvasConfirmTitle');
+      const canvasConfirmBody = document.getElementById('canvasConfirmBody');
+      const canvasConfirmCancelButton = document.getElementById('canvasConfirmCancelButton');
+      const canvasConfirmAcceptButton = document.getElementById('canvasConfirmAcceptButton');
       const linkedFileInfo = document.getElementById('linkedFileInfo');
       const templatePreview = document.getElementById('templatePreview');
       const inspectorTitle = document.getElementById('inspectorTitle');
@@ -154,6 +161,7 @@ ${createCanvasRenderGroupsSource()}
 
 ${createCanvasEventBindingsSource()}
 
+      bindCanvasConfirmationUi();
       restoreCanvasPersistedState(runtimeFamily);
       requestInitialCanvasState();
 `;

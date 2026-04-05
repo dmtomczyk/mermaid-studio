@@ -1,3 +1,4 @@
+import { createCanvasConfirmationUiSource } from './core/canvasConfirmationUiSource';
 import { createCanvasHostBridgeSource } from './core/canvasHostBridgeSource';
 import { createCanvasPersistedStateSource } from './core/canvasPersistedStateSource';
 import { createCanvasRuntimeDefaultsSource } from './core/canvasRuntimeDefaultsSource';
@@ -45,6 +46,7 @@ ${createCanvasRuntimeDefaultsSource()}
       const WORLD_ORIGIN_X = 1900;
       const WORLD_ORIGIN_Y = 1300;
 ${createCanvasRuntimeFamilySource()}
+${createCanvasConfirmationUiSource()}
 ${createFlowchartWebviewSource()}
 ${createCanvasShellUiSource()}
 ${createCanvasStateBridgeSource()}
@@ -85,6 +87,11 @@ ${createCanvasViewportCoreSource()}
       const minimapBody = document.getElementById('minimapBody');
       const edgeEditor = document.getElementById('edgeEditor');
       const contextMenu = document.getElementById('contextMenu');
+      const canvasConfirmOverlay = document.getElementById('canvasConfirmOverlay');
+      const canvasConfirmTitle = document.getElementById('canvasConfirmTitle');
+      const canvasConfirmBody = document.getElementById('canvasConfirmBody');
+      const canvasConfirmCancelButton = document.getElementById('canvasConfirmCancelButton');
+      const canvasConfirmAcceptButton = document.getElementById('canvasConfirmAcceptButton');
       const linkedFileInfo = document.getElementById('linkedFileInfo');
       const templatePreview = document.getElementById('templatePreview');
       const inspectorTitle = document.getElementById('inspectorTitle');
@@ -744,6 +751,7 @@ ${createCanvasViewportCoreSource()}
         vscode.setState({ state, selectedNodeId, selectedEdgeId, connectFromNodeId, connectPreviewPoint, selectedTemplateId, zoom });
       }
 
+      bindCanvasConfirmationUi();
       restoreCanvasPersistedState(runtimeFamily);
 
       initializeCanvasTemplateSelect(runtimeFamily.templateOptions(), runtimeFamily.defaultTemplateId);

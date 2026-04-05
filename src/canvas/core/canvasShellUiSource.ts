@@ -21,11 +21,19 @@ export function createCanvasShellUiSource(): string {
       }
 
       function bindCanvasFamilySwitcher(runtimeFamily) {
-        familySelect?.addEventListener('change', () => {
+        familySelect?.addEventListener('change', async () => {
           const nextFamily = familySelect.value;
-          if (runtimeFamily.hasContent(state.model) && !confirm('Switch diagram family and reset the current canvas?')) {
-            familySelect.value = state.family || runtimeFamily.family;
-            return;
+          if (runtimeFamily.hasContent(state.model)) {
+            const accepted = await requestCanvasConfirmation({
+              title: runtimeFamily.copy.switchFamilyTitle || 'Switch diagram family?',
+              message: runtimeFamily.copy.switchFamilyMessage || 'This will reset the current canvas and start a new diagram family.',
+              acceptLabel: runtimeFamily.copy.switchFamilyAccept || 'Switch family',
+              cancelLabel: runtimeFamily.copy.switchFamilyCancel || 'Keep current family'
+            });
+            if (!accepted) {
+              familySelect.value = state.family || runtimeFamily.family;
+              return;
+            }
           }
           vscode.postMessage({ type: 'switchFamily', family: nextFamily });
         });

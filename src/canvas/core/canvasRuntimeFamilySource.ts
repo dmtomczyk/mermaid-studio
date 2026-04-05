@@ -12,7 +12,11 @@ export function createCanvasRuntimeFamilySource(): string {
           },
           copy: {
             emptyRelationList: 'No relationships yet. Select a class, then use Connect Selected or the Connect button on the node.',
-            emptyValidation: 'No validation issues.'
+            emptyValidation: 'No validation issues.',
+            switchFamilyTitle: 'Switch diagram family?',
+            switchFamilyMessage: 'This will reset the current canvas and start a new diagram family.',
+            switchFamilyAccept: 'Switch family',
+            switchFamilyCancel: 'Keep current family'
           },
           defaultTemplateId: 'empty',
           templateOptions() {
@@ -52,7 +56,11 @@ export function createCanvasRuntimeFamilySource(): string {
             emptyRelationList: 'No edges yet.',
             emptyValidation: 'No validation issues.',
             inspectorTitle: 'Flowchart',
-            inspectorEmpty: 'Select a node or edge on the canvas to edit it.'
+            inspectorEmpty: 'Select a node or edge on the canvas to edit it.',
+            switchFamilyTitle: 'Switch diagram family?',
+            switchFamilyMessage: 'This will reset the current canvas and start a new diagram family.',
+            switchFamilyAccept: 'Switch family',
+            switchFamilyCancel: 'Keep current family'
           },
           defaultTemplateId: 'process',
           templateOptions() {

@@ -184,6 +184,42 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
       .edge-editor[hidden] {
         display: none;
       }
+      .canvas-confirm-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--vscode-editor-background) 72%, transparent);
+        backdrop-filter: blur(2px);
+        z-index: 40;
+      }
+      .canvas-confirm-overlay[hidden] {
+        display: none;
+      }
+      .canvas-confirm-card {
+        width: min(420px, calc(100vw - 48px));
+        padding: 16px;
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--vscode-editor-background) 96%, var(--vscode-panel-border));
+        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
+      }
+      .canvas-confirm-card h2 {
+        margin: 0 0 8px;
+        font-size: 15px;
+      }
+      .canvas-confirm-card p {
+        margin: 0;
+        color: var(--vscode-descriptionForeground);
+        line-height: 1.45;
+      }
+      .canvas-confirm-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 14px;
+      }
       .edge-editor-grid {
         display: grid;
         gap: 8px;
@@ -590,6 +626,16 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
                 <div class="context-menu-divider"></div>
                 <button type="button" class="danger" data-context-action="delete-selected">Delete selected</button>
                 <button type="button" data-context-action="cancel-connect">Cancel connect mode</button>
+              </div>
+            </div>
+            <div id="canvasConfirmOverlay" class="canvas-confirm-overlay" hidden>
+              <div class="canvas-confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="canvasConfirmTitle" aria-describedby="canvasConfirmBody">
+                <h2 id="canvasConfirmTitle">Confirm action</h2>
+                <p id="canvasConfirmBody">Are you sure?</p>
+                <div class="canvas-confirm-actions">
+                  <button id="canvasConfirmCancelButton" type="button" class="secondary">Cancel</button>
+                  <button id="canvasConfirmAcceptButton" type="button" class="danger">Continue</button>
+                </div>
               </div>
             </div>
           </div>
