@@ -6,6 +6,7 @@ import {
   createCanvasRenderHelpersSource
 } from './diagramCanvasWebviewHelpers';
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
+import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createClassDiagramWebviewSource } from './families/classDiagram/classDiagramWebviewSource';
 import { CanvasDiagramFamily } from './types/canvasFamilies';
 import { createFlowchartCanvasWebviewScript } from './flowchartCanvasWebviewScript';
@@ -79,6 +80,7 @@ export function createDiagramCanvasWebviewScript(params: DiagramCanvasWebviewScr
       const WORLD_ORIGIN_Y = 1300;
 ${createClassDiagramWebviewSource()}
 ${createCanvasShellUiSource()}
+${createCanvasStateBridgeSource()}
       let viewportInitialized = false;
       let hasReceivedInitialState = false;
       let selectedClassId;

@@ -1788,21 +1788,10 @@ export function createCanvasEventBindingsSource(): string {
             relationCount: Array.isArray(message.model?.relations) ? message.model.relations.length : -1,
             sourceLabel: message.sourceLabel || ''
           });
-          state = {
-            family: message.family || 'classDiagram',
-            familyLabel: message.familyLabel || 'Class Diagram',
-            availableFamilies: Array.isArray(message.availableFamilies) ? message.availableFamilies : state.availableFamilies,
-            shellLabels: message.shellLabels || state.shellLabels,
-            sourceLabel: message.sourceLabel,
-            linkedFileLabel: message.linkedFileLabel || message.sourceLabel,
-            linkedFileKind: message.linkedFileKind || 'ephemeral',
-            canReimport: !!message.canReimport,
-            canOpenLinkedFile: !!message.canOpenLinkedFile,
-            canApply: message.canApply !== false,
-            issues: Array.isArray(message.issues) ? message.issues : [],
-            model: message.model,
-            mermaid: message.mermaid
-          };
+          state = mergeCanvasShellState(message, {
+            family: 'classDiagram',
+            familyLabel: 'Class Diagram'
+          });
           render();
           if (!hasReceivedInitialState) {
             hasReceivedInitialState = true;

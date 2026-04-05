@@ -1,4 +1,5 @@
 import { createCanvasShellUiSource } from './core/canvasShellUiSource';
+import { createCanvasStateBridgeSource } from './core/canvasStateBridgeSource';
 import { createCanvasViewportCoreSource } from './core/canvasViewportSource';
 import { createFlowchartWebviewSource } from './families/flowchart/flowchartWebviewSource';
 
@@ -60,6 +61,7 @@ export function createFlowchartCanvasWebviewScript(debugEnabled: boolean): strin
       const WORLD_ORIGIN_Y = 1300;
 ${createFlowchartWebviewSource()}
 ${createCanvasShellUiSource()}
+${createCanvasStateBridgeSource()}
 ${createCanvasViewportCoreSource()}
       let viewportInitialized = false;
       let selectedNodeId;
@@ -923,21 +925,10 @@ ${createCanvasViewportCoreSource()}
         const message = event.data;
         if (message.type === 'setState') {
           pushDebugEvent('message:setState', { nodeCount: Array.isArray(message.model?.nodes) ? message.model.nodes.length : -1, edgeCount: Array.isArray(message.model?.edges) ? message.model.edges.length : -1 });
-          state = {
-            family: message.family || 'flowchart',
-            familyLabel: message.familyLabel || 'Flowchart',
-            availableFamilies: Array.isArray(message.availableFamilies) ? message.availableFamilies : state.availableFamilies,
-            shellLabels: message.shellLabels || state.shellLabels,
-            sourceLabel: message.sourceLabel,
-            linkedFileLabel: message.linkedFileLabel || message.sourceLabel,
-            linkedFileKind: message.linkedFileKind || 'ephemeral',
-            canReimport: !!message.canReimport,
-            canOpenLinkedFile: !!message.canOpenLinkedFile,
-            canApply: message.canApply !== false,
-            issues: Array.isArray(message.issues) ? message.issues : [],
-            model: message.model,
-            mermaid: message.mermaid
-          };
+          state = mergeCanvasShellState(message, {
+            family: 'flowchart',
+            familyLabel: 'Flowchart'
+          });
           render();
           initializeViewportIfNeeded();
         }
