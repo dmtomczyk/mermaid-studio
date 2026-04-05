@@ -11,6 +11,8 @@ const webviewDistDir = path.join(distDir, 'webview');
 const vendorDir = path.join(projectRoot, 'media', 'vendor');
 
 async function main() {
+  const debugEnabled = process.env.DEBUG === '1';
+
   await rm(distDir, { recursive: true, force: true });
   await mkdir(distDir, { recursive: true });
   await mkdir(webviewDistDir, { recursive: true });
@@ -26,7 +28,10 @@ async function main() {
     external: ['vscode'],
     sourcemap: false,
     minify: false,
-    logLevel: 'info'
+    logLevel: 'info',
+    define: {
+      __DEBUG__: JSON.stringify(debugEnabled)
+    }
   });
 
   await build({

@@ -112,10 +112,45 @@ Structured flowchart and sequence editing in a side panel with presets, quick-ad
 
 If you want to build or test Mermaid Studio locally, you will need a standard Node.js / npm workflow.
 
-Minimum useful commands:
+### Recommended development loop
+
+For active feature work, prefer the **Extension Development Host** loop:
 
 ```bash
 npm install
+npm run compile
+# then press F5 in VS Code
+```
+
+For package validation or release prep:
+
+```bash
+npm test
+npm run package
+```
+
+### Canvas debug build
+
+The Diagram Canvas has temporary viewport/debug instrumentation available behind a simple build-time flag:
+
+```bash
+DEBUG=1 npm run compile
+```
+
+A normal build does **not** include the debug panel.
+
+### Webview guardrail
+
+The Diagram Canvas HTML is currently generated from a large embedded webview template string. Because browser-side script escaping bugs can slip past TypeScript and only fail at runtime, the test suite includes a source guard:
+
+- `src/test/suite/canvasWebviewGuards.test.ts`
+
+That guard is intended to catch fragile embedded-script patterns early (for example raw regex/script snippets that tend to break once interpolated into the webview HTML string).
+
+### Useful commands
+
+```bash
+npm run compile
 npm test
 npm run package
 ```
