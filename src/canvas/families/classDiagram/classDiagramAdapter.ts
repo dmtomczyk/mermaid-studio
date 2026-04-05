@@ -6,6 +6,7 @@ import {
   ClassDiagramCanvasModel,
   ClassDiagramCanvasNode
 } from './classDiagramTypes';
+import { CLASS_DIAGRAM_TEMPLATES } from './classDiagramTemplates';
 import {
   createEmptyClassDiagramModel,
   generateClassDiagramSource,
@@ -16,15 +17,6 @@ import {
   getClassDiagramDiagramBounds,
   getClassDiagramSelectionBounds
 } from './classDiagramBounds';
-
-const CLASS_TEMPLATES: CanvasTemplate[] = [
-  { id: 'empty', label: 'Blank Class', category: 'class' },
-  { id: 'entity', label: 'Entity', category: 'class' },
-  { id: 'service', label: 'Service', category: 'class' },
-  { id: 'controller', label: 'Controller', category: 'class' },
-  { id: 'repository', label: 'Repository', category: 'class' },
-  { id: 'value-object', label: 'Value Object', category: 'class' }
-];
 
 function getClassById(model: ClassDiagramCanvasModel, nodeId: string): ClassDiagramCanvasNode | undefined {
   return model.classes.find((entry) => entry.id === nodeId);
@@ -68,7 +60,7 @@ export const classDiagramAdapter: CanvasFamilyAdapter<
   },
 
   getTemplates(): CanvasTemplate[] {
-    return CLASS_TEMPLATES;
+    return CLASS_DIAGRAM_TEMPLATES;
   },
 
   canStartConnection(model: ClassDiagramCanvasModel, nodeId: string): boolean {
