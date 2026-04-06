@@ -539,7 +539,7 @@ ${createCanvasViewportCoreSource()}
           edgeLayer.appendChild(hit);
 
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('class', 'edge-line' + (edge.id === selectedEdgeId ? ' selected' : '') + (edge.type === '-.->' ? ' dashed' : ''));
+          path.setAttribute('class', runtimeFamily.getEdgeStrokeClass(edge, edge.id === selectedEdgeId));
           path.setAttribute('d', d);
           edgeLayer.appendChild(path);
 
@@ -548,7 +548,7 @@ ${createCanvasViewportCoreSource()}
           label.setAttribute('x', String(labelPosition.x));
           label.setAttribute('y', String(labelPosition.y));
           label.setAttribute('text-anchor', 'middle');
-          label.textContent = edge.label || edge.type || '-->';
+          label.textContent = runtimeFamily.getEdgeLabelText(edge);
           edgeLayer.appendChild(label);
         });
 
@@ -559,7 +559,7 @@ ${createCanvasViewportCoreSource()}
           }
           const d = runtimeFamily.getPreviewPath(from, connectPreviewPoint);
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('class', 'edge-line preview');
+          path.setAttribute('class', runtimeFamily.getPreviewStrokeClass());
           path.setAttribute('d', d);
           edgeLayer.appendChild(path);
         }

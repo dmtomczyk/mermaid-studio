@@ -17,6 +17,9 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes('getEdgePath(from, to) {'));
     assert.ok(source.includes('getPreviewPath(from, previewPoint) {'));
     assert.ok(source.includes('renderEdgeLabelPosition(from, to) {'));
+    assert.ok(source.includes('getEdgeStrokeClass('));
+    assert.ok(source.includes('getPreviewStrokeClass() {'));
+    assert.ok(source.includes('getEdgeLabelText('));
     assert.ok(source.includes('hasContent(model) {'));
     assert.ok(source.includes('restoreSelection(persisted) {'));
   });

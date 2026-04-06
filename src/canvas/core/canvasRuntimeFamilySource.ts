@@ -107,6 +107,15 @@ export function createCanvasRuntimeFamilySource(): string {
               y: Math.round((worldToStageY(a.y + a.height / 2) + worldToStageY(b.y + b.height / 2)) / 2) - 8
             };
           },
+          getEdgeStrokeClass(relation, isSelected) {
+            return 'edge-line' + (isSelected ? ' selected' : '');
+          },
+          getPreviewStrokeClass() {
+            return 'edge-line connecting';
+          },
+          getEdgeLabelText(relation) {
+            return relation.label || relation.type || '-->';
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -222,6 +231,15 @@ export function createCanvasRuntimeFamilySource(): string {
               x: Math.round((worldToStageX(a.x + a.width / 2) + worldToStageX(b.x + b.width / 2)) / 2),
               y: Math.round((worldToStageY(a.y + a.height / 2) + worldToStageY(b.y + b.height / 2)) / 2) - 8
             };
+          },
+          getEdgeStrokeClass(edge, isSelected) {
+            return 'edge-line' + (isSelected ? ' selected' : '') + (edge.type === '-.->' ? ' dashed' : '');
+          },
+          getPreviewStrokeClass() {
+            return 'edge-line preview';
+          },
+          getEdgeLabelText(edge) {
+            return edge.label || edge.type || '-->';
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;

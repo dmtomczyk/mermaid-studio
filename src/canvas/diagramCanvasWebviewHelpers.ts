@@ -701,12 +701,12 @@ export function createCanvasRenderGroupsSource(): string {
           edgeLayer.appendChild(hit);
 
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('class', 'edge-line' + (relation.id === selectedRelationId ? ' selected' : ''));
+          path.setAttribute('class', runtimeFamily.getEdgeStrokeClass(relation, relation.id === selectedRelationId));
           path.setAttribute('d', d);
           path.dataset.relationId = relation.id;
           edgeLayer.appendChild(path);
 
-          const labelText = relation.label || relation.type || '-->';
+          const labelText = runtimeFamily.getEdgeLabelText(relation);
           const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           label.setAttribute('class', 'edge-label' + (relation.id === selectedRelationId ? ' selected' : ''));
           label.dataset.relationId = relation.id;
@@ -730,7 +730,7 @@ export function createCanvasRenderGroupsSource(): string {
           if (from) {
             const d = runtimeFamily.getPreviewPath(from, connectPreviewPoint);
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute('class', 'edge-line connecting');
+            path.setAttribute('class', runtimeFamily.getPreviewStrokeClass());
             path.setAttribute('d', d);
             edgeLayer.appendChild(path);
           }
