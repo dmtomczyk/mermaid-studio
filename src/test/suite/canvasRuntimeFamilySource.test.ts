@@ -11,6 +11,11 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes('copy: {'));
     assert.ok(source.includes("emptyRelationList:"));
     assert.ok(source.includes('isCompatiblePersistedState(nextState) {'));
+    assert.ok(source.includes('getNodeBounds(node) {'));
+    assert.ok(source.includes('getDiagramBounds(model) {'));
+    assert.ok(source.includes('getSelectionBounds(model, selectedClass, selectedRelation) {') || source.includes('getSelectionBounds(model, selectedNode, selectedEdge) {'));
+    assert.ok(source.includes('getEdgePath(from, to) {'));
+    assert.ok(source.includes('getPreviewPath(from, previewPoint) {'));
     assert.ok(source.includes('hasContent(model) {'));
     assert.ok(source.includes('restoreSelection(persisted) {'));
   });

@@ -25,6 +25,80 @@ export function createCanvasRuntimeFamilySource(): string {
           isCompatiblePersistedState(nextState) {
             return !!nextState && !!nextState.model && Array.isArray(nextState.model.classes) && Array.isArray(nextState.model.relations);
           },
+          getNodeBounds(node) {
+            return {
+              x: node.x,
+              y: node.y,
+              width: node.width || 220,
+              height: node.height || 120
+            };
+          },
+          getDiagramBounds(model) {
+            const padding = 80;
+            if (!model.classes.length) {
+              return { x: 0, y: 0, width: 800, height: 600 };
+            }
+            const bounds = model.classes.map((entry) => this.getNodeBounds(entry));
+            const minX = Math.min(...bounds.map((entry) => entry.x - padding));
+            const maxX = Math.max(...bounds.map((entry) => entry.x + entry.width + padding));
+            const minY = Math.min(...bounds.map((entry) => entry.y - padding));
+            const maxY = Math.max(...bounds.map((entry) => entry.y + entry.height + padding));
+            return {
+              x: minX,
+              y: minY,
+              width: Math.max(240, maxX - minX),
+              height: Math.max(180, maxY - minY)
+            };
+          },
+          getSelectionBounds(model, selectedClass, selectedRelation) {
+            if (selectedClass) {
+              const bounds = this.getNodeBounds(selectedClass);
+              return {
+                x: bounds.x - 60,
+                y: bounds.y - 60,
+                width: bounds.width + 120,
+                height: bounds.height + 120
+              };
+            }
+            if (selectedRelation) {
+              const from = model.classes.find((entry) => entry.id === selectedRelation.from);
+              const to = model.classes.find((entry) => entry.id === selectedRelation.to);
+              if (from && to) {
+                const a = this.getNodeBounds(from);
+                const b = this.getNodeBounds(to);
+                const left = Math.min(a.x, b.x);
+                const top = Math.min(a.y, b.y);
+                const right = Math.max(a.x + a.width, b.x + b.width);
+                const bottom = Math.max(a.y + a.height, b.y + b.height);
+                return {
+                  x: left - 80,
+                  y: top - 80,
+                  width: right - left + 160,
+                  height: bottom - top + 160
+                };
+              }
+            }
+            return null;
+          },
+          getEdgePath(from, to) {
+            const a = this.getNodeBounds(from);
+            const b = this.getNodeBounds(to);
+            const startX = worldToStageX(a.x + a.width / 2);
+            const startY = worldToStageY(a.y + a.height / 2);
+            const endX = worldToStageX(b.x + b.width / 2);
+            const endY = worldToStageY(b.y + b.height / 2);
+            const midX = Math.round((startX + endX) / 2);
+            return 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+          },
+          getPreviewPath(from, previewPoint) {
+            const a = this.getNodeBounds(from);
+            const startX = worldToStageX(a.x + a.width / 2);
+            const startY = worldToStageY(a.y + a.height / 2);
+            const endX = worldToStageX(previewPoint.x);
+            const endY = worldToStageY(previewPoint.y);
+            const midX = Math.round((startX + endX) / 2);
+            return 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -71,6 +145,67 @@ export function createCanvasRuntimeFamilySource(): string {
           },
           isCompatiblePersistedState(nextState) {
             return !!nextState && !!nextState.model && Array.isArray(nextState.model.nodes) && Array.isArray(nextState.model.edges);
+          },
+          getNodeBounds(node) {
+            const dims = measureFlowchartNode(node.shape, node.label, node.width, node.height);
+            return {
+              x: node.x,
+              y: node.y,
+              width: dims.width,
+              height: dims.height
+            };
+          },
+          getDiagramBounds(model) {
+            if (!model.nodes.length) {
+              return { x: 0, y: 0, width: 800, height: 600 };
+            }
+            const bounds = model.nodes.map((entry) => this.getNodeBounds(entry));
+            return {
+              x: Math.min(...bounds.map((entry) => entry.x)) - 80,
+              y: Math.min(...bounds.map((entry) => entry.y)) - 80,
+              width: Math.max(...bounds.map((entry) => entry.x + entry.width)) - Math.min(...bounds.map((entry) => entry.x)) + 160,
+              height: Math.max(...bounds.map((entry) => entry.y + entry.height)) - Math.min(...bounds.map((entry) => entry.y)) + 160
+            };
+          },
+          getSelectionBounds(model, selectedNode, selectedEdge) {
+            if (selectedNode) {
+              const bounds = this.getNodeBounds(selectedNode);
+              return { x: bounds.x - 60, y: bounds.y - 60, width: bounds.width + 120, height: bounds.height + 120 };
+            }
+            if (selectedEdge) {
+              const from = model.nodes.find((entry) => entry.id === selectedEdge.from);
+              const to = model.nodes.find((entry) => entry.id === selectedEdge.to);
+              if (!from || !to) {
+                return null;
+              }
+              const a = this.getNodeBounds(from);
+              const b = this.getNodeBounds(to);
+              const minX = Math.min(a.x, b.x) - 80;
+              const minY = Math.min(a.y, b.y) - 80;
+              const maxX = Math.max(a.x + a.width, b.x + b.width) + 80;
+              const maxY = Math.max(a.y + a.height, b.y + b.height) + 80;
+              return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+            }
+            return null;
+          },
+          getEdgePath(from, to) {
+            const a = this.getNodeBounds(from);
+            const b = this.getNodeBounds(to);
+            const startX = worldToStageX(a.x + a.width / 2);
+            const startY = worldToStageY(a.y + a.height / 2);
+            const endX = worldToStageX(b.x + b.width / 2);
+            const endY = worldToStageY(b.y + b.height / 2);
+            const midX = Math.round((startX + endX) / 2);
+            return 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+          },
+          getPreviewPath(from, previewPoint) {
+            const a = this.getNodeBounds(from);
+            const startX = worldToStageX(a.x + a.width / 2);
+            const startY = worldToStageY(a.y + a.height / 2);
+            const endX = worldToStageX(previewPoint.x);
+            const endY = worldToStageY(previewPoint.y);
+            const midX = Math.round((startX + endX) / 2);
+            return 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;

@@ -8,56 +8,11 @@ export function createCanvasGeometryHelpersSource(): string {
 ${createCanvasViewportCoreSource()}
 
       function getDiagramBounds() {
-        const padding = 80;
-        if (!state.model.classes.length) {
-          return { x: 0, y: 0, width: 800, height: 600 };
-        }
-        const xs = [];
-        const ys = [];
-        state.model.classes.forEach((entry) => {
-          xs.push(entry.x - padding, entry.x + (entry.width || 220) + padding);
-          ys.push(entry.y - padding, entry.y + (entry.height || 120) + padding);
-        });
-        const minX = Math.min(...xs);
-        const maxX = Math.max(...xs);
-        const minY = Math.min(...ys);
-        const maxY = Math.max(...ys);
-        return {
-          x: minX,
-          y: minY,
-          width: Math.max(240, maxX - minX),
-          height: Math.max(180, maxY - minY)
-        };
+        return runtimeFamily.getDiagramBounds(state.model);
       }
 
       function getSelectionBounds() {
-        const selectedClass = getSelectedClass();
-        if (selectedClass) {
-          return {
-            x: selectedClass.x - 60,
-            y: selectedClass.y - 60,
-            width: (selectedClass.width || 220) + 120,
-            height: (selectedClass.height || 120) + 120
-          };
-        }
-        const selectedRelation = getSelectedRelation();
-        if (selectedRelation) {
-          const from = state.model.classes.find((entry) => entry.id === selectedRelation.from);
-          const to = state.model.classes.find((entry) => entry.id === selectedRelation.to);
-          if (from && to) {
-            const left = Math.min(from.x, to.x);
-            const top = Math.min(from.y, to.y);
-            const right = Math.max(from.x + (from.width || 220), to.x + (to.width || 220));
-            const bottom = Math.max(from.y + (from.height || 120), to.y + (to.height || 120));
-            return {
-              x: left - 80,
-              y: top - 80,
-              width: right - left + 160,
-              height: bottom - top + 160
-            };
-          }
-        }
-        return null;
+        return runtimeFamily.getSelectionBounds(state.model, getSelectedClass(), getSelectedRelation());
       }
 
       function fitBounds(bounds) {
@@ -732,13 +687,11 @@ export function createCanvasRenderGroupsSource(): string {
           if (!from || !to) {
             return;
           }
-          const startX = worldToStageX(from.x + (from.width || 220) / 2);
-          const startY = worldToStageY(from.y + (from.height || 120) / 2);
-          const endX = worldToStageX(to.x + (to.width || 220) / 2);
-          const endY = worldToStageY(to.y + (to.height || 120) / 2);
-          const midX = Math.round((startX + endX) / 2);
-          const midY = Math.round((startY + endY) / 2);
-          const d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+          const d = runtimeFamily.getEdgePath(from, to);
+          const fromBounds = runtimeFamily.getNodeBounds(from);
+          const toBounds = runtimeFamily.getNodeBounds(to);
+          const midX = Math.round((worldToStageX(fromBounds.x + fromBounds.width / 2) + worldToStageX(toBounds.x + toBounds.width / 2)) / 2);
+          const midY = Math.round((worldToStageY(fromBounds.y + fromBounds.height / 2) + worldToStageY(toBounds.y + toBounds.height / 2)) / 2);
 
           const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           hit.setAttribute('class', 'edge-hit');
@@ -778,12 +731,7 @@ export function createCanvasRenderGroupsSource(): string {
         if (connectFromClassId && connectPreviewPoint) {
           const from = state.model.classes.find((entry) => entry.id === connectFromClassId);
           if (from) {
-            const startX = worldToStageX(from.x + (from.width || 220) / 2);
-            const startY = worldToStageY(from.y + (from.height || 120) / 2);
-            const endX = worldToStageX(connectPreviewPoint.x);
-            const endY = worldToStageY(connectPreviewPoint.y);
-            const midX = Math.round((startX + endX) / 2);
-            const d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+            const d = runtimeFamily.getPreviewPath(from, connectPreviewPoint);
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             path.setAttribute('class', 'edge-line connecting');
             path.setAttribute('d', d);

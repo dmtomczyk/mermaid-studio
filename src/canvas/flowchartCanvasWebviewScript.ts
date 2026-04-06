@@ -260,56 +260,15 @@ ${createCanvasViewportCoreSource()}
       }
 
       function getNodeBounds(node) {
-        const dims = measureFlowchartNode(node.shape, node.label, node.width, node.height);
-        return {
-          x: node.x,
-          y: node.y,
-          width: dims.width,
-          height: dims.height
-        };
+        return runtimeFamily.getNodeBounds(node);
       }
 
       function getDiagramBounds() {
-        if (!state.model.nodes.length) {
-          return { x: 0, y: 0, width: 800, height: 600 };
-        }
-        const bounds = state.model.nodes.map(getNodeBounds);
-        return {
-          x: Math.min(...bounds.map((entry) => entry.x)) - 80,
-          y: Math.min(...bounds.map((entry) => entry.y)) - 80,
-          width: Math.max(...bounds.map((entry) => entry.x + entry.width)) - Math.min(...bounds.map((entry) => entry.x)) + 160,
-          height: Math.max(...bounds.map((entry) => entry.y + entry.height)) - Math.min(...bounds.map((entry) => entry.y)) + 160
-        };
+        return runtimeFamily.getDiagramBounds(state.model);
       }
 
       function getSelectionBounds() {
-        if (selectedNodeId) {
-          const node = getNodeById(selectedNodeId);
-          if (!node) {
-            return null;
-          }
-          const bounds = getNodeBounds(node);
-          return { x: bounds.x - 60, y: bounds.y - 60, width: bounds.width + 120, height: bounds.height + 120 };
-        }
-        if (selectedEdgeId) {
-          const edge = getSelectedEdge();
-          if (!edge) {
-            return null;
-          }
-          const from = getNodeById(edge.from);
-          const to = getNodeById(edge.to);
-          if (!from || !to) {
-            return null;
-          }
-          const a = getNodeBounds(from);
-          const b = getNodeBounds(to);
-          const minX = Math.min(a.x, b.x) - 80;
-          const minY = Math.min(a.y, b.y) - 80;
-          const maxX = Math.max(a.x + a.width, b.x + b.width) + 80;
-          const maxY = Math.max(a.y + a.height, b.y + b.height) + 80;
-          return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
-        }
-        return null;
+        return runtimeFamily.getSelectionBounds(state.model, getSelectedNode(), getSelectedEdge());
       }
 
       function fitBounds(bounds) {
@@ -566,13 +525,9 @@ ${createCanvasViewportCoreSource()}
           }
           const fromBounds = getNodeBounds(from);
           const toBounds = getNodeBounds(to);
-          const startX = worldToStageX(fromBounds.x + fromBounds.width / 2);
-          const startY = worldToStageY(fromBounds.y + fromBounds.height / 2);
-          const endX = worldToStageX(toBounds.x + toBounds.width / 2);
-          const endY = worldToStageY(toBounds.y + toBounds.height / 2);
-          const midX = Math.round((startX + endX) / 2);
-          const midY = Math.round((startY + endY) / 2);
-          const d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+          const d = runtimeFamily.getEdgePath(from, to);
+          const midX = Math.round((worldToStageX(fromBounds.x + fromBounds.width / 2) + worldToStageX(toBounds.x + toBounds.width / 2)) / 2);
+          const midY = Math.round((worldToStageY(fromBounds.y + fromBounds.height / 2) + worldToStageY(toBounds.y + toBounds.height / 2)) / 2);
 
           const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           hit.setAttribute('class', 'edge-hit');
@@ -605,13 +560,7 @@ ${createCanvasViewportCoreSource()}
           if (!from) {
             return;
           }
-          const fromBounds = getNodeBounds(from);
-          const startX = worldToStageX(fromBounds.x + fromBounds.width / 2);
-          const startY = worldToStageY(fromBounds.y + fromBounds.height / 2);
-          const endX = worldToStageX(connectPreviewPoint.x);
-          const endY = worldToStageY(connectPreviewPoint.y);
-          const midX = Math.round((startX + endX) / 2);
-          const d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+          const d = runtimeFamily.getPreviewPath(from, connectPreviewPoint);
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           path.setAttribute('class', 'edge-line preview');
           path.setAttribute('d', d);
