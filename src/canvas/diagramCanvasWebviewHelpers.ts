@@ -459,9 +459,7 @@ export function createCanvasRenderGroupsSource(): string {
         state.model.classes.forEach((entry) => {
           const card = document.createElement('article');
           card.dataset.classId = entry.id;
-          card.className = 'class-node'
-            + (entry.id === selectedClassId ? ' selected' : '')
-            + (entry.id === connectFromClassId ? ' connect-source' : '');
+          card.className = runtimeFamily.getNodeRenderClass(entry, entry.id === selectedClassId, entry.id === connectFromClassId);
           card.style.left = worldToStageX(entry.x) + 'px';
           card.style.top = worldToStageY(entry.y) + 'px';
           card.style.width = (entry.width || 220) + 'px';
@@ -486,7 +484,7 @@ export function createCanvasRenderGroupsSource(): string {
             ? '<textarea class="node-members-input" data-role="members-input">' + escapeHtml(entry.members.join('\\n')) + '</textarea>'
               + renderMemberSnippetBar('node-members-input')
               + '<div class="members-editor-preview">' + renderMemberPreviewHtml(entry.members.join('\\n')) + '</div>'
-            : '<div class="node-body">' + (entry.members.length ? entry.members.map((member) => '<span class="node-member-line">' + highlightNodeMemberLine(member) + '</span>').join('') : 'No members yet') + '</div>';
+            : '<div class="node-body">' + runtimeFamily.getNodeBodyHtml(entry) + '</div>';
           card.innerHTML = '<div class="node-header">'
             + '<div class="node-header-main">' + titleMarkup + '</div>'
             + '<div class="node-header-tools">'
@@ -496,7 +494,7 @@ export function createCanvasRenderGroupsSource(): string {
             + '</div>'
             + bodyMarkup
             + '<div class="node-hint">'
-            + 'Drag to move · double-click title to rename · double-click members to edit inline'
+            + escapeHtml(runtimeFamily.getNodeHintText(entry))
             + selectedActions
             + '</div>';
 

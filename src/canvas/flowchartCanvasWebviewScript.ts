@@ -414,7 +414,6 @@ ${createCanvasViewportCoreSource()}
       }
 
       function shapeNode(card, node) {
-        card.className += ' flowchart-node flowchart-shape-' + node.shape;
         card.style.borderRadius = node.shape === 'rounded' || node.shape === 'stadium' ? '999px' : node.shape === 'circle' ? '50%' : '12px';
         card.style.borderStyle = node.shape === 'diam' || node.shape === 'lean-r' || node.shape === 'text' ? 'dashed' : 'solid';
       }
@@ -424,7 +423,7 @@ ${createCanvasViewportCoreSource()}
         state.model.nodes.forEach((node) => {
           const bounds = syncNodeDimensions(node);
           const card = document.createElement('article');
-          card.className = 'class-node' + (node.id === selectedNodeId ? ' selected' : '') + (node.id === connectFromNodeId ? ' connect-source' : '');
+          card.className = runtimeFamily.getNodeRenderClass(node, node.id === selectedNodeId, node.id === connectFromNodeId);
           card.dataset.nodeId = node.id;
           card.style.left = worldToStageX(node.x) + 'px';
           card.style.top = worldToStageY(node.y) + 'px';
@@ -432,8 +431,8 @@ ${createCanvasViewportCoreSource()}
           card.style.height = bounds.height + 'px';
           shapeNode(card, node);
           card.innerHTML = '<div class="node-header"><div class="node-header-main"><div class="node-title">' + escapeHtml(node.label) + '</div></div><div class="node-header-tools"><span class="meta">' + escapeHtml(renderShapeLabel(node.shape)) + '</span><button type="button" class="node-port' + (connectFromNodeId === node.id ? ' active' : '') + '" data-action="quick-connect"></button></div></div>'
-            + '<div class="node-body"><div>' + escapeHtml(node.id) + '</div></div>'
-            + '<div class="node-hint">Drag to move · edit in inspector<div class="node-actions"><button type="button" class="ghost" data-action="connect">Connect</button><button type="button" class="ghost" data-action="duplicate">Duplicate</button><button type="button" class="ghost danger" data-action="delete">Delete</button></div></div>';
+            + '<div class="node-body">' + runtimeFamily.getNodeBodyHtml(node) + '</div>'
+            + '<div class="node-hint">' + escapeHtml(runtimeFamily.getNodeHintText(node)) + '<div class="node-actions"><button type="button" class="ghost" data-action="connect">Connect</button><button type="button" class="ghost" data-action="duplicate">Duplicate</button><button type="button" class="ghost danger" data-action="delete">Delete</button></div></div>';
 
           const header = card.querySelector('.node-header');
           const actions = card.querySelector('.node-actions');

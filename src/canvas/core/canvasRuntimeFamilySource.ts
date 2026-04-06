@@ -116,6 +116,22 @@ export function createCanvasRuntimeFamilySource(): string {
           getEdgeLabelText(relation) {
             return relation.label || relation.type || '-->';
           },
+          getNodeRenderClass(entry, isSelected, isConnectSource) {
+            return 'class-node' + (isSelected ? ' selected' : '') + (isConnectSource ? ' connect-source' : '');
+          },
+          getNodeShapeClass() {
+            return '';
+          },
+          getNodeBodyHtml(entry) {
+            return '<div class="node-section-label">Members</div><div class="node-members">'
+              + (Array.isArray(entry.members) && entry.members.length
+                ? entry.members.map((member) => '<span class="node-member-line">' + highlightNodeMemberLine(member) + '</span>').join('')
+                : '<span class="meta">No members yet.</span>')
+              + '</div>';
+          },
+          getNodeHintText() {
+            return 'Drag to move · edit inline or in the inspector';
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -240,6 +256,18 @@ export function createCanvasRuntimeFamilySource(): string {
           },
           getEdgeLabelText(edge) {
             return edge.label || edge.type || '-->';
+          },
+          getNodeRenderClass(node, isSelected, isConnectSource) {
+            return 'class-node flowchart-node' + (isSelected ? ' selected' : '') + (isConnectSource ? ' connect-source' : '') + ' ' + this.getNodeShapeClass(node);
+          },
+          getNodeShapeClass(node) {
+            return 'flowchart-shape-' + node.shape;
+          },
+          getNodeBodyHtml(node) {
+            return '<div>' + escapeHtml(node.id) + '</div>';
+          },
+          getNodeHintText() {
+            return 'Drag to move · edit in inspector';
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;
