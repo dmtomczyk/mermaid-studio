@@ -7,6 +7,13 @@ export function createCanvasRuntimeFamilySource(): string {
         return '<div class="node-actions">' + items.map((item) => '<button type="button" class="' + escapeHtml(item.tone || 'ghost') + '" data-action="' + escapeHtml(item.action) + '">' + escapeHtml(item.label) + '</button>').join('') + '</div>';
       }
 
+      function renderCanvasInspectorActions(items, idPrefix) {
+        if (!Array.isArray(items) || !items.length) {
+          return '';
+        }
+        return '<div class="small-actions">' + items.map((item) => '<button id="' + escapeHtml(idPrefix + item.action) + '" class="' + escapeHtml(item.tone || 'ghost') + '">' + escapeHtml(item.label) + '</button>').join('') + '</div>';
+      }
+
       function createClassDiagramRuntimeFamilyConfig() {
         return {
           family: 'classDiagram',
@@ -23,7 +30,11 @@ export function createCanvasRuntimeFamilySource(): string {
             switchFamilyTitle: 'Switch diagram family?',
             switchFamilyMessage: 'This will reset the current canvas and start a new diagram family.',
             switchFamilyAccept: 'Switch family',
-            switchFamilyCancel: 'Keep current family'
+            switchFamilyCancel: 'Keep current family',
+            inspectorNodeTitle: 'Selected class',
+            inspectorEdgeTitle: 'Selected relationship',
+            inspectorEmptyTitle: 'Canvas',
+            inspectorEmptyBody: 'Select a class or relationship to edit it.'
           },
           defaultTemplateId: 'empty',
           templateOptions() {
@@ -152,6 +163,21 @@ export function createCanvasRuntimeFamilySource(): string {
               { action: 'delete', label: 'Delete', tone: 'ghost danger' }
             ];
           },
+          getInspectorNodeActions() {
+            return [
+              { action: 'rename', label: 'Rename', tone: 'ghost' },
+              { action: 'addMember', label: 'Add member', tone: 'ghost' },
+              { action: 'connect', label: 'Connect from here', tone: 'ghost' },
+              { action: 'delete', label: 'Delete class', tone: 'secondary danger' }
+            ];
+          },
+          getInspectorEdgeActions() {
+            return [
+              { action: 'delete', label: 'Delete relationship', tone: 'secondary danger' },
+              { action: 'focusFrom', label: 'Focus source class', tone: 'ghost' },
+              { action: 'focusTo', label: 'Focus target class', tone: 'ghost' }
+            ];
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -185,8 +211,10 @@ export function createCanvasRuntimeFamilySource(): string {
           copy: {
             emptyRelationList: 'No edges yet.',
             emptyValidation: 'No validation issues.',
-            inspectorTitle: 'Flowchart',
-            inspectorEmpty: 'Select a node or edge on the canvas to edit it.',
+            inspectorNodeTitle: 'Selected node',
+            inspectorEdgeTitle: 'Selected edge',
+            inspectorEmptyTitle: 'Flowchart',
+            inspectorEmptyBody: 'Select a node or edge on the canvas to edit it.',
             switchFamilyTitle: 'Switch diagram family?',
             switchFamilyMessage: 'This will reset the current canvas and start a new diagram family.',
             switchFamilyAccept: 'Switch family',
@@ -297,6 +325,18 @@ export function createCanvasRuntimeFamilySource(): string {
               { action: 'connect', label: 'Connect', tone: 'ghost' },
               { action: 'duplicate', label: 'Duplicate', tone: 'ghost' },
               { action: 'delete', label: 'Delete', tone: 'ghost danger' }
+            ];
+          },
+          getInspectorNodeActions() {
+            return [
+              { action: 'connect', label: 'Connect from here', tone: 'ghost' },
+              { action: 'duplicate', label: 'Duplicate', tone: 'ghost' },
+              { action: 'delete', label: 'Delete node', tone: 'secondary danger' }
+            ];
+          },
+          getInspectorEdgeActions() {
+            return [
+              { action: 'delete', label: 'Delete edge', tone: 'secondary danger' }
             ];
           },
           hasContent(model) {

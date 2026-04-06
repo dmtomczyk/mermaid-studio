@@ -634,8 +634,8 @@ ${createCanvasViewportCoreSource()}
         const selectedNode = getSelectedNode();
         const selectedEdge = getSelectedEdge();
         if (selectedEdge) {
-          inspectorTitle.textContent = 'Selected edge';
-          inspectorBody.innerHTML = '<label>From<select id="edgeFromSelect"></select></label><label>Edge type<select id="edgeTypeInput"></select></label><label>To<select id="edgeToSelect"></select></label><label>Label<input id="edgeLabelInput" type="text" placeholder="yes" /></label><div class="small-actions"><button id="deleteEdgeButton" class="secondary danger">Delete edge</button></div>';
+          inspectorTitle.textContent = runtimeFamily.copy.inspectorEdgeTitle || 'Selected edge';
+          inspectorBody.innerHTML = '<label>From<select id="edgeFromSelect"></select></label><label>Edge type<select id="edgeTypeInput"></select></label><label>To<select id="edgeToSelect"></select></label><label>Label<input id="edgeLabelInput" type="text" placeholder="yes" /></label>' + renderCanvasInspectorActions(runtimeFamily.getInspectorEdgeActions(selectedEdge), 'edgeInspectorAction-');
           const fromSelect = document.getElementById('edgeFromSelect');
           const toSelect = document.getElementById('edgeToSelect');
           const typeSelect = document.getElementById('edgeTypeInput');
@@ -647,24 +647,24 @@ ${createCanvasViewportCoreSource()}
           toSelect.addEventListener('change', () => { selectedEdge.to = toSelect.value; emitStateChanged(); render(); });
           typeSelect.addEventListener('change', () => { selectedEdge.type = typeSelect.value; emitStateChanged(); render(); });
           document.getElementById('edgeLabelInput').addEventListener('input', (event) => { selectedEdge.label = event.target.value.trim() || undefined; emitStateChanged(); renderEdges(); renderRelations(); renderMermaidSource(); });
-          document.getElementById('deleteEdgeButton').addEventListener('click', () => deleteEdge(selectedEdge.id));
+          document.getElementById('edgeInspectorAction-delete')?.addEventListener('click', () => deleteEdge(selectedEdge.id));
           return;
         }
         if (selectedNode) {
-          inspectorTitle.textContent = 'Selected node';
-          inspectorBody.innerHTML = '<label>Label<input id="nodeLabelInput" type="text" placeholder="Process" /></label><label>Shape<select id="nodeShapeInput"></select></label><div class="small-actions"><button id="connectNodeButton" class="ghost">Connect from here</button><button id="duplicateNodeButton" class="ghost">Duplicate</button><button id="deleteNodeButton" class="secondary danger">Delete node</button></div>';
+          inspectorTitle.textContent = runtimeFamily.copy.inspectorNodeTitle || 'Selected node';
+          inspectorBody.innerHTML = '<label>Label<input id="nodeLabelInput" type="text" placeholder="Process" /></label><label>Shape<select id="nodeShapeInput"></select></label>' + renderCanvasInspectorActions(runtimeFamily.getInspectorNodeActions(selectedNode), 'nodeInspectorAction-');
           document.getElementById('nodeLabelInput').value = selectedNode.label;
           const shapeSelect = document.getElementById('nodeShapeInput');
           shapeSelect.innerHTML = FLOWCHART_SHAPES.map((shape) => '<option value="' + shape + '"' + (selectedNode.shape === shape ? ' selected' : '') + '>' + escapeHtml(renderShapeLabel(shape)) + '</option>').join('');
           document.getElementById('nodeLabelInput').addEventListener('input', (event) => { selectedNode.label = event.target.value || 'Node'; syncNodeDimensions(selectedNode); emitStateChanged(); render(); });
           shapeSelect.addEventListener('change', () => { selectedNode.shape = shapeSelect.value; syncNodeDimensions(selectedNode); emitStateChanged(); render(); });
-          document.getElementById('connectNodeButton').addEventListener('click', () => startConnectFrom(selectedNode.id));
-          document.getElementById('duplicateNodeButton').addEventListener('click', () => duplicateNodeAt(selectedNode.id, selectedNode.x + 40, selectedNode.y + 120));
-          document.getElementById('deleteNodeButton').addEventListener('click', () => deleteNode(selectedNode.id));
+          document.getElementById('nodeInspectorAction-connect')?.addEventListener('click', () => startConnectFrom(selectedNode.id));
+          document.getElementById('nodeInspectorAction-duplicate')?.addEventListener('click', () => duplicateNodeAt(selectedNode.id, selectedNode.x + 40, selectedNode.y + 120));
+          document.getElementById('nodeInspectorAction-delete')?.addEventListener('click', () => deleteNode(selectedNode.id));
           return;
         }
-        inspectorTitle.textContent = runtimeFamily.copy.inspectorTitle || 'Flowchart';
-        inspectorBody.innerHTML = '<label>Direction<select id="diagramDirectionInput"></select></label><div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.inspectorEmpty || 'Select a node or edge on the canvas to edit it.') + '</div>';
+        inspectorTitle.textContent = runtimeFamily.copy.inspectorEmptyTitle || 'Flowchart';
+        inspectorBody.innerHTML = '<label>Direction<select id="diagramDirectionInput"></select></label><div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.inspectorEmptyBody || 'Select a node or edge on the canvas to edit it.') + '</div>';
         const directionSelect = document.getElementById('diagramDirectionInput');
         directionSelect.innerHTML = ['TB', 'TD', 'BT', 'LR', 'RL'].map((dir) => '<option value="' + dir + '"' + (state.model.direction === dir ? ' selected' : '') + '>' + dir + '</option>').join('');
         directionSelect.addEventListener('change', () => { state.model.direction = directionSelect.value; emitStateChanged(); renderMermaidSource(); });

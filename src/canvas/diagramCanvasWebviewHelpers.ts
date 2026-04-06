@@ -1186,7 +1186,7 @@ export function createCanvasRenderGroupsSource(): string {
         if (selectedRelation) {
           const from = state.model.classes.find((entry) => entry.id === selectedRelation.from);
           const to = state.model.classes.find((entry) => entry.id === selectedRelation.to);
-          inspectorTitle.textContent = 'Selected relationship';
+          inspectorTitle.textContent = runtimeFamily.copy.inspectorEdgeTitle || 'Selected relationship';
           inspectorBody.innerHTML = '<label>'
             + 'From'
             + '<select id="relationFromSelect"></select>'
@@ -1203,11 +1203,7 @@ export function createCanvasRenderGroupsSource(): string {
             + 'Label'
             + '<input id="relationLabelInput" type="text" placeholder="uses" />'
             + '</label>'
-            + '<div class="small-actions">'
-            + '<button id="deleteRelationButton" class="secondary danger">Delete relationship</button>'
-            + '<button id="focusFromButton" class="ghost">Focus source class</button>'
-            + '<button id="focusToButton" class="ghost">Focus target class</button>'
-            + '</div>';
+            + renderCanvasInspectorActions(runtimeFamily.getInspectorEdgeActions(selectedRelation), 'relationInspectorAction-');
 
           const fromSelect = document.getElementById('relationFromSelect');
           const toSelect = document.getElementById('relationToSelect');
@@ -1232,16 +1228,16 @@ export function createCanvasRenderGroupsSource(): string {
             selectedRelation.label = event.target.value.trim() || undefined;
             emitStateChanged();
           });
-          document.getElementById('deleteRelationButton').addEventListener('click', () => {
+          document.getElementById('relationInspectorAction-delete')?.addEventListener('click', () => {
             deleteRelation(selectedRelation.id);
           });
-          document.getElementById('focusFromButton').addEventListener('click', () => {
+          document.getElementById('relationInspectorAction-focusFrom')?.addEventListener('click', () => {
             selectedClassId = from ? from.id : undefined;
             selectedRelationId = undefined;
             connectFromClassId = undefined;
             render();
           });
-          document.getElementById('focusToButton').addEventListener('click', () => {
+          document.getElementById('relationInspectorAction-focusTo')?.addEventListener('click', () => {
             selectedClassId = to ? to.id : undefined;
             selectedRelationId = undefined;
             connectFromClassId = undefined;
@@ -1251,7 +1247,7 @@ export function createCanvasRenderGroupsSource(): string {
         }
 
         if (selectedClass) {
-          inspectorTitle.textContent = 'Selected class';
+          inspectorTitle.textContent = runtimeFamily.copy.inspectorNodeTitle || 'Selected class';
           inspectorBody.innerHTML = '<label>'
             + 'Class name'
             + '<input id="classNameInput" type="text" placeholder="ExampleClass" />'
@@ -1262,12 +1258,7 @@ export function createCanvasRenderGroupsSource(): string {
             + '</label>'
             + renderMemberSnippetBar('classMembersInput')
             + '<div id="classMembersPreview" class="members-editor-preview"></div>'
-            + '<div class="small-actions">'
-            + '<button id="renameClassButton" class="ghost">Rename</button>'
-            + '<button id="addMemberButton" class="ghost">Add member</button>'
-            + '<button id="startConnectButton" class="ghost">Connect from here</button>'
-            + '<button id="deleteClassButton" class="secondary danger">Delete class</button>'
-            + '</div>';
+            + renderCanvasInspectorActions(runtimeFamily.getInspectorNodeActions(selectedClass), 'classInspectorAction-');
           document.getElementById('classNameInput').value = selectedClass.name;
           document.getElementById('classMembersInput').value = selectedClass.members.join('\\n');
           document.getElementById('classMembersPreview').innerHTML = renderMemberPreviewHtml(selectedClass.members.join('\\n'));
@@ -1288,17 +1279,17 @@ export function createCanvasRenderGroupsSource(): string {
             }
             appendSnippetToMembersInput(membersInput, button.getAttribute('data-snippet-value') || '');
           });
-          document.getElementById('renameClassButton').addEventListener('click', () => renameClass(selectedClass.id));
-          document.getElementById('addMemberButton').addEventListener('click', () => addMemberToClass(selectedClass.id));
-          document.getElementById('startConnectButton').addEventListener('click', () => {
+          document.getElementById('classInspectorAction-rename')?.addEventListener('click', () => renameClass(selectedClass.id));
+          document.getElementById('classInspectorAction-addMember')?.addEventListener('click', () => addMemberToClass(selectedClass.id));
+          document.getElementById('classInspectorAction-connect')?.addEventListener('click', () => {
             startConnectFrom(selectedClass.id);
           });
-          document.getElementById('deleteClassButton').addEventListener('click', () => deleteClass(selectedClass.id));
+          document.getElementById('classInspectorAction-delete')?.addEventListener('click', () => deleteClass(selectedClass.id));
           return;
         }
 
-        inspectorTitle.textContent = 'Inspector';
-        inspectorBody.innerHTML = '<div class="inspector-empty">Select a class or a relationship on the canvas. Double-click empty space to add a class.</div>';
+        inspectorTitle.textContent = runtimeFamily.copy.inspectorEmptyTitle || 'Inspector';
+        inspectorBody.innerHTML = '<div class="inspector-empty">' + escapeHtml(runtimeFamily.copy.inspectorEmptyBody || 'Select a class or a relationship on the canvas. Double-click empty space to add a class.') + '</div>';
       }
 
       function renderRelations() {
