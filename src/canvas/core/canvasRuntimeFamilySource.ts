@@ -22,6 +22,9 @@ export function createCanvasRuntimeFamilySource(): string {
           templateOptions() {
             return CLASS_TEMPLATES.map((template) => ({ value: template.id, label: template.label }));
           },
+          isCompatiblePersistedState(nextState) {
+            return !!nextState && !!nextState.model && Array.isArray(nextState.model.classes) && Array.isArray(nextState.model.relations);
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -65,6 +68,9 @@ export function createCanvasRuntimeFamilySource(): string {
           defaultTemplateId: 'process',
           templateOptions() {
             return FLOWCHART_TEMPLATES.map((template) => ({ value: template.id, label: template.label }));
+          },
+          isCompatiblePersistedState(nextState) {
+            return !!nextState && !!nextState.model && Array.isArray(nextState.model.nodes) && Array.isArray(nextState.model.edges);
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;

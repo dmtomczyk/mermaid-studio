@@ -6,6 +6,8 @@ suite('canvas persisted state source', () => {
     const source = createCanvasPersistedStateSource();
     assert.ok(source.includes('function restoreCanvasPersistedState(runtimeFamily) {'));
     assert.ok(source.includes('const persisted = vscode.getState();'));
+    assert.ok(source.includes("persisted.state.family !== runtimeFamily.family"));
+    assert.ok(source.includes("if (typeof runtimeFamily.isCompatiblePersistedState === 'function' && !runtimeFamily.isCompatiblePersistedState(persisted.state))"));
     assert.ok(source.includes("if (typeof runtimeFamily.restoreSelection === 'function')"));
     assert.ok(source.includes('zoom = persisted.zoom || 1;'));
   });

@@ -154,8 +154,14 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
         fill: none;
         pointer-events: none;
       }
-      .edge-line.connecting {
+      .edge-line.dashed {
         stroke-dasharray: 8 6;
+      }
+      .edge-line.preview {
+        stroke: var(--vscode-charts-orange);
+        stroke-width: 4;
+        stroke-dasharray: 10 6;
+        opacity: 0.96;
       }
       .edge-line.selected {
         stroke: var(--vscode-focusBorder);
@@ -234,6 +240,33 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
         overflow: hidden;
         user-select: none;
+      }
+      .flowchart-node {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+      .flowchart-node .node-header {
+        padding: 8px 10px;
+      }
+      .flowchart-node .node-body {
+        min-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 8px 12px;
+      }
+      .flowchart-node.flowchart-shape-circle {
+        border-radius: 999px;
+      }
+      .flowchart-node.flowchart-shape-stadium,
+      .flowchart-node.flowchart-shape-rounded {
+        border-radius: 999px;
+      }
+      .flowchart-node.flowchart-shape-text {
+        box-shadow: none;
+        border-style: dashed;
+        background: color-mix(in srgb, var(--vscode-editor-background) 98%, transparent);
       }
       .class-node.selected {
         border-color: var(--vscode-focusBorder);
@@ -435,8 +468,8 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
       }
       .sidebar {
         border-left: 1px solid var(--vscode-panel-border);
-        display: grid;
-        grid-template-rows: repeat(4, auto) 1fr;
+        display: flex;
+        flex-direction: column;
         min-height: 0;
         min-width: 320px;
         overflow: auto;
@@ -444,6 +477,13 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
       .section {
         border-bottom: 1px solid var(--vscode-panel-border);
         padding: 14px 16px;
+        min-height: 0;
+        flex: 0 0 auto;
+      }
+      .section:last-child {
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
       }
       .section h2 {
         margin: 0 0 10px;
@@ -525,6 +565,13 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
         font-size: 12px;
         white-space: pre-wrap;
         word-break: break-word;
+      }
+      .code-block {
+        overflow: auto;
+        min-height: 0;
+      }
+      .section:last-child .code-block {
+        flex: 1 1 auto;
       }
       .code-line-root { display: block; }
       .tok-keyword { color: #c586c0; font-weight: 700; }
@@ -628,14 +675,14 @@ export function createDiagramCanvasHtml(params: DiagramCanvasHtmlParams): string
                 <button type="button" data-context-action="cancel-connect">Cancel connect mode</button>
               </div>
             </div>
-            <div id="canvasConfirmOverlay" class="canvas-confirm-overlay" hidden>
-              <div class="canvas-confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="canvasConfirmTitle" aria-describedby="canvasConfirmBody">
-                <h2 id="canvasConfirmTitle">Confirm action</h2>
-                <p id="canvasConfirmBody">Are you sure?</p>
-                <div class="canvas-confirm-actions">
-                  <button id="canvasConfirmCancelButton" type="button" class="secondary">Cancel</button>
-                  <button id="canvasConfirmAcceptButton" type="button" class="danger">Continue</button>
-                </div>
+          </div>
+          <div id="canvasConfirmOverlay" class="canvas-confirm-overlay" hidden>
+            <div class="canvas-confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="canvasConfirmTitle" aria-describedby="canvasConfirmBody">
+              <h2 id="canvasConfirmTitle">Confirm action</h2>
+              <p id="canvasConfirmBody">Are you sure?</p>
+              <div class="canvas-confirm-actions">
+                <button id="canvasConfirmCancelButton" type="button" class="secondary">Cancel</button>
+                <button id="canvasConfirmAcceptButton" type="button" class="danger">Continue</button>
               </div>
             </div>
           </div>

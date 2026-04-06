@@ -10,6 +10,7 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes("defaultTemplateId: 'process'"));
     assert.ok(source.includes('copy: {'));
     assert.ok(source.includes("emptyRelationList:"));
+    assert.ok(source.includes('isCompatiblePersistedState(nextState) {'));
     assert.ok(source.includes('hasContent(model) {'));
     assert.ok(source.includes('restoreSelection(persisted) {'));
   });
