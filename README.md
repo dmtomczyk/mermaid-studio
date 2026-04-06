@@ -21,7 +21,8 @@
 1. Open a `.mmd`, `.mermaid`, or Markdown file.
 2. Type `/flow`, `/sequence`, or `/snippet`.
 3. Run **Mermaid Studio: Open Preview**.
-4. Use the **Builder** sidebar when you want structured editing for flowcharts or sequence diagrams.
+4. Use **Mermaid Studio: Open Diagram Canvas** when you want canvas-based editing for supported canvas families.
+5. Use the **Builder** sidebar when you want structured editing for flowcharts or sequence diagrams.
 
 ## Features
 
@@ -30,6 +31,7 @@
 | Authoring | Mermaid support for `.mmd`, `.mermaid`, `.md`, and `.markdown`, plus formatting and diagnostics | Mermaid + Markdown |
 | Snippets & slash insertion | Fast insertion with slash commands, snippet browser, favorites, and recent snippets | Mermaid + Markdown |
 | Preview & export | Mermaid file preview, Markdown block preview, mixed `.mmd` support, and SVG export | Preview workflows |
+| Diagram Canvas | Canvas-based editing with a family-aware shell, generated Mermaid output, and direct node/edge manipulation for supported canvas families | Class Diagram + Flowchart |
 | Builder sidebar | Structured editing for supported diagram families with presets, forms, import support, and a visual overview | Flowchart + Sequence |
 | References & learning | Rich hover help, bundled examples, and command-driven reference/example navigation | Mermaid + Markdown |
 
@@ -39,30 +41,30 @@
 > `◐` = source-first or lighter assist coverage  
 > `—` = no dedicated feature beyond general Mermaid editing/runtime support
 
-| Diagram family | Snippets / insertion | Preview | SVG export | Builder |
-| --- | --- | --- | --- | --- |
-| Flowchart | ✅ | ✅ | ✅ | ✅ |
-| Sequence | ✅ | ✅ | ✅ | ✅ |
-| Class | ✅ | ✅ | ✅ | — |
-| State | ✅ | ✅ | ✅ | — |
-| ER | ✅ | ✅ | ✅ | — |
-| Gantt | ✅ | ✅ | ✅ | — |
-| GitGraph | ✅ | ✅ | ✅ | — |
-| Architecture | ✅ | ✅ | ✅ | — |
-| Mindmap | ✅ | ✅ | ✅ | — |
-| Journey | ◐ | ✅ | ✅ | — |
-| Pie | ◐ | ✅ | ✅ | — |
-| Requirement | ◐ | ✅ | ✅ | — |
-| Timeline | ◐ | ✅ | ✅ | — |
-| Kanban | ◐ | ✅ | ✅ | — |
-| Quadrant chart | ◐ | ✅ | ✅ | — |
-| XY chart | ◐ | ✅ | ✅ | — |
-| Sankey | ◐ | ✅ | ✅ | — |
-| Block | ◐ | ✅ | ✅ | — |
-| Packet | ◐ | ✅ | ✅ | — |
-| Treemap | ◐ | ✅ | ✅ | — |
-| ZenUML | ◐ | ✅ | ✅ | — |
-| C4 | ◐ | ✅ | ✅ | — |
+| Diagram family | Snippets / insertion | Preview | SVG export | Builder | Diagram Canvas |
+| --- | --- | --- | --- | --- | --- |
+| Flowchart | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Sequence | ✅ | ✅ | ✅ | ✅ | — |
+| Class | ✅ | ✅ | ✅ | — | ✅ |
+| State | ✅ | ✅ | ✅ | — | — |
+| ER | ✅ | ✅ | ✅ | — | — |
+| Gantt | ✅ | ✅ | ✅ | — | — |
+| GitGraph | ✅ | ✅ | ✅ | — | — |
+| Architecture | ✅ | ✅ | ✅ | — | — |
+| Mindmap | ✅ | ✅ | ✅ | — | — |
+| Journey | ◐ | ✅ | ✅ | — | — |
+| Pie | ◐ | ✅ | ✅ | — | — |
+| Requirement | ◐ | ✅ | ✅ | — | — |
+| Timeline | ◐ | ✅ | ✅ | — | — |
+| Kanban | ◐ | ✅ | ✅ | — | — |
+| Quadrant chart | ◐ | ✅ | ✅ | — | — |
+| XY chart | ◐ | ✅ | ✅ | — | — |
+| Sankey | ◐ | ✅ | ✅ | — | — |
+| Block | ◐ | ✅ | ✅ | — | — |
+| Packet | ◐ | ✅ | ✅ | — | — |
+| Treemap | ◐ | ✅ | ✅ | — | — |
+| ZenUML | ◐ | ✅ | ✅ | — | — |
+| C4 | ◐ | ✅ | ✅ | — | — |
 
 ## Screenshots
 
@@ -83,6 +85,7 @@ Structured flowchart and sequence editing in a side panel with presets, quick-ad
 - **Mermaid Studio: Open Preview**
 - **Mermaid Studio: Preview Mermaid Block in Markdown**
 - **Mermaid Studio: Open Builder**
+- **Mermaid Studio: Open Diagram Canvas**
 - **Mermaid Studio: Insert Mermaid Snippet**
 - **Mermaid Studio: Export Preview as SVG**
 

@@ -2,6 +2,31 @@
 
 All notable changes to Mermaid Studio will be documented in this file.
 
+## 0.2.0
+
+Canvas update release.
+
+### Added
+- Diagram Canvas command for visual Mermaid canvas editing
+- Family-aware Diagram Canvas shell with in-canvas family switching
+- Initial multi-family canvas support for `classDiagram` and `flowchart`
+- Canvas-native family switch confirmation UI
+- Canvas diagnostics pipeline with output-channel logging and persistent debug log support
+- Host-side webview syntax preflight and debug artifact dumping for generated canvas scripts
+
+### Improved
+- Flowchart canvas editing with template-based node creation, edge editing, minimap, zoom, and generated Mermaid output
+- Class diagram canvas connection preview behavior and viewport-safe preview handling
+- Canvas shell layout, including better Generated Mermaid panel behavior
+- Runtime resilience when restoring persisted canvas state across family changes or incompatible state shapes
+- Dev/debug workflow for canvas work, including better runtime instrumentation and smoke/regression coverage
+
+### Fixed
+- Multiple canvas webview startup/runtime regressions caused by generated source drift
+- Broken family-switch confirmation in sandboxed VS Code webviews
+- Connection preview coordinate mismatches that could create invalid splines during drag
+- Flowchart node sizing/shape issues that caused poor terminal/circle rendering
+
 ## 0.1.1
 
 Tiny Marketplace Patch

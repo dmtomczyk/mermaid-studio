@@ -3,7 +3,7 @@
   "displayName": "Mermaid Studio",
   "description": "A full Mermaid authoring toolkit for VS Code, with live preview, smart snippets, Markdown support, export, docs, and a visual builder.",
   "icon": "media/mermaid-studio.png",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "Daymian Tomczyk",
   "publisher": "daymian",
   "repository": {
