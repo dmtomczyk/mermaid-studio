@@ -23,5 +23,7 @@ suite('canvas webview script bridge', () => {
     assert.strictEqual(syntax.ok, true, syntax.error);
     assert.ok(source.includes('FLOWCHART_TEMPLATES'));
     assert.ok(source.includes("model: { family: 'flowchart'"));
+    assert.ok(source.includes("function measureFlowchartNode(shape, label, requestedWidth, requestedHeight)"));
+    assert.ok(source.includes("path.setAttribute('class', 'edge-line preview')"));
   });
 });

@@ -79,10 +79,12 @@ ${createCanvasViewportCoreSource()}
           return;
         }
         const rect = canvasShell.getBoundingClientRect();
-        const stagePoint = viewportPointToStagePoint(clientX - rect.left, clientY - rect.top);
+        const clampedViewportX = Math.max(0, Math.min(rect.width, clientX - rect.left));
+        const clampedViewportY = Math.max(0, Math.min(rect.height, clientY - rect.top));
+        const stagePoint = viewportPointToStagePoint(clampedViewportX, clampedViewportY);
         connectPreviewPoint = {
-          x: stagePoint.x,
-          y: stagePoint.y
+          x: stageToWorldX(stagePoint.x),
+          y: stageToWorldY(stagePoint.y)
         };
         renderEdges();
       }

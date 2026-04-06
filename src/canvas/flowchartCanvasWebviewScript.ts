@@ -209,12 +209,63 @@ ${createCanvasViewportCoreSource()}
         return labels[shape] || shape;
       }
 
+      function measureFlowchartNode(shape, label, requestedWidth, requestedHeight) {
+        const text = String(label || '').trim() || renderShapeLabel(shape);
+        const estimatedWidth = Math.max(120, Math.min(260, 44 + text.length * 8));
+        if (shape === 'circle') {
+          const size = Math.max(104, Math.min(164, Math.max(estimatedWidth * 0.78, requestedWidth || 0, requestedHeight || 0)));
+          return { width: size, height: size };
+        }
+        if (shape === 'stadium') {
+          return {
+            width: Math.max(160, Math.min(260, Math.max(estimatedWidth, requestedWidth || 0))),
+            height: Math.max(68, requestedHeight || 0)
+          };
+        }
+        if (shape === 'diam') {
+          return {
+            width: Math.max(150, Math.min(220, Math.max(estimatedWidth, requestedWidth || 0))),
+            height: Math.max(112, requestedHeight || 0)
+          };
+        }
+        if (shape === 'lean-r') {
+          return {
+            width: Math.max(170, Math.min(260, Math.max(estimatedWidth, requestedWidth || 0))),
+            height: Math.max(82, requestedHeight || 0)
+          };
+        }
+        if (shape === 'cyl') {
+          return {
+            width: Math.max(170, Math.min(260, Math.max(estimatedWidth, requestedWidth || 0))),
+            height: Math.max(96, requestedHeight || 0)
+          };
+        }
+        if (shape === 'text') {
+          return {
+            width: Math.max(140, Math.min(260, Math.max(estimatedWidth, requestedWidth || 0))),
+            height: Math.max(58, requestedHeight || 0)
+          };
+        }
+        return {
+          width: Math.max(160, Math.min(260, Math.max(estimatedWidth, requestedWidth || 0, 180))),
+          height: Math.max(84, requestedHeight || 0)
+        };
+      }
+
+      function syncNodeDimensions(node) {
+        const dims = measureFlowchartNode(node.shape, node.label, node.width, node.height);
+        node.width = dims.width;
+        node.height = dims.height;
+        return dims;
+      }
+
       function getNodeBounds(node) {
+        const dims = measureFlowchartNode(node.shape, node.label, node.width, node.height);
         return {
           x: node.x,
           y: node.y,
-          width: node.width || 180,
-          height: node.height || 84
+          width: dims.width,
+          height: dims.height
         };
       }
 
@@ -305,6 +356,7 @@ ${createCanvasViewportCoreSource()}
           width: 180,
           height: 84
         };
+        syncNodeDimensions(node);
         state.model.nodes.push(node);
         selectedNodeId = node.id;
         selectedEdgeId = undefined;
@@ -377,7 +429,8 @@ ${createCanvasViewportCoreSource()}
         selectedEdgeId = undefined;
         connectFromNodeId = nodeId;
         const node = getNodeById(nodeId);
-        connectPreviewPoint = node ? { x: node.x + (node.width || 180) / 2, y: node.y + (node.height || 84) / 2 } : null;
+        const bounds = node ? getNodeBounds(node) : null;
+        connectPreviewPoint = bounds ? { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 } : null;
         render();
       }
 
@@ -386,7 +439,9 @@ ${createCanvasViewportCoreSource()}
           return;
         }
         const rect = canvasShell.getBoundingClientRect();
-        const stagePoint = viewportPointToStagePoint(clientX - rect.left, clientY - rect.top);
+        const clampedViewportX = Math.max(0, Math.min(rect.width, clientX - rect.left));
+        const clampedViewportY = Math.max(0, Math.min(rect.height, clientY - rect.top));
+        const stagePoint = viewportPointToStagePoint(clampedViewportX, clampedViewportY);
         connectPreviewPoint = { x: stageToWorldX(stagePoint.x), y: stageToWorldY(stagePoint.y) };
         renderEdges();
       }
@@ -400,22 +455,25 @@ ${createCanvasViewportCoreSource()}
       }
 
       function shapeNode(card, node) {
+        card.className += ' flowchart-node flowchart-shape-' + node.shape;
         card.style.borderRadius = node.shape === 'rounded' || node.shape === 'stadium' ? '999px' : node.shape === 'circle' ? '50%' : '12px';
-        card.style.borderStyle = node.shape === 'diam' || node.shape === 'lean-r' ? 'dashed' : 'solid';
+        card.style.borderStyle = node.shape === 'diam' || node.shape === 'lean-r' || node.shape === 'text' ? 'dashed' : 'solid';
       }
 
       function renderNodes() {
         nodeLayer.innerHTML = '';
         state.model.nodes.forEach((node) => {
+          const bounds = syncNodeDimensions(node);
           const card = document.createElement('article');
           card.className = 'class-node' + (node.id === selectedNodeId ? ' selected' : '') + (node.id === connectFromNodeId ? ' connect-source' : '');
           card.dataset.nodeId = node.id;
           card.style.left = worldToStageX(node.x) + 'px';
           card.style.top = worldToStageY(node.y) + 'px';
-          card.style.width = (node.width || 180) + 'px';
+          card.style.width = bounds.width + 'px';
+          card.style.height = bounds.height + 'px';
           shapeNode(card, node);
           card.innerHTML = '<div class="node-header"><div class="node-header-main"><div class="node-title">' + escapeHtml(node.label) + '</div></div><div class="node-header-tools"><span class="meta">' + escapeHtml(renderShapeLabel(node.shape)) + '</span><button type="button" class="node-port' + (connectFromNodeId === node.id ? ' active' : '') + '" data-action="quick-connect"></button></div></div>'
-            + '<div class="node-body">' + escapeHtml(node.id) + '</div>'
+            + '<div class="node-body"><div>' + escapeHtml(node.id) + '</div></div>'
             + '<div class="node-hint">Drag to move · edit in inspector<div class="node-actions"><button type="button" class="ghost" data-action="connect">Connect</button><button type="button" class="ghost" data-action="duplicate">Duplicate</button><button type="button" class="ghost danger" data-action="delete">Delete</button></div></div>';
 
           const header = card.querySelector('.node-header');
@@ -506,10 +564,12 @@ ${createCanvasViewportCoreSource()}
           if (!from || !to) {
             return;
           }
-          const startX = worldToStageX(from.x + (from.width || 180) / 2);
-          const startY = worldToStageY(from.y + (from.height || 84) / 2);
-          const endX = worldToStageX(to.x + (to.width || 180) / 2);
-          const endY = worldToStageY(to.y + (to.height || 84) / 2);
+          const fromBounds = getNodeBounds(from);
+          const toBounds = getNodeBounds(to);
+          const startX = worldToStageX(fromBounds.x + fromBounds.width / 2);
+          const startY = worldToStageY(fromBounds.y + fromBounds.height / 2);
+          const endX = worldToStageX(toBounds.x + toBounds.width / 2);
+          const endY = worldToStageY(toBounds.y + toBounds.height / 2);
           const midX = Math.round((startX + endX) / 2);
           const midY = Math.round((startY + endY) / 2);
           const d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
@@ -527,7 +587,7 @@ ${createCanvasViewportCoreSource()}
           edgeLayer.appendChild(hit);
 
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('class', 'edge-line' + (edge.id === selectedEdgeId ? ' selected' : '') + (edge.type === '-.->' ? ' connecting' : ''));
+          path.setAttribute('class', 'edge-line' + (edge.id === selectedEdgeId ? ' selected' : '') + (edge.type === '-.->' ? ' dashed' : ''));
           path.setAttribute('d', d);
           edgeLayer.appendChild(path);
 
@@ -545,14 +605,15 @@ ${createCanvasViewportCoreSource()}
           if (!from) {
             return;
           }
-          const startX = worldToStageX(from.x + (from.width || 180) / 2);
-          const startY = worldToStageY(from.y + (from.height || 84) / 2);
+          const fromBounds = getNodeBounds(from);
+          const startX = worldToStageX(fromBounds.x + fromBounds.width / 2);
+          const startY = worldToStageY(fromBounds.y + fromBounds.height / 2);
           const endX = worldToStageX(connectPreviewPoint.x);
           const endY = worldToStageY(connectPreviewPoint.y);
           const midX = Math.round((startX + endX) / 2);
           const d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('class', 'edge-line connecting');
+          path.setAttribute('class', 'edge-line preview');
           path.setAttribute('d', d);
           edgeLayer.appendChild(path);
         }
@@ -649,8 +710,8 @@ ${createCanvasViewportCoreSource()}
           document.getElementById('nodeLabelInput').value = selectedNode.label;
           const shapeSelect = document.getElementById('nodeShapeInput');
           shapeSelect.innerHTML = FLOWCHART_SHAPES.map((shape) => '<option value="' + shape + '"' + (selectedNode.shape === shape ? ' selected' : '') + '>' + escapeHtml(renderShapeLabel(shape)) + '</option>').join('');
-          document.getElementById('nodeLabelInput').addEventListener('input', (event) => { selectedNode.label = event.target.value || 'Node'; emitStateChanged(); render(); });
-          shapeSelect.addEventListener('change', () => { selectedNode.shape = shapeSelect.value; emitStateChanged(); render(); });
+          document.getElementById('nodeLabelInput').addEventListener('input', (event) => { selectedNode.label = event.target.value || 'Node'; syncNodeDimensions(selectedNode); emitStateChanged(); render(); });
+          shapeSelect.addEventListener('change', () => { selectedNode.shape = shapeSelect.value; syncNodeDimensions(selectedNode); emitStateChanged(); render(); });
           document.getElementById('connectNodeButton').addEventListener('click', () => startConnectFrom(selectedNode.id));
           document.getElementById('duplicateNodeButton').addEventListener('click', () => duplicateNodeAt(selectedNode.id, selectedNode.x + 40, selectedNode.y + 120));
           document.getElementById('deleteNodeButton').addEventListener('click', () => deleteNode(selectedNode.id));
@@ -695,8 +756,9 @@ ${createCanvasViewportCoreSource()}
           item.className = 'minimap-node' + (node.id === selectedNodeId ? ' selected' : '');
           item.style.left = Math.max(0, worldToStageX(node.x) * scaleX) + 'px';
           item.style.top = Math.max(0, worldToStageY(node.y) * scaleY) + 'px';
-          item.style.width = Math.max(8, (node.width || 180) * scaleX) + 'px';
-          item.style.height = Math.max(6, (node.height || 84) * scaleY) + 'px';
+          const bounds = getNodeBounds(node);
+          item.style.width = Math.max(8, bounds.width * scaleX) + 'px';
+          item.style.height = Math.max(6, bounds.height * scaleY) + 'px';
           minimapBody.appendChild(item);
         });
         const viewport = document.createElement('div');

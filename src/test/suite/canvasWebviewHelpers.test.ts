@@ -17,13 +17,13 @@ suite('canvas webview helper regressions', () => {
     assert.ok(!source.includes('renderMermaid();'));
   });
 
-  test('geometry helper keeps connect preview in stage coordinates', () => {
+  test('geometry helper keeps class connect preview in world coordinates and clamps to viewport', () => {
     const source = createCanvasGeometryHelpersSource();
     assert.ok(source.includes('connectPreviewPoint = {'));
-    assert.ok(source.includes('x: stagePoint.x'));
-    assert.ok(source.includes('y: stagePoint.y'));
-    assert.ok(!source.includes('x: stageToWorldX(stagePoint.x)'));
-    assert.ok(!source.includes('y: stageToWorldY(stagePoint.y)'));
+    assert.ok(source.includes('const clampedViewportX = Math.max(0, Math.min(rect.width, clientX - rect.left));'));
+    assert.ok(source.includes('const clampedViewportY = Math.max(0, Math.min(rect.height, clientY - rect.top));'));
+    assert.ok(source.includes('x: stageToWorldX(stagePoint.x)'));
+    assert.ok(source.includes('y: stageToWorldY(stagePoint.y)'));
   });
 
   test('geometry helper allows negative camera offsets for wider panning', () => {
