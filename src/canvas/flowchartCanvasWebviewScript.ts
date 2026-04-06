@@ -643,7 +643,7 @@ ${createCanvasViewportCoreSource()}
           toSelect.addEventListener('change', () => { selectedEdge.to = toSelect.value; emitStateChanged(); render(); });
           typeSelect.addEventListener('change', () => { selectedEdge.type = typeSelect.value; emitStateChanged(); render(); });
           document.getElementById('edgeLabelInput').addEventListener('input', (event) => { selectedEdge.label = event.target.value.trim() || undefined; emitStateChanged(); renderEdges(); renderRelations(); renderMermaidSource(); });
-          document.getElementById('edgeInspectorAction-delete')?.addEventListener('click', () => deleteEdge(selectedEdge.id));
+          document.getElementById('edgeInspectorAction-delete')?.addEventListener('click', () => runtimeFamily.handleInspectorEdgeAction('delete', selectedEdge));
           return;
         }
         if (selectedNode) {
@@ -654,9 +654,9 @@ ${createCanvasViewportCoreSource()}
           shapeSelect.innerHTML = FLOWCHART_SHAPES.map((shape) => '<option value="' + shape + '"' + (selectedNode.shape === shape ? ' selected' : '') + '>' + escapeHtml(renderShapeLabel(shape)) + '</option>').join('');
           document.getElementById('nodeLabelInput').addEventListener('input', (event) => { selectedNode.label = event.target.value || 'Node'; syncNodeDimensions(selectedNode); emitStateChanged(); render(); });
           shapeSelect.addEventListener('change', () => { selectedNode.shape = shapeSelect.value; syncNodeDimensions(selectedNode); emitStateChanged(); render(); });
-          document.getElementById('nodeInspectorAction-connect')?.addEventListener('click', () => startConnectFrom(selectedNode.id));
-          document.getElementById('nodeInspectorAction-duplicate')?.addEventListener('click', () => duplicateNodeAt(selectedNode.id, selectedNode.x + 40, selectedNode.y + 120));
-          document.getElementById('nodeInspectorAction-delete')?.addEventListener('click', () => deleteNode(selectedNode.id));
+          document.getElementById('nodeInspectorAction-connect')?.addEventListener('click', () => runtimeFamily.handleInspectorNodeAction('connect', selectedNode));
+          document.getElementById('nodeInspectorAction-duplicate')?.addEventListener('click', () => runtimeFamily.handleInspectorNodeAction('duplicate', selectedNode));
+          document.getElementById('nodeInspectorAction-delete')?.addEventListener('click', () => runtimeFamily.handleInspectorNodeAction('delete', selectedNode));
           return;
         }
         inspectorTitle.textContent = runtimeFamily.copy.inspectorEmptyTitle || 'Flowchart';

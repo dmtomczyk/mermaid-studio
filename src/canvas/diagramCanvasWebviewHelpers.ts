@@ -1208,19 +1208,13 @@ export function createCanvasRenderGroupsSource(): string {
             emitStateChanged();
           });
           document.getElementById('relationInspectorAction-delete')?.addEventListener('click', () => {
-            deleteRelation(selectedRelation.id);
+            runtimeFamily.handleInspectorEdgeAction('delete', selectedRelation, { from, to });
           });
           document.getElementById('relationInspectorAction-focusFrom')?.addEventListener('click', () => {
-            selectedClassId = from ? from.id : undefined;
-            selectedRelationId = undefined;
-            connectFromClassId = undefined;
-            render();
+            runtimeFamily.handleInspectorEdgeAction('focusFrom', selectedRelation, { from, to });
           });
           document.getElementById('relationInspectorAction-focusTo')?.addEventListener('click', () => {
-            selectedClassId = to ? to.id : undefined;
-            selectedRelationId = undefined;
-            connectFromClassId = undefined;
-            render();
+            runtimeFamily.handleInspectorEdgeAction('focusTo', selectedRelation, { from, to });
           });
           return;
         }
@@ -1258,12 +1252,12 @@ export function createCanvasRenderGroupsSource(): string {
             }
             appendSnippetToMembersInput(membersInput, button.getAttribute('data-snippet-value') || '');
           });
-          document.getElementById('classInspectorAction-rename')?.addEventListener('click', () => renameClass(selectedClass.id));
-          document.getElementById('classInspectorAction-addMember')?.addEventListener('click', () => addMemberToClass(selectedClass.id));
+          document.getElementById('classInspectorAction-rename')?.addEventListener('click', () => runtimeFamily.handleInspectorNodeAction('rename', selectedClass));
+          document.getElementById('classInspectorAction-addMember')?.addEventListener('click', () => runtimeFamily.handleInspectorNodeAction('addMember', selectedClass));
           document.getElementById('classInspectorAction-connect')?.addEventListener('click', () => {
-            startConnectFrom(selectedClass.id);
+            runtimeFamily.handleInspectorNodeAction('connect', selectedClass);
           });
-          document.getElementById('classInspectorAction-delete')?.addEventListener('click', () => deleteClass(selectedClass.id));
+          document.getElementById('classInspectorAction-delete')?.addEventListener('click', () => runtimeFamily.handleInspectorNodeAction('delete', selectedClass));
           return;
         }
 

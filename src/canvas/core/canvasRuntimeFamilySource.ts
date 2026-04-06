@@ -196,12 +196,38 @@ export function createCanvasRuntimeFamilySource(): string {
               { action: 'delete', label: 'Delete class', tone: 'secondary danger' }
             ];
           },
+          handleInspectorNodeAction(action, selectedClass) {
+            if (action === 'rename') {
+              renameClass(selectedClass.id);
+            } else if (action === 'addMember') {
+              addMemberToClass(selectedClass.id);
+            } else if (action === 'connect') {
+              startConnectFrom(selectedClass.id);
+            } else if (action === 'delete') {
+              deleteClass(selectedClass.id);
+            }
+          },
           getInspectorEdgeActions() {
             return [
               { action: 'delete', label: 'Delete relationship', tone: 'secondary danger' },
               { action: 'focusFrom', label: 'Focus source class', tone: 'ghost' },
               { action: 'focusTo', label: 'Focus target class', tone: 'ghost' }
             ];
+          },
+          handleInspectorEdgeAction(action, selectedRelation, ctx) {
+            if (action === 'delete') {
+              deleteRelation(selectedRelation.id);
+            } else if (action === 'focusFrom') {
+              selectedClassId = ctx.from ? ctx.from.id : undefined;
+              selectedRelationId = undefined;
+              connectFromClassId = undefined;
+              render();
+            } else if (action === 'focusTo') {
+              selectedClassId = ctx.to ? ctx.to.id : undefined;
+              selectedRelationId = undefined;
+              connectFromClassId = undefined;
+              render();
+            }
           },
           getToolbarStatus(state, ctx) {
             if (ctx.connectFromId) {
@@ -408,10 +434,24 @@ export function createCanvasRuntimeFamilySource(): string {
               { action: 'delete', label: 'Delete node', tone: 'secondary danger' }
             ];
           },
+          handleInspectorNodeAction(action, selectedNode) {
+            if (action === 'connect') {
+              startConnectFrom(selectedNode.id);
+            } else if (action === 'duplicate') {
+              duplicateNodeAt(selectedNode.id, selectedNode.x + 40, selectedNode.y + 120);
+            } else if (action === 'delete') {
+              deleteNode(selectedNode.id);
+            }
+          },
           getInspectorEdgeActions() {
             return [
               { action: 'delete', label: 'Delete edge', tone: 'secondary danger' }
             ];
+          },
+          handleInspectorEdgeAction(action, selectedEdge) {
+            if (action === 'delete') {
+              deleteEdge(selectedEdge.id);
+            }
           },
           getToolbarStatus(state, ctx) {
             if (ctx.connectFromId) {
