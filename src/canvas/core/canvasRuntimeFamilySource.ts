@@ -99,6 +99,14 @@ export function createCanvasRuntimeFamilySource(): string {
             const midX = Math.round((startX + endX) / 2);
             return 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
           },
+          renderEdgeLabelPosition(from, to) {
+            const a = this.getNodeBounds(from);
+            const b = this.getNodeBounds(to);
+            return {
+              x: Math.round((worldToStageX(a.x + a.width / 2) + worldToStageX(b.x + b.width / 2)) / 2),
+              y: Math.round((worldToStageY(a.y + a.height / 2) + worldToStageY(b.y + b.height / 2)) / 2) - 8
+            };
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -206,6 +214,14 @@ export function createCanvasRuntimeFamilySource(): string {
             const endY = worldToStageY(previewPoint.y);
             const midX = Math.round((startX + endX) / 2);
             return 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+          },
+          renderEdgeLabelPosition(from, to) {
+            const a = this.getNodeBounds(from);
+            const b = this.getNodeBounds(to);
+            return {
+              x: Math.round((worldToStageX(a.x + a.width / 2) + worldToStageX(b.x + b.width / 2)) / 2),
+              y: Math.round((worldToStageY(a.y + a.height / 2) + worldToStageY(b.y + b.height / 2)) / 2) - 8
+            };
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;

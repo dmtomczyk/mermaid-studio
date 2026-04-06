@@ -523,11 +523,8 @@ ${createCanvasViewportCoreSource()}
           if (!from || !to) {
             return;
           }
-          const fromBounds = getNodeBounds(from);
-          const toBounds = getNodeBounds(to);
           const d = runtimeFamily.getEdgePath(from, to);
-          const midX = Math.round((worldToStageX(fromBounds.x + fromBounds.width / 2) + worldToStageX(toBounds.x + toBounds.width / 2)) / 2);
-          const midY = Math.round((worldToStageY(fromBounds.y + fromBounds.height / 2) + worldToStageY(toBounds.y + toBounds.height / 2)) / 2);
+          const labelPosition = runtimeFamily.renderEdgeLabelPosition(from, to);
 
           const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           hit.setAttribute('class', 'edge-hit');
@@ -548,8 +545,8 @@ ${createCanvasViewportCoreSource()}
 
           const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           label.setAttribute('class', 'edge-label' + (edge.id === selectedEdgeId ? ' selected' : ''));
-          label.setAttribute('x', String(midX));
-          label.setAttribute('y', String(midY - 8));
+          label.setAttribute('x', String(labelPosition.x));
+          label.setAttribute('y', String(labelPosition.y));
           label.setAttribute('text-anchor', 'middle');
           label.textContent = edge.label || edge.type || '-->';
           edgeLayer.appendChild(label);

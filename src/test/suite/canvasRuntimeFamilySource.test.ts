@@ -16,6 +16,7 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes('getSelectionBounds(model, selectedClass, selectedRelation) {') || source.includes('getSelectionBounds(model, selectedNode, selectedEdge) {'));
     assert.ok(source.includes('getEdgePath(from, to) {'));
     assert.ok(source.includes('getPreviewPath(from, previewPoint) {'));
+    assert.ok(source.includes('renderEdgeLabelPosition(from, to) {'));
     assert.ok(source.includes('hasContent(model) {'));
     assert.ok(source.includes('restoreSelection(persisted) {'));
   });
