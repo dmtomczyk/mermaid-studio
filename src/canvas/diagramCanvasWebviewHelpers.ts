@@ -467,16 +467,7 @@ export function createCanvasRenderGroupsSource(): string {
           const selected = entry.id === selectedClassId;
           const titleEditing = editingTitleClassId === entry.id;
           const membersEditing = editingMembersClassId === entry.id;
-          const selectedActions = selected
-            ? '<div class="node-actions">'
-              + '<button type="button" class="ghost" data-action="rename">Rename</button>'
-              + '<button type="button" class="ghost" data-action="member">Edit members</button>'
-              + '<button type="button" class="ghost" data-action="add-nearby">Add nearby</button>'
-              + '<button type="button" class="ghost" data-action="duplicate">Duplicate</button>'
-              + '<button type="button" class="ghost" data-action="connect">Connect</button>'
-              + '<button type="button" class="ghost danger" data-action="delete">Delete</button>'
-              + '</div>'
-            : '';
+          const selectedActions = renderCanvasNodeActions(runtimeFamily.getNodeActionItems(selected, entry));
           const titleMarkup = titleEditing
             ? '<input class="node-title-input" data-role="title-input" type="text" value="' + escapeHtml(entry.name) + '" />'
             : '<div class="node-title" title="' + escapeHtml(entry.name) + '">' + escapeHtml(entry.name) + '</div>';

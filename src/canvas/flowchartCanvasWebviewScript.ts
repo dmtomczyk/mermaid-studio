@@ -430,9 +430,10 @@ ${createCanvasViewportCoreSource()}
           card.style.width = bounds.width + 'px';
           card.style.height = bounds.height + 'px';
           shapeNode(card, node);
+          const nodeActions = renderCanvasNodeActions(runtimeFamily.getNodeActionItems(node.id === selectedNodeId, node));
           card.innerHTML = '<div class="node-header"><div class="node-header-main"><div class="node-title">' + escapeHtml(node.label) + '</div></div><div class="node-header-tools"><span class="meta">' + escapeHtml(renderShapeLabel(node.shape)) + '</span><button type="button" class="node-port' + (connectFromNodeId === node.id ? ' active' : '') + '" data-action="quick-connect"></button></div></div>'
             + '<div class="node-body">' + runtimeFamily.getNodeBodyHtml(node) + '</div>'
-            + '<div class="node-hint">' + escapeHtml(runtimeFamily.getNodeHintText(node)) + '<div class="node-actions"><button type="button" class="ghost" data-action="connect">Connect</button><button type="button" class="ghost" data-action="duplicate">Duplicate</button><button type="button" class="ghost danger" data-action="delete">Delete</button></div></div>';
+            + '<div class="node-hint">' + escapeHtml(runtimeFamily.getNodeHintText(node)) + nodeActions + '</div>';
 
           const header = card.querySelector('.node-header');
           const actions = card.querySelector('.node-actions');

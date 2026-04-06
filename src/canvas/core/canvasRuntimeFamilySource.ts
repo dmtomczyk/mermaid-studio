@@ -1,5 +1,12 @@
 export function createCanvasRuntimeFamilySource(): string {
   return `
+      function renderCanvasNodeActions(items) {
+        if (!Array.isArray(items) || !items.length) {
+          return '';
+        }
+        return '<div class="node-actions">' + items.map((item) => '<button type="button" class="' + escapeHtml(item.tone || 'ghost') + '" data-action="' + escapeHtml(item.action) + '">' + escapeHtml(item.label) + '</button>').join('') + '</div>';
+      }
+
       function createClassDiagramRuntimeFamilyConfig() {
         return {
           family: 'classDiagram',
@@ -131,6 +138,19 @@ export function createCanvasRuntimeFamilySource(): string {
           },
           getNodeHintText() {
             return 'Drag to move · edit inline or in the inspector';
+          },
+          getNodeActionItems(isSelected) {
+            if (!isSelected) {
+              return [];
+            }
+            return [
+              { action: 'rename', label: 'Rename', tone: 'ghost' },
+              { action: 'member', label: 'Edit members', tone: 'ghost' },
+              { action: 'add-nearby', label: 'Add nearby', tone: 'ghost' },
+              { action: 'duplicate', label: 'Duplicate', tone: 'ghost' },
+              { action: 'connect', label: 'Connect', tone: 'ghost' },
+              { action: 'delete', label: 'Delete', tone: 'ghost danger' }
+            ];
           },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
@@ -268,6 +288,16 @@ export function createCanvasRuntimeFamilySource(): string {
           },
           getNodeHintText() {
             return 'Drag to move · edit in inspector';
+          },
+          getNodeActionItems(isSelected) {
+            if (!isSelected) {
+              return [];
+            }
+            return [
+              { action: 'connect', label: 'Connect', tone: 'ghost' },
+              { action: 'duplicate', label: 'Duplicate', tone: 'ghost' },
+              { action: 'delete', label: 'Delete', tone: 'ghost danger' }
+            ];
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;

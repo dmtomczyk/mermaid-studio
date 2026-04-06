@@ -20,10 +20,12 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes('getEdgeStrokeClass('));
     assert.ok(source.includes('getPreviewStrokeClass() {'));
     assert.ok(source.includes('getEdgeLabelText('));
+    assert.ok(source.includes('renderCanvasNodeActions(items)'));
     assert.ok(source.includes('getNodeRenderClass('));
     assert.ok(source.includes('getNodeShapeClass('));
     assert.ok(source.includes('getNodeBodyHtml('));
     assert.ok(source.includes('getNodeHintText('));
+    assert.ok(source.includes('getNodeActionItems('));
     assert.ok(source.includes('hasContent(model) {'));
     assert.ok(source.includes('restoreSelection(persisted) {'));
   });
