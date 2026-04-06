@@ -269,6 +269,62 @@ export function createCanvasRuntimeFamilySource(): string {
                     ]
             };
           },
+          handleContextMenuAction(action, ctx) {
+            if (action === 'add-class' || action === 'add-empty') {
+              ctx.resetDeleteArmed();
+              addClassAt(ctx.menu.canvasX, ctx.menu.canvasY, 'empty');
+            } else if (action === 'add-template-class' || action === 'add-template') {
+              ctx.resetDeleteArmed();
+              addClassAt(ctx.menu.canvasX, ctx.menu.canvasY, selectedTemplateId);
+            } else if (action === 'duplicate-class' || action === 'duplicate') {
+              ctx.resetDeleteArmed();
+              duplicateSelectedClassAt(ctx.menu.canvasX, ctx.menu.canvasY);
+            } else if (action === 'connect-here' || action === 'connect-selected') {
+              ctx.resetDeleteArmed();
+              addConnectedClassAt(ctx.menu.canvasX, ctx.menu.canvasY);
+            } else if (action === 'rename') {
+              ctx.resetDeleteArmed();
+              if (selectedClassId) {
+                renameClass(selectedClassId);
+              }
+              closeCanvasContextMenu();
+            } else if (action === 'member') {
+              ctx.resetDeleteArmed();
+              if (selectedClassId) {
+                addMemberToClass(selectedClassId);
+              }
+              closeCanvasContextMenu();
+            } else if (action === 'connect') {
+              ctx.resetDeleteArmed();
+              if (selectedClassId) {
+                startConnectFrom(selectedClassId);
+              }
+              closeCanvasContextMenu();
+            } else if (action === 'label') {
+              ctx.resetDeleteArmed();
+              if (selectedRelationId) {
+                selectRelation(selectedRelationId);
+                shouldFocusEdgeEditorLabel = true;
+                render();
+              }
+              closeCanvasContextMenu();
+            } else if (action === 'delete-selected' || action === 'delete') {
+              if (!ctx.deleteArmed) {
+                ctx.armDelete();
+                renderContextMenu();
+                return;
+              }
+              if (selectedRelationId) {
+                deleteRelation(selectedRelationId);
+              } else if (selectedClassId) {
+                deleteClass(selectedClassId);
+              }
+            } else if (action === 'cancel-connect') {
+              ctx.resetDeleteArmed();
+              cancelConnectMode();
+              closeCanvasContextMenu();
+            }
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -485,6 +541,32 @@ export function createCanvasRuntimeFamilySource(): string {
                       { action: 'add-empty', label: 'Add process node' }
                     ]
             };
+          },
+          handleContextMenuAction(action, ctx) {
+            if (action === 'add-template') {
+              ctx.resetDeleteArmed();
+              addNodeAt(ctx.menu.canvasX, ctx.menu.canvasY, selectedTemplateId);
+            } else if (action === 'add-empty') {
+              ctx.resetDeleteArmed();
+              addNodeAt(ctx.menu.canvasX, ctx.menu.canvasY, 'process');
+            } else if (action === 'duplicate' && ctx.selectedNode) {
+              ctx.resetDeleteArmed();
+              duplicateNodeAt(ctx.selectedNode.id, ctx.menu.canvasX, ctx.menu.canvasY);
+            } else if (action === 'connect' && ctx.selectedNode) {
+              ctx.resetDeleteArmed();
+              startConnectFrom(ctx.selectedNode.id);
+              closeCanvasContextMenu();
+            } else if (action === 'delete') {
+              if (!ctx.deleteArmed) {
+                ctx.armDelete();
+                return;
+              }
+              if (ctx.selectedEdge) {
+                deleteEdge(ctx.selectedEdge.id);
+              } else if (ctx.selectedNode) {
+                deleteNode(ctx.selectedNode.id);
+              }
+            }
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;

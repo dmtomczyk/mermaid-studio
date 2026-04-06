@@ -81,11 +81,11 @@ suite('canvas webview helper regressions', () => {
     assert.ok(renderGroups.includes('runtimeFamily.getContextMenuDescriptor({'));
     assert.ok(renderGroups.includes('selectedNode: getSelectedClass()'));
     assert.ok(renderGroups.includes('selectedEdge: getSelectedRelation()'));
-    assert.ok(eventBindings.includes("action === 'rename'"));
-    assert.ok(eventBindings.includes("action === 'member'"));
-    assert.ok(eventBindings.includes("action === 'add-empty'"));
-    assert.ok(eventBindings.includes("action === 'add-template'"));
-    assert.ok(eventBindings.includes("action === 'delete'"));
+    assert.ok(eventBindings.includes('runtimeFamily.handleContextMenuAction(action, {'));
+    assert.ok(eventBindings.includes('selectedNode: getSelectedClass()'));
+    assert.ok(eventBindings.includes('selectedEdge: getSelectedRelation()'));
+    assert.ok(eventBindings.includes('resetDeleteArmed() {'));
+    assert.ok(eventBindings.includes('armDelete() {'));
   });
 
   test('selection core exposes generic focus and bare-canvas defocus helpers', () => {

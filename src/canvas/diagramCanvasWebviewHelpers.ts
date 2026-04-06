@@ -1565,60 +1565,18 @@ export function createCanvasEventBindingsSource(): string {
         if (!action || !canvasContextMenu) {
           return;
         }
-        if (action === 'add-class' || action === 'add-empty') {
-          contextDeleteArmed = false;
-          addClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY, 'empty');
-        } else if (action === 'add-template-class' || action === 'add-template') {
-          contextDeleteArmed = false;
-          addClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY, selectedTemplateId);
-        } else if (action === 'duplicate-class' || action === 'duplicate') {
-          contextDeleteArmed = false;
-          duplicateSelectedClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY);
-        } else if (action === 'connect-here' || action === 'connect-selected') {
-          contextDeleteArmed = false;
-          addConnectedClassAt(canvasContextMenu.canvasX, canvasContextMenu.canvasY);
-        } else if (action === 'rename') {
-          contextDeleteArmed = false;
-          if (selectedClassId) {
-            renameClass(selectedClassId);
-          }
-          closeCanvasContextMenu();
-        } else if (action === 'member') {
-          contextDeleteArmed = false;
-          if (selectedClassId) {
-            addMemberToClass(selectedClassId);
-          }
-          closeCanvasContextMenu();
-        } else if (action === 'connect') {
-          contextDeleteArmed = false;
-          if (selectedClassId) {
-            startConnectFrom(selectedClassId);
-          }
-          closeCanvasContextMenu();
-        } else if (action === 'label') {
-          contextDeleteArmed = false;
-          if (selectedRelationId) {
-            selectRelation(selectedRelationId);
-            shouldFocusEdgeEditorLabel = true;
-            render();
-          }
-          closeCanvasContextMenu();
-        } else if (action === 'delete-selected' || action === 'delete') {
-          if (!contextDeleteArmed) {
+        runtimeFamily.handleContextMenuAction(action, {
+          menu: canvasContextMenu,
+          deleteArmed: contextDeleteArmed,
+          selectedNode: getSelectedClass(),
+          selectedEdge: getSelectedRelation(),
+          resetDeleteArmed() {
+            contextDeleteArmed = false;
+          },
+          armDelete() {
             contextDeleteArmed = true;
-            renderContextMenu();
-            return;
           }
-          if (selectedRelationId) {
-            deleteRelation(selectedRelationId);
-          } else if (selectedClassId) {
-            deleteClass(selectedClassId);
-          }
-        } else if (action === 'cancel-connect') {
-          contextDeleteArmed = false;
-          cancelConnectMode();
-          closeCanvasContextMenu();
-        }
+        });
       });
 
       window.addEventListener('resize', () => {
