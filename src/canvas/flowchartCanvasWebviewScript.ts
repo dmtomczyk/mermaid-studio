@@ -671,21 +671,12 @@ ${createCanvasViewportCoreSource()}
       }
 
       function renderToolbarStatus() {
-        if (connectFromNodeId) {
-          const source = getNodeById(connectFromNodeId);
-          toolbarStatus.textContent = source ? 'Connecting from ' + source.label + '. Release on another node to create an edge.' : 'Connecting nodes.';
-          return;
-        }
-        if (selectedEdgeId) {
-          toolbarStatus.textContent = 'Edge selected. Edit it in the inspector.';
-          return;
-        }
-        if (selectedNodeId) {
-          const node = getNodeById(selectedNodeId);
-          toolbarStatus.textContent = node ? 'Selected ' + node.label + '. Drag to move, or edit in the inspector.' : 'Node selected.';
-          return;
-        }
-        toolbarStatus.textContent = 'Drag nodes. Double-click bare canvas to add the selected node template. Drag from ports to connect.';
+        toolbarStatus.textContent = runtimeFamily.getToolbarStatus(state, {
+          connectFromId: connectFromNodeId,
+          selectedEdgeId,
+          selectedNodeId,
+          getNodeById
+        });
       }
 
       function renderMinimap() {

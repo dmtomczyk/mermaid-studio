@@ -29,6 +29,9 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes('getNodeActionItems('));
     assert.ok(source.includes('getInspectorNodeActions('));
     assert.ok(source.includes('getInspectorEdgeActions('));
+    assert.ok(source.includes('getToolbarStatus(state, ctx) {'));
+    assert.ok(source.includes('getContextMenuDescriptor(ctx) {'));
+    assert.ok(source.includes('renderCanvasContextMenuButtons(items)'));
     assert.ok(source.includes('inspectorNodeTitle:'));
     assert.ok(source.includes('inspectorEdgeTitle:'));
     assert.ok(source.includes('inspectorEmptyTitle:'));

@@ -72,16 +72,15 @@ suite('canvas webview helper regressions', () => {
     const renderHelpers = createCanvasRenderHelpersSource();
     assert.ok(renderHelpers.includes('function renderToolbarStatus() {'));
     assert.ok(renderGroups.includes('function renderContextMenu() {'));
-    assert.ok(renderGroups.includes('data-context-action="'));
+    assert.ok(renderGroups.includes('renderCanvasContextMenuButtons(descriptor.items)'));
   });
 
   test('context menu render and click bindings stay aligned on action names', () => {
     const renderGroups = createCanvasRenderGroupsSource();
     const eventBindings = createCanvasEventBindingsSource();
-    assert.ok(renderGroups.includes("['rename', 'Rename']"));
-    assert.ok(renderGroups.includes("['member', 'Edit members']"));
-    assert.ok(renderGroups.includes("['add-empty', 'Add blank class']"));
-    assert.ok(renderGroups.includes("['add-template', 'Add selected template']"));
+    assert.ok(renderGroups.includes('runtimeFamily.getContextMenuDescriptor({'));
+    assert.ok(renderGroups.includes('selectedNode: getSelectedClass()'));
+    assert.ok(renderGroups.includes('selectedEdge: getSelectedRelation()'));
     assert.ok(eventBindings.includes("action === 'rename'"));
     assert.ok(eventBindings.includes("action === 'member'"));
     assert.ok(eventBindings.includes("action === 'add-empty'"));

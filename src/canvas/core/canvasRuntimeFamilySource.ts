@@ -14,6 +14,16 @@ export function createCanvasRuntimeFamilySource(): string {
         return '<div class="small-actions">' + items.map((item) => '<button id="' + escapeHtml(idPrefix + item.action) + '" class="' + escapeHtml(item.tone || 'ghost') + '">' + escapeHtml(item.label) + '</button>').join('') + '</div>';
       }
 
+      function renderCanvasContextMenuButtons(items) {
+        if (!Array.isArray(items) || !items.length) {
+          return '';
+        }
+        return items.map((item) => item.kind === 'divider'
+          ? '<div class="context-menu-divider"></div>'
+          : '<button type="button" data-context-action="' + escapeHtml(item.action) + '" class="' + escapeHtml(item.tone || '') + '">' + escapeHtml(item.label) + '</button>'
+        ).join('');
+      }
+
       function createClassDiagramRuntimeFamilyConfig() {
         return {
           family: 'classDiagram',
@@ -178,6 +188,46 @@ export function createCanvasRuntimeFamilySource(): string {
               { action: 'focusTo', label: 'Focus target class', tone: 'ghost' }
             ];
           },
+          getToolbarStatus(state, ctx) {
+            if (ctx.connectFromId) {
+              const source = ctx.getNodeById(ctx.connectFromId);
+              return source ? 'Connecting from ' + source.name + '. Release on another class to create a relationship.' : 'Connecting classes.';
+            }
+            if (ctx.selectedEdgeId) {
+              return 'Relationship selected. Edit it in the inspector.';
+            }
+            if (ctx.selectedNodeId) {
+              const node = ctx.getNodeById(ctx.selectedNodeId);
+              return node ? 'Selected ' + node.name + '. Drag to move, or edit inline / in the inspector.' : 'Class selected.';
+            }
+            return 'Drag classes. Double-click bare canvas to add the selected template. Drag from ports to connect.';
+          },
+          getContextMenuDescriptor(ctx) {
+            const hasSelectedNode = Boolean(ctx.selectedNode);
+            const hasSelectedEdge = Boolean(ctx.selectedEdge);
+            return {
+              title: hasSelectedNode ? 'Class actions' : hasSelectedEdge ? 'Relationship actions' : 'Canvas actions',
+              items: hasSelectedNode
+                ? [
+                    { action: 'rename', label: 'Rename' },
+                    { action: 'member', label: 'Edit members' },
+                    { action: 'duplicate', label: 'Duplicate' },
+                    { action: 'connect', label: 'Connect' },
+                    { action: 'delete', label: ctx.deleteArmed ? 'Confirm delete' : 'Delete', tone: 'danger' }
+                  ]
+                : hasSelectedEdge
+                  ? [
+                      { action: 'label', label: 'Rename label' },
+                      { action: 'delete', label: ctx.deleteArmed ? 'Confirm delete' : 'Delete', tone: 'danger' }
+                    ]
+                  : [
+                      { action: 'add-empty', label: 'Add blank class' },
+                      { action: 'add-template', label: 'Add selected template' },
+                      { action: 'duplicate', label: 'Duplicate selected' },
+                      { action: 'connect-selected', label: 'Add connected class' }
+                    ]
+            };
+          },
           hasContent(model) {
             return Array.isArray(model?.classes) ? model.classes.length || model.relations.length : false;
           },
@@ -338,6 +388,39 @@ export function createCanvasRuntimeFamilySource(): string {
             return [
               { action: 'delete', label: 'Delete edge', tone: 'secondary danger' }
             ];
+          },
+          getToolbarStatus(state, ctx) {
+            if (ctx.connectFromId) {
+              const source = ctx.getNodeById(ctx.connectFromId);
+              return source ? 'Connecting from ' + source.label + '. Release on another node to create an edge.' : 'Connecting nodes.';
+            }
+            if (ctx.selectedEdgeId) {
+              return 'Edge selected. Edit it in the inspector.';
+            }
+            if (ctx.selectedNodeId) {
+              const node = ctx.getNodeById(ctx.selectedNodeId);
+              return node ? 'Selected ' + node.label + '. Drag to move, or edit in the inspector.' : 'Node selected.';
+            }
+            return 'Drag nodes. Double-click bare canvas to add the selected node template. Drag from ports to connect.';
+          },
+          getContextMenuDescriptor(ctx) {
+            return {
+              title: ctx.selectedNode ? 'Node actions' : ctx.selectedEdge ? 'Edge actions' : 'Canvas actions',
+              items: ctx.selectedNode
+                ? [
+                    { action: 'duplicate', label: 'Duplicate' },
+                    { action: 'connect', label: 'Connect' },
+                    { action: 'delete', label: ctx.deleteArmed ? 'Confirm delete' : 'Delete', tone: 'danger' }
+                  ]
+                : ctx.selectedEdge
+                  ? [
+                      { action: 'delete', label: ctx.deleteArmed ? 'Confirm delete' : 'Delete', tone: 'danger' }
+                    ]
+                  : [
+                      { action: 'add-template', label: 'Add selected node' },
+                      { action: 'add-empty', label: 'Add process node' }
+                    ]
+            };
           },
           hasContent(model) {
             return Array.isArray(model?.nodes) ? model.nodes.length || model.edges.length : false;

@@ -392,25 +392,14 @@ export function createCanvasRenderHelpersSource(): string {
         if (!toolbarStatus) {
           return;
         }
-        if (connectFromClassId) {
-          const source = state.model.classes.find((entry) => entry.id === connectFromClassId);
-          toolbarStatus.textContent = source
-            ? 'Connecting from ' + source.name + '. Release on another class to create a relationship.'
-            : 'Connecting classes. Release on another class to create a relationship.';
-          return;
-        }
-        if (selectedRelationId) {
-          toolbarStatus.textContent = 'Relationship selected. Edit it from the edge editor or delete it from the canvas.';
-          return;
-        }
-        if (selectedClassId) {
-          const selected = state.model.classes.find((entry) => entry.id === selectedClassId);
-          toolbarStatus.textContent = selected
-            ? 'Selected ' + selected.name + '. Drag to move, edit members in the inspector, or start a connection.'
-            : 'Class selected. Drag to move or start a connection.';
-          return;
-        }
-        toolbarStatus.textContent = 'Drag classes. Double-click bare canvas to place the selected template. Drag from ports to connect.';
+        toolbarStatus.textContent = runtimeFamily.getToolbarStatus(state, {
+          connectFromId: connectFromClassId,
+          selectedEdgeId: selectedRelationId,
+          selectedNodeId: selectedClassId,
+          getNodeById(id) {
+            return state.model.classes.find((entry) => entry.id === id);
+          }
+        });
       }
 
       function render() {
@@ -1337,37 +1326,15 @@ export function createCanvasRenderGroupsSource(): string {
           return;
         }
 
-        const hasSelectedClass = Boolean(getSelectedClass());
-        const hasSelectedRelation = Boolean(getSelectedRelation());
-        const title = hasSelectedClass
-          ? 'Class actions'
-          : hasSelectedRelation
-            ? 'Relationship actions'
-            : 'Canvas actions';
-
-        const items = hasSelectedClass
-          ? [
-              ['rename', 'Rename'],
-              ['member', 'Edit members'],
-              ['duplicate', 'Duplicate'],
-              ['connect', 'Connect'],
-              ['delete', contextDeleteArmed ? 'Confirm delete' : 'Delete']
-            ]
-          : hasSelectedRelation
-            ? [
-                ['label', 'Rename label'],
-                ['delete', contextDeleteArmed ? 'Confirm delete' : 'Delete']
-              ]
-            : [
-                ['add-empty', 'Add blank class'],
-                ['add-template', 'Add selected template'],
-                ['duplicate', 'Duplicate selected'],
-                ['connect-selected', 'Add connected class']
-              ];
+        const descriptor = runtimeFamily.getContextMenuDescriptor({
+          selectedNode: getSelectedClass(),
+          selectedEdge: getSelectedRelation(),
+          deleteArmed: contextDeleteArmed
+        });
 
         contextMenu.hidden = false;
-        contextMenu.innerHTML = '<div class="context-menu-title muted">' + escapeHtml(title) + '</div>'
-          + items.map(([action, label]) => '<button type="button" data-context-action="' + escapeHtml(action) + '" class="' + (action === 'delete' ? 'danger' : '') + '">' + escapeHtml(label) + '</button>').join('');
+        contextMenu.innerHTML = '<div class="context-menu-title muted">' + escapeHtml(descriptor.title) + '</div>'
+          + renderCanvasContextMenuButtons(descriptor.items);
         contextMenu.style.left = canvasContextMenu.x + 'px';
         contextMenu.style.top = canvasContextMenu.y + 'px';
       }
