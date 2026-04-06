@@ -27,6 +27,7 @@ suite('canvas runtime family source', () => {
     assert.ok(source.includes('getNodeBodyHtml('));
     assert.ok(source.includes('getNodeHintText('));
     assert.ok(source.includes('getNodeActionItems('));
+    assert.ok(source.includes('handleNodeAction(action, '));
     assert.ok(source.includes('getInspectorNodeActions('));
     assert.ok(source.includes('getInspectorEdgeActions('));
     assert.ok(source.includes('getToolbarStatus(state, ctx) {'));

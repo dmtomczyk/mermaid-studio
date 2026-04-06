@@ -459,12 +459,8 @@ ${createCanvasViewportCoreSource()}
           actions?.addEventListener('click', (event) => {
             event.stopPropagation();
             const action = event.target instanceof HTMLElement ? event.target.getAttribute('data-action') : undefined;
-            if (action === 'connect') {
-              startConnectFrom(node.id);
-            } else if (action === 'duplicate') {
-              duplicateNodeAt(node.id, node.x + 40, node.y + 120);
-            } else if (action === 'delete') {
-              deleteNode(node.id);
+            if (action) {
+              runtimeFamily.handleNodeAction(action, node);
             }
           });
 

@@ -566,18 +566,8 @@ export function createCanvasRenderGroupsSource(): string {
           actions?.addEventListener('click', (event) => {
             event.stopPropagation();
             const action = event.target instanceof HTMLElement ? event.target.getAttribute('data-action') : undefined;
-            if (action === 'rename') {
-              renameClass(entry.id);
-            } else if (action === 'member') {
-              addMemberToClass(entry.id);
-            } else if (action === 'add-nearby') {
-              addConnectedClassAt(entry.x + 280, entry.y + 40);
-            } else if (action === 'duplicate') {
-              duplicateClassFrom(entry.id, entry.x + 40, entry.y + 180);
-            } else if (action === 'connect') {
-              startConnectFrom(entry.id);
-            } else if (action === 'delete') {
-              deleteClass(entry.id);
+            if (action) {
+              runtimeFamily.handleNodeAction(action, entry);
             }
           });
 

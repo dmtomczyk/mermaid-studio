@@ -173,6 +173,21 @@ export function createCanvasRuntimeFamilySource(): string {
               { action: 'delete', label: 'Delete', tone: 'ghost danger' }
             ];
           },
+          handleNodeAction(action, entry) {
+            if (action === 'rename') {
+              renameClass(entry.id);
+            } else if (action === 'member') {
+              addMemberToClass(entry.id);
+            } else if (action === 'add-nearby') {
+              addConnectedClassAt(entry.x + 280, entry.y + 40);
+            } else if (action === 'duplicate') {
+              duplicateClassFrom(entry.id, entry.x + 40, entry.y + 180);
+            } else if (action === 'connect') {
+              startConnectFrom(entry.id);
+            } else if (action === 'delete') {
+              deleteClass(entry.id);
+            }
+          },
           getInspectorNodeActions() {
             return [
               { action: 'rename', label: 'Rename', tone: 'ghost' },
@@ -376,6 +391,15 @@ export function createCanvasRuntimeFamilySource(): string {
               { action: 'duplicate', label: 'Duplicate', tone: 'ghost' },
               { action: 'delete', label: 'Delete', tone: 'ghost danger' }
             ];
+          },
+          handleNodeAction(action, node) {
+            if (action === 'connect') {
+              startConnectFrom(node.id);
+            } else if (action === 'duplicate') {
+              duplicateNodeAt(node.id, node.x + 40, node.y + 120);
+            } else if (action === 'delete') {
+              deleteNode(node.id);
+            }
           },
           getInspectorNodeActions() {
             return [
